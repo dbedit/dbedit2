@@ -36,10 +36,13 @@ public class LobExportAction extends LobAbstractAction {
                 list.addMouseListener(this);
                 list.addListSelectionListener(this);
                 list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                if (Dialog.OK_OPTION == Dialog.show("Column for file name", new JScrollPane(list), Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
+                if (Dialog.OK_OPTION == Dialog.show("Column for file name", new JScrollPane(list),
+                        Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
                     int selectedIndex = list.getSelectedIndex();
                     if (selectedIndex != -1) {
-                        if (selectedIndex >= table.getSelectedColumn()) selectedIndex++;
+                        if (selectedIndex >= table.getSelectedColumn()) {
+                            selectedIndex++;
+                        }
                         for (int selectedRow : selectedRows) {
                             table.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
                             exportLob(new File(dir, "" + table.getValueAt(selectedRow, selectedIndex)));
@@ -49,7 +52,8 @@ public class LobExportAction extends LobAbstractAction {
             }
         } else if (JFileChooser.APPROVE_OPTION == FILE_CHOOSER.showSaveDialog(ApplicationPanel.getInstance())) {
             File selectedFile = FILE_CHOOSER.getSelectedFile();
-            if (!selectedFile.exists() || Dialog.YES_OPTION == Dialog.show("File exists", "Overwrite existing file?", Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
+            if (!selectedFile.exists() || Dialog.YES_OPTION == Dialog.show("File exists", "Overwrite existing file?",
+                    Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
                 exportLob(selectedFile);
             }
         }

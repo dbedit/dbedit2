@@ -18,7 +18,8 @@ public class ExportInsertsAction extends CustomAction {
         JTable table = ApplicationPanel.getInstance().getTable();
         boolean selection = false;
         if (table.getSelectedRowCount() > 0 && table.getSelectedRowCount() != table.getRowCount()) {
-            Object option = Dialog.show("Insert statements", "Export", Dialog.QUESTION_MESSAGE, new Object[] {"Everything", "Selection"}, "Everything");
+            Object option = Dialog.show("Insert statements", "Export", Dialog.QUESTION_MESSAGE,
+                    new Object[] {"Everything", "Selection"}, "Everything");
             if (option == null) {
                 return;
             }
@@ -47,7 +48,7 @@ public class ExportInsertsAction extends CustomAction {
             if (column + 1 < columnCount) {
                 prefix.append(",");
             }
-            parseDate[column] = connectionData.isOracle() && columnTypes[column] == Types.DATE;
+            parseDate[column] = getConnectionData().isOracle() && getColumnTypes()[column] == Types.DATE;
             isLob[column] = isLob(column);
         }
         prefix.append(") values (");
@@ -68,7 +69,7 @@ public class ExportInsertsAction extends CustomAction {
                         inserts.append("null");
                     } else {
                         inserts.append("'");
-                        inserts.append(value);
+                        inserts.append(value.toString().replaceAll("'", "''"));
                         inserts.append("'");
                     }
                     if (column + 1 < columnCount) {

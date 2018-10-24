@@ -9,6 +9,6 @@ public class RollbackAction extends CustomAction {
     }
 
     protected void performThreaded(ActionEvent e) throws Exception {
-        connectionData.getConnection().rollback();
+        getConnectionData().getConnection().rollback();
     }
 }

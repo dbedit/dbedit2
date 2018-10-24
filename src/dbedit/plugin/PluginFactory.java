@@ -1,6 +1,8 @@
 package dbedit.plugin;
 
-public class PluginFactory {
+import dbedit.ExceptionDialog;
+
+public final class PluginFactory {
 
     private static Plugin plugin;
 
@@ -15,9 +17,9 @@ public class PluginFactory {
             } catch (ClassNotFoundException e) {
                 plugin = new DefaultPlugin();
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                ExceptionDialog.hideException(e);
             } catch (InstantiationException e) {
-                e.printStackTrace();
+                ExceptionDialog.hideException(e);
             }
         }
         return plugin;

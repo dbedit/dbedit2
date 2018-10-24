@@ -13,8 +13,8 @@ public class HistoryNextAction extends ActionChangeAbstractAction {
     }
 
     public void actionPerformed(final ActionEvent e) {
-        if (history.hasNext()) {
-            ApplicationPanel.getInstance().getTextArea().setText(history.next());
+        if (getHistory().hasNext()) {
+            ApplicationPanel.getInstance().getTextArea().setText(getHistory().next());
         }
         handleTextActions();
     }

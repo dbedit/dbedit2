@@ -30,7 +30,8 @@ public class LobOpenAction extends LobAbstractAction {
     }
 
     public void mouseClicked(MouseEvent e) {
-        if (MouseEvent.BUTTON1 == e.getButton() && e.getClickCount() == 2 && isLob(ApplicationPanel.getInstance().getTable().getSelectedColumn())) {
+        if (MouseEvent.BUTTON1 == e.getButton() && e.getClickCount() == 2
+                && isLob(ApplicationPanel.getInstance().getTable().getSelectedColumn())) {
             actionPerformed(null);
         }
     }

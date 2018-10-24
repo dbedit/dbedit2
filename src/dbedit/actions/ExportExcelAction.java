@@ -23,7 +23,8 @@ public class ExportExcelAction extends CustomAction {
         boolean selection = false;
         JTable table = ApplicationPanel.getInstance().getTable();
         if (table.getSelectedRowCount() > 0 && table.getSelectedRowCount() != table.getRowCount()) {
-            Object option = Dialog.show("Excel", "Export", Dialog.QUESTION_MESSAGE, new Object[] {"Everything", "Selection"}, "Everything");
+            Object option = Dialog.show("Excel", "Export", Dialog.QUESTION_MESSAGE,
+                    new Object[] {"Everything", "Selection"}, "Everything");
             if (option == null) {
                 return;
             }
@@ -36,13 +37,14 @@ public class ExportExcelAction extends CustomAction {
         progressBar.setStringPainted(true);
         JPanel panel = new JPanel();
         panel.setBorder(new BevelBorder(BevelBorder.RAISED) {
-            Insets insets = new Insets(5, 5, 5, 5);
+            private Insets insets = new Insets(5, 5, 5, 5);
             public Insets getBorderInsets(Component c) {
                 return insets;
             }
         });
         panel.add(progressBar);
-        final JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(ApplicationPanel.getInstance()), true);
+        final JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(ApplicationPanel.getInstance()),
+                true);
         dialog.setUndecorated(true);
         dialog.addMouseListener(this);
         dialog.getContentPane().add(panel);
@@ -53,7 +55,11 @@ public class ExportExcelAction extends CustomAction {
                 dialog.setVisible(true);
             }
         }).start();
-        while (!dialog.isVisible()) {/* wait until dialog becoms visible */}
+        // Wait for dialog to become visible
+        boolean visible = true;
+        while (!visible) {
+            visible = dialog.isVisible();
+        }
         try {
             HSSFWorkbook workbook = new HSSFWorkbook();
             HSSFSheet sheet = workbook.createSheet();
@@ -83,7 +89,7 @@ public class ExportExcelAction extends CustomAction {
                             cell.setCellValue(((Number) o).doubleValue());
                         } else if (o != null) {
                             if (CustomAction.isLob(j)) {
-                                cell.setCellValue(CustomAction.columnTypeNames[j]);
+                                cell.setCellValue(getColumnTypeNames()[j]);
                             } else {
                                 cell.setCellValue(o.toString());
                             }

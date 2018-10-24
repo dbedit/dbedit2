@@ -3,6 +3,7 @@ package dbedit.actions;
 import dbedit.ApplicationPanel;
 import dbedit.Config;
 import dbedit.DBEdit;
+import dbedit.ExceptionDialog;
 
 import javax.swing.event.AncestorEvent;
 import java.awt.event.ActionEvent;
@@ -14,25 +15,25 @@ public class DisconnectAction extends ActionChangeAbstractAction {
     }
 
     protected void performThreaded(ActionEvent e) throws Exception {
-        if (connectionData != null) {
+        if (getConnectionData() != null) {
             String selectedOwner = ApplicationPanel.getInstance().destroyObjectChooser();
-            if (selectedOwner != null && !selectedOwner.equals(connectionData.getDefaultOwner())) {
-                connectionData.setDefaultOwner(selectedOwner);
-                Config.saveDatabases(connectionDatas);
+            if (selectedOwner != null && !selectedOwner.equals(getConnectionData().getDefaultOwner())) {
+                getConnectionData().setDefaultOwner(selectedOwner);
+                Config.saveDatabases(getConnectionDatas());
             }
         }
         try {
-            if (connectionData != null && !connectionData.getConnection().isClosed()) {
-                connectionData.getConnection().rollback();
-                if (connectionData.isHSQLDB()) {
-                    connectionData.getConnection().createStatement().execute("shutdown");
+            if (getConnectionData() != null && !getConnectionData().getConnection().isClosed()) {
+                getConnectionData().getConnection().rollback();
+                if (getConnectionData().isHSQLDB()) {
+                    getConnectionData().getConnection().createStatement().execute("shutdown");
                 }
-                connectionData.getConnection().close();
+                getConnectionData().getConnection().close();
             }
         } catch (Throwable t) {
-            // ignore
+            ExceptionDialog.hideException(t);
         }
-        connectionData = null;
+        setConnectionData(null);
         ApplicationPanel.getInstance().getFrame().setTitle(DBEdit.APPLICATION_NAME);
         handleActions();
     }
@@ -41,7 +42,7 @@ public class DisconnectAction extends ActionChangeAbstractAction {
         try {
             performThreaded(null);
         } catch (Throwable t) {
-            // ignore
+            ExceptionDialog.hideException(t);
         }
         System.exit(0);
     }

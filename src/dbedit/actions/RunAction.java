@@ -1,6 +1,7 @@
 package dbedit.actions;
 
 import dbedit.ApplicationPanel;
+import dbedit.ExceptionDialog;
 import dbedit.WaitingDialog;
 
 import javax.swing.*;
@@ -21,35 +22,38 @@ public class RunAction extends ActionChangeAbstractAction {
     protected void performThreaded(ActionEvent e) throws Exception {
         String text = ApplicationPanel.getInstance().getText();
         String originalText = text;
-        history.add(text);
+        getHistory().add(text);
         handleTextActions();
         Vector<String> columnIdentifiers = new Vector<String>();
         Vector<Vector> dataVector = new Vector<Vector>();
         int[] columnTypes;
         String[] columnTypeNames;
-        if (text.trim().toLowerCase().startsWith("select") || text.trim().toLowerCase().startsWith("show")) {
+        if (text.trim().toLowerCase().startsWith("select")
+                || text.trim().toLowerCase().startsWith("with")
+                || text.trim().toLowerCase().startsWith("show")) {
             int resultSetType;
             String originalQuery = text;
-            if (connectionData.isOracle()) {
+            int fetchLimit = getFetchLimit();
+            if (getConnectionData().isOracle()) {
                 text = "select x.* from (" + text + ") x where 1 = 1";
                 resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
                 if (fetchLimit > -1) {
                     text += " and rownum <= " + fetchLimit;
                     originalText += " and rownum <= " + fetchLimit;
                 }
-            } else if (connectionData.isDb2()) {
+            } else if (getConnectionData().isDb2()) {
                 resultSetType = ResultSet.TYPE_SCROLL_SENSITIVE;
                 if (fetchLimit > -1) {
                     text += " fetch first " + fetchLimit + " rows only";
                     originalText += " fetch first " + fetchLimit + " rows only";
                 }
-            } else if (connectionData.isMySql()) {
+            } else if (getConnectionData().isMySql()) {
                 resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
                 if (fetchLimit > -1) {
                     text += " limit " + fetchLimit;
                     originalText += " limit " + fetchLimit;
                 }
-            } else if (connectionData.isHSQLDB()) {
+            } else if (getConnectionData().isHSQLDB()) {
                 resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
                 if (fetchLimit > -1) {
                     text = "select * from (" + text + ") x limit " + fetchLimit;
@@ -59,14 +63,15 @@ public class RunAction extends ActionChangeAbstractAction {
                 resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
             }
             int columnCount;
-            Statement statement = connectionData.getConnection().createStatement(resultSetType, ResultSet.CONCUR_UPDATABLE);
+            Statement statement = getConnectionData().getConnection()
+                    .createStatement(resultSetType, ResultSet.CONCUR_UPDATABLE);
             final Statement[] statements = new Statement[] {statement};
             Runnable onCancel = new Runnable() {
                 public void run() {
                     try {
                         statements[0].cancel();
                     } catch (Throwable t) {
-                        // ignore
+                        ExceptionDialog.hideException(t);
                     }
                 }
             };
@@ -78,11 +83,12 @@ public class RunAction extends ActionChangeAbstractAction {
                     resultSet = statement.executeQuery(text);
                 } catch (SQLException e1) {
                     // try read-only and without modifications
-                    statement = connectionData.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+                    statement = getConnectionData().getConnection()
+                            .createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
                     statements[0] = statement;
                     resultSet = statement.executeQuery(originalText);
                 }
-                connectionData.setResultSet(resultSet);
+                getConnectionData().setResultSet(resultSet);
                 PLUGIN.audit(originalQuery);
                 columnCount = resultSet.getMetaData().getColumnCount();
                 columnTypes = new int[columnCount];
@@ -96,7 +102,11 @@ public class RunAction extends ActionChangeAbstractAction {
                     Vector<Object> row = new Vector<Object>(columnCount + 1);
                     for (int i = 0; i < columnCount; i++) {
                         Object object = resultSet.getObject(i + 1);
-//                        System.out.println((i + 1) + " " + resultSet.getMetaData().getColumnName(i+1) + " - " + resultSet.getMetaData().getColumnType(i+1) + " - " + resultSet.getMetaData().getColumnTypeName(i+1) + " - " + resultSet.getMetaData().getColumnClassName(i+1) + " - \"" + object + "\"");
+//                        System.out.println((i + 1) + " "
+//                                + resultSet.getMetaData().getColumnName(i+1) + " - "
+//                                + resultSet.getMetaData().getColumnType(i+1) + " - "
+//                                + resultSet.getMetaData().getColumnTypeName(i+1) + " - "
+//                                + resultSet.getMetaData().getColumnClassName(i+1) + " - \"" + object + "\"");
                         row.add(object);
                     }
                     dataVector.add(row);
@@ -108,19 +118,20 @@ public class RunAction extends ActionChangeAbstractAction {
             }
         } else {
             Vector<Object> row = new Vector<Object>(1);
-            Statement statement = connectionData.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            Statement statement = getConnectionData().getConnection()
+                    .createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             PLUGIN.audit(text);
             int i = statement.executeUpdate(text);
             PLUGIN.audit("[" + i + " rows updated]");
             row.add(Integer.toString(i));
             dataVector.add(row);
             columnIdentifiers.add("Rows updated");
-            connectionData.setResultSet(null);
+            getConnectionData().setResultSet(null);
             columnTypes = new int[] {Types.INTEGER};
             columnTypeNames = new String[1];
         }
-        RunAction.columnTypes = columnTypes;
-        RunAction.columnTypeNames = columnTypeNames;
+        setColumnTypes(columnTypes);
+        setColumnTypeNames(columnTypeNames);
         ApplicationPanel.getInstance().setDataVector(dataVector, columnIdentifiers);
         handleActions();
     }

@@ -24,7 +24,8 @@ public class SchemaBrowser extends JTree {
             for (int j = 0; j < node.getChildCount(); j++) {
                 TreeNode child = node.getChildAt(j);
                 if (aPath.equals(child.toString())) {
-                    expandRow(row += j + 1);
+                    row += j + 1;
+                    expandRow(row);
                     node = child;
                     break;
                 }
@@ -67,13 +68,13 @@ public class SchemaBrowser extends JTree {
 
         private ConnectionData connectionData;
 
-        public ObjectNode(ConnectionData connectionData) {
-            this(connectionData.getName(), new Object[0], connectionData);
+        public ObjectNode(ConnectionData newConnectionData) {
+            this(newConnectionData.getName(), new Object[0], newConnectionData);
         }
 
-        public ObjectNode(Object value, Object children, ConnectionData connectionData) {
+        public ObjectNode(Object value, Object children, ConnectionData newConnectionData) {
             super(value, children);
-            this.connectionData = connectionData;
+            this.connectionData = newConnectionData;
         }
 
         protected void loadChildren() {
@@ -89,7 +90,7 @@ public class SchemaBrowser extends JTree {
 
         private void addChildren() throws SQLException {
             switch (getLevel()) {
-                case 0: {
+                case 0:
                     if (connectionData.isOracle()) {
                         addQuery("select username from all_users order by username", true);
                     } else if (connectionData.isDb2()) {
@@ -100,70 +101,81 @@ public class SchemaBrowser extends JTree {
                         addQuery(connectionData.getConnection().getMetaData().getSchemas(), true, 1);
                     }
                     break;
-                }
-                case 1: {
+                case 1:
                     add("TABLES", true);
                     add("VIEWS", true);
                     add("PROCEDURES", true);
                     break;
-                }
-                case 2: {
+                case 2:
                     String owner = getParent().toString();
                     String type = toString();
                     if ("TABLES".equals(type)) {
                         if (connectionData.isOracle()) {
-                            addQuery("select table_name from all_tables where owner = '" + owner + "' order by table_name", true);
+                            addQuery("select table_name from all_tables "
+                                    + "where owner = '" + owner + "' order by table_name", true);
                         } else if (connectionData.isDb2()) {
-                            addQuery("select rtrim(tabname) from syscat.tables where tabschema = '" + owner + "' order by tabname", true);
+                            addQuery("select rtrim(tabname) from syscat.tables "
+                                    + "where tabschema = '" + owner + "' order by tabname", true);
                         } else if (connectionData.isMySql()) {
                             addQuery("show tables from " + owner, true);
                         } else {
-                            addQuery(connectionData.getConnection().getMetaData().getTables(null, owner, null, new String[] {"TABLE", "SYSTEM TABLE"}), true, 3);
+                            addQuery(connectionData.getConnection().getMetaData()
+                                    .getTables(null, owner, null, new String[] {"TABLE", "SYSTEM TABLE"}), true, 3);
                         }
                     } else if ("VIEWS".equals(type)) {
                         if (connectionData.isOracle()) {
-                            addQuery("select view_name from all_views where owner = '" + owner + "' order by view_name", true);
+                            addQuery("select view_name from all_views "
+                                    + "where owner = '" + owner + "' order by view_name", true);
                         } else if (connectionData.isDb2()) {
-                            addQuery("select rtrim(viewname) from syscat.views where viewschema = '" + owner + "' order by viewname", true);
+                            addQuery("select rtrim(viewname) from syscat.views "
+                                    + "where viewschema = '" + owner + "' order by viewname", true);
                         } else if (connectionData.isMySql()) {
-                            addQuery("select rtrim(table_name) from information_schema.views where table_schema = '" + owner + "' order by table_name", true);
+                            addQuery("select rtrim(table_name) from information_schema.views "
+                                    + "where table_schema = '" + owner + "' order by table_name", true);
                         } else {
-                            addQuery(connectionData.getConnection().getMetaData().getTables(null, owner, null, new String[] {"VIEW"}), true, 3);
+                            addQuery(connectionData.getConnection().getMetaData()
+                                    .getTables(null, owner, null, new String[] {"VIEW"}), true, 3);
                         }
                     } else if ("PROCEDURES".equals(type)) {
                         if (connectionData.isOracle()) {
-                            addQuery("select distinct(object_name) from all_procedures where owner = '" + owner + "'", false);
+                            addQuery("select distinct(object_name) from all_procedures "
+                                    + "where owner = '" + owner + "'", false);
                         } else if (connectionData.isDb2()) {
-                            addQuery("select distinct(rtrim(procname)) as name from syscat.procedures where procschema = '" + owner + "' union select rtrim(funcname) as name from syscat.functions where funcschema = '" + owner + "'", false);
+                            addQuery("select distinct(rtrim(procname)) as name from syscat.procedures "
+                                    + "where procschema = '" + owner + "' union "
+                                    + "select rtrim(funcname) as name from syscat.functions "
+                                    + "where funcschema = '" + owner + "'", false);
                         } else if (connectionData.isMySql()) {
-                            addQuery("select distinct(rtrim(routine_name)) from information_schema.routines where routine_schema = '" + owner + "'", true);
+                            addQuery("select distinct(rtrim(routine_name)) from information_schema.routines "
+                                    + "where routine_schema = '" + owner + "'", true);
                         } else {
-                            addQuery(connectionData.getConnection().getMetaData().getProcedures(null, owner, null), true, 3);
+                            addQuery(connectionData.getConnection().getMetaData()
+                                    .getProcedures(null, owner, null), true, 3);
                         }
                     }
                     break;
-                }
-                case 3: {
+                case 3:
                     String table = toString();
                     if (connectionData.isOracle()) {
-                        addQuery("select column_name from all_tab_cols where table_name = '" + table + "' order by column_id", false);
+                        addQuery("select column_name from all_tab_cols "
+                                + "where table_name = '" + table + "' order by column_id", false);
                     } else if (connectionData.isDb2()) {
-                        addQuery("select rtrim(colname) from syscat.columns where tabname = '" + table + "' order by colno", false);
+                        addQuery("select rtrim(colname) from syscat.columns "
+                                + "where tabname = '" + table + "' order by colno", false);
                     } else if (connectionData.isMySql()) {
                         addQuery("show columns from " + getParent().getParent() + "." + table, false);
                     } else {
-                        addQuery(connectionData.getConnection().getMetaData().getColumns(null, getParent().getParent().toString(), table, null), false, 4);
-                    }
+                        addQuery(connectionData.getConnection().getMetaData()
+                                .getColumns(null, getParent().getParent().toString(), table, null), false, 4);
                     break;
-                }
+                    }
+                default:
             }
         }
 
         private void addQuery(String query, boolean children) throws SQLException {
-            if (!connectionData.getConnection().isClosed()) {
-                ResultSet resultSet = connectionData.getConnection().createStatement().executeQuery(query);
-                addQuery(resultSet, children, 1);
-            }
+            ResultSet resultSet = connectionData.getConnection().createStatement().executeQuery(query);
+            addQuery(resultSet, children, 1);
         }
 
         private void addQuery(ResultSet resultSet, boolean children, int columnIndex) throws SQLException {

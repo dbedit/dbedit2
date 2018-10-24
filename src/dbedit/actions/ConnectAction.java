@@ -17,29 +17,32 @@ public class ConnectAction extends ActionChangeAbstractAction {
     }
 
     protected void performThreaded(ActionEvent e) throws Exception {
-        connectionDatas = Config.getDatabases();
-        final JList list = new JList(connectionDatas);
+        setConnectionDatas(Config.getDatabases());
+        final JList list = new JList(getConnectionDatas());
         list.setVisibleRowCount(15);
         list.addMouseListener(this);
         list.addListSelectionListener(this);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        Object value = Dialog.show("Connections", new JScrollPane(list), Dialog.PLAIN_MESSAGE, new Object[] {"Connect", "Cancel", "Add", "Edit", "Duplicate", "Delete"}, "Connect");
+        Object value = Dialog.show("Connections", new JScrollPane(list), Dialog.PLAIN_MESSAGE,
+                new Object[] {"Connect", "Cancel", "Add", "Edit", "Duplicate", "Delete"}, "Connect");
         if ("Connect".equals(value)) {
             if (!list.isSelectionEmpty()) {
                 Actions.DISCONNECT.performThreaded(e);
-                connectionData = (ConnectionData) list.getSelectedValue();
+                ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
                 boolean connected = false;
                 while (!connected) {
                     try {
                         connectionData.connect();
-                        ApplicationPanel.getInstance().getFrame().setTitle(DBEdit.APPLICATION_NAME + " - " + connectionData.getName());
+                        setConnectionData(connectionData);
+                        ApplicationPanel.getInstance().getFrame().setTitle(
+                                DBEdit.APPLICATION_NAME + " - " + getConnectionData().getName());
                         handleActions();
-                        ApplicationPanel.getInstance().initializeObjectChooser(connectionData);
+                        ApplicationPanel.getInstance().initializeObjectChooser(getConnectionData());
                         connected = true;
                     } catch (Throwable t) {
                         ExceptionDialog.showException(t);
                         if (editConnection(connectionData, false)) {
-                            Config.saveDatabases(connectionDatas);
+                            Config.saveDatabases(getConnectionDatas());
                         } else {
                             performThreaded(e);
                             return;
@@ -50,15 +53,15 @@ public class ConnectAction extends ActionChangeAbstractAction {
         } else if ("Add".equals(value)) {
             ConnectionData connectionData = new ConnectionData();
             if (editConnection(connectionData, true)) {
-                connectionDatas.add(connectionData);
-                Config.saveDatabases(connectionDatas);
+                getConnectionDatas().add(connectionData);
+                Config.saveDatabases(getConnectionDatas());
             }
             performThreaded(e);
         } else if ("Edit".equals(value)) {
             if (!list.isSelectionEmpty()) {
                 ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
                 if (editConnection(connectionData, false)) {
-                    Config.saveDatabases(connectionDatas);
+                    Config.saveDatabases(getConnectionDatas());
                 }
             }
             performThreaded(e);
@@ -67,17 +70,18 @@ public class ConnectAction extends ActionChangeAbstractAction {
                 ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
                 connectionData = (ConnectionData) connectionData.clone();
                 if (editConnection(connectionData, false)) {
-                    connectionDatas.add(connectionData);
-                    Config.saveDatabases(connectionDatas);
+                    getConnectionDatas().add(connectionData);
+                    Config.saveDatabases(getConnectionDatas());
                 }
             }
             performThreaded(e);
         } else if ("Delete".equals(value)) {
             if (!list.isSelectionEmpty()) {
-                if (Dialog.YES_OPTION == Dialog.show("Delete connection", "Are you sure?", Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
+                if (Dialog.YES_OPTION == Dialog.show(
+                        "Delete connection", "Are you sure?", Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
                     ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
-                    connectionDatas.remove(connectionData);
-                    Config.saveDatabases(connectionDatas);
+                    getConnectionDatas().remove(connectionData);
+                    Config.saveDatabases(getConnectionDatas());
                 }
             }
             performThreaded(e);
@@ -108,7 +112,9 @@ public class ConnectAction extends ActionChangeAbstractAction {
         panel.add(password, c);
         c.gridy++;
         panel.add(new JLabel("Driver"), c);
-        final JComboBox driver = new JComboBox(new Object[] {ConnectionData.ORACLE_DRIVER, ConnectionData.IBM_DRIVER, ConnectionData.DATADIRECT_DRIVER, ConnectionData.MYSQL_DRIVER, ConnectionData.HSQLDB_DRIVER});
+        final JComboBox driver = new JComboBox(new Object[] {
+                ConnectionData.ORACLE_DRIVER, ConnectionData.IBM_DRIVER, ConnectionData.DATADIRECT_DRIVER,
+                ConnectionData.MYSQL_DRIVER, ConnectionData.HSQLDB_DRIVER});
         driver.setEditable(true);
         driver.setSelectedItem(connectionData.getDriver());
         panel.add(driver, c);

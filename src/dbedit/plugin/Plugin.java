@@ -16,5 +16,6 @@ public interface Plugin {
 
     void customizeAboutPanel(JPanel panel, GridBagConstraints c);
 
-    void customizeConnectionPanel(final JPanel panel, GridBagConstraints c, final ConnectionData connectionData) throws Exception;
+    void customizeConnectionPanel(final JPanel panel, GridBagConstraints c, final ConnectionData connectionData)
+            throws Exception;
 }

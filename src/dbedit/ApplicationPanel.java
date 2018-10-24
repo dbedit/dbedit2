@@ -14,17 +14,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-public class ApplicationPanel extends JPanel {
+public final class ApplicationPanel extends JPanel {
 
     private static ApplicationPanel applicationPanel = new ApplicationPanel();
 
     private JTextArea text;
-    public UndoManager undoManager;
+    private UndoManager undoManager;
     private JTable table;
     private List<Vector> originalOrder;
     private JSplitPane splitPane;
     private JScrollPane rightComponent;
-    protected JToggleButton schemaBrowserToggleButton = new JToggleButton();
+    private JToggleButton schemaBrowserToggleButton = new JToggleButton();
 
     public static ApplicationPanel getInstance() {
         return applicationPanel;
@@ -54,16 +54,17 @@ public class ApplicationPanel extends JPanel {
     }
 
     private JSplitPane createQueryArea() {
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, createQueryEditor(), createQueryTable());
-        splitPane.setOneTouchExpandable(true);
-        return splitPane;
+        JSplitPane queryArea = new JSplitPane(JSplitPane.VERTICAL_SPLIT, createQueryEditor(), createQueryTable());
+        queryArea.setOneTouchExpandable(true);
+        return queryArea;
     }
 
     private JScrollPane createQueryEditor() {
         text = new JTextArea();
         text.setFont(new Font("Courier New", Font.PLAIN, 12));
         text.setMargin(new Insets(2, 2, 2, 2));
-        text.getDocument().addUndoableEditListener(undoManager = new UndoManager());
+        undoManager = new UndoManager();
+        text.getDocument().addUndoableEditListener(undoManager);
         text.getDocument().addDocumentListener(Actions.RUN);
         JScrollPane scrollPane = new JScrollPane(text);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -88,16 +89,21 @@ public class ApplicationPanel extends JPanel {
         table.getDefaultEditor(Object.class).addCellEditorListener(Actions.EDIT);
         table.setModel(new DefaultTableModel() {
             public boolean isCellEditable(int row, int column) {
-                return CustomAction.connectionData != null && CustomAction.connectionData.getResultSet() != null && !CustomAction.isLob(column);
+                return CustomAction.getConnectionData() != null
+                        && CustomAction.getConnectionData().getResultSet() != null
+                        && !CustomAction.isLob(column);
             }
         });
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            public Component getTableCellRendererComponent(JTable componentTable, Object value, boolean isSelected,
+                                                           boolean hasFocus, int row, int column) {
                 if (value != null && CustomAction.isLob(column)) {
-                    value = CustomAction.columnTypeNames[column];
+                    value = CustomAction.getColumnTypeNames()[column];
                 }
-                JLabel tableCellRendererComponent = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                tableCellRendererComponent.setHorizontalAlignment(value instanceof Number ? SwingConstants.TRAILING : SwingConstants.LEADING);
+                JLabel tableCellRendererComponent = (JLabel) super.getTableCellRendererComponent(
+                        componentTable, value, isSelected, hasFocus, row, column);
+                tableCellRendererComponent.setHorizontalAlignment(value instanceof Number ? SwingConstants.TRAILING
+                                                                                          : SwingConstants.LEADING);
                 return tableCellRendererComponent;
             }
         });
@@ -112,10 +118,12 @@ public class ApplicationPanel extends JPanel {
                     schemaBrowser.addKeyListener(Actions.SCHEMA_BROWSER);
                     schemaBrowser.addMouseListener(Actions.SCHEMA_BROWSER);
                     rightComponent = new JScrollPane(schemaBrowser);
-                    schemaBrowser.expand(new String[] {connectionData.getName(), connectionData.getDefaultOwner(), "TABLES"});
+                    schemaBrowser.expand(new String[] {
+                            connectionData.getName(), connectionData.getDefaultOwner(), "TABLES"});
                     Actions.SCHEMA_BROWSER.setEnabled(true);
                 } catch (IllegalStateException e) {
                     // ignore: connection has been closed
+                    ExceptionDialog.ignoreException(e);
                 }
             }
         }).start();
@@ -124,7 +132,8 @@ public class ApplicationPanel extends JPanel {
     public String destroyObjectChooser() {
         if (rightComponent != null) {
             String selectedOwner = getObjectChooser().getSelectedOwner();
-            splitPane.setRightComponent(rightComponent = null);
+            rightComponent = null;
+            splitPane.setRightComponent(rightComponent);
             splitPane.setDividerSize(0);
             schemaBrowserToggleButton.setSelected(false);
             Actions.SCHEMA_BROWSER.setEnabled(false);
@@ -163,6 +172,10 @@ public class ApplicationPanel extends JPanel {
 
     public JTextArea getTextArea() {
         return text;
+    }
+
+    public UndoManager getUndoManager() {
+        return undoManager;
     }
 
     public Object getTableValue() {
@@ -222,19 +235,21 @@ public class ApplicationPanel extends JPanel {
         return (JFrame) getRootPane().getParent();
     }
 
-    protected void resizeColumns(JTable table) {
-        double[] widths = new double[table.getColumnCount()];
-        TableCellRenderer defaultRenderer = table.getDefaultRenderer(Object.class);
-        for (int i = 0; i < table.getModel().getRowCount(); i++) {
-            for (int j = 0; j < table.getModel().getColumnCount(); j++) {
-                Component component = defaultRenderer.getTableCellRendererComponent(table, table.getModel().getValueAt(i, j), false, false, i, j);
+    protected void resizeColumns(JTable tableToResize) {
+        double[] widths = new double[tableToResize.getColumnCount()];
+        TableCellRenderer defaultRenderer = tableToResize.getDefaultRenderer(Object.class);
+        for (int i = 0; i < tableToResize.getModel().getRowCount(); i++) {
+            for (int j = 0; j < tableToResize.getModel().getColumnCount(); j++) {
+                Component component = defaultRenderer.getTableCellRendererComponent(
+                        tableToResize, tableToResize.getModel().getValueAt(i, j), false, false, i, j);
                 widths[j] = Math.max(widths[j], component.getPreferredSize().getWidth());
             }
         }
-        defaultRenderer = table.getTableHeader().getDefaultRenderer();
-        TableColumnModel columnModel = table.getColumnModel();
+        defaultRenderer = tableToResize.getTableHeader().getDefaultRenderer();
+        TableColumnModel columnModel = tableToResize.getColumnModel();
         for (int i = 0; i < columnModel.getColumnCount(); i++) {
-            Component component = defaultRenderer.getTableCellRendererComponent(table, columnModel.getColumn(i).getHeaderValue(), false, false, 0, i);
+            Component component = defaultRenderer.getTableCellRendererComponent(
+                    tableToResize, columnModel.getColumn(i).getHeaderValue(), false, false, 0, i);
             widths[i] = Math.max(widths[i], component.getPreferredSize().getWidth());
             widths[i] = Math.min(widths[i], 550);
             columnModel.getColumn(i).setPreferredWidth((int) widths[i] + 2);

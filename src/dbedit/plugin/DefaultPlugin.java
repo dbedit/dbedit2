@@ -21,6 +21,7 @@ public class DefaultPlugin implements Plugin {
     public void customizeAboutPanel(JPanel panel, GridBagConstraints c) {
     }
 
-    public void customizeConnectionPanel(final JPanel panel, GridBagConstraints c, final ConnectionData connectionData) throws Exception {
+    public void customizeConnectionPanel(final JPanel panel, GridBagConstraints c, final ConnectionData connectionData)
+            throws Exception {
     }
 }

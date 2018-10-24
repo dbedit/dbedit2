@@ -54,15 +54,16 @@ public class AboutAction extends CustomAction {
         c.gridy++;
         panel.add(new JLabel("Java VM: "), c);
         panel.add(new JLabel(System.getProperty("java.vm.version")), c);
-        if (connectionData != null) {
+        if (getConnectionData() != null) {
             try {
-                DatabaseMetaData metaData = connectionData.getConnection().getMetaData();
+                DatabaseMetaData metaData = getConnectionData().getConnection().getMetaData();
                 c.gridy++;
                 panel.add(new JLabel("Database: "), c);
                 panel.add(new JLabel(metaData.getDatabaseProductName()), c);
                 c.gridy++;
                 panel.add(new JLabel(""), c);
-                panel.add(new JLabel("<html>"+metaData.getDatabaseProductVersion().replaceAll("\n", "<br>") + "</html>"), c);
+                String databaseProductVersion = metaData.getDatabaseProductVersion().replaceAll("\n", "<br>");
+                panel.add(new JLabel("<html>" + databaseProductVersion + "</html>"), c);
                 c.gridy++;
                 panel.add(new JLabel("Driver: "), c);
                 panel.add(new JLabel(metaData.getDriverName()), c);
@@ -70,12 +71,12 @@ public class AboutAction extends CustomAction {
                 panel.add(new JLabel(""), c);
                 panel.add(new JLabel(metaData.getDriverVersion()), c);
             } catch (Throwable t) {
-                // ignore
+                ExceptionDialog.hideException(t);
             }
         }
         PLUGIN.customizeAboutPanel(panel, c);
         panel.setBorder(new BevelBorder(BevelBorder.RAISED) {
-            Insets insets = new Insets(42, 10, 10, 10);
+            private Insets insets = new Insets(42, 10, 10, 10);
             public Insets getBorderInsets(Component c) {
                 return insets;
             }

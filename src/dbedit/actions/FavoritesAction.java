@@ -28,13 +28,14 @@ public class FavoritesAction extends CustomAction {
     }
 
     public void favorites() throws ParserConfigurationException, IOException, TransformerException, SAXException {
-        Map<String,String> favorites = Config.getFavorites();
+        Map<String, String> favorites = Config.getFavorites();
         final JList list = new JList(favorites.keySet().toArray());
         list.setVisibleRowCount(15);
         list.addMouseListener(this);
         list.addListSelectionListener(this);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        Object value = Dialog.show("Favorites", new JScrollPane(list), Dialog.PLAIN_MESSAGE, new Object[] {"OK", "Cancel", "Add", "Delete"}, "OK");
+        Object value = Dialog.show("Favorites", new JScrollPane(list), Dialog.PLAIN_MESSAGE,
+                new Object[] {"OK", "Cancel", "Add", "Delete"}, "OK");
         if ("OK".equals(value)) {
             if (!list.isSelectionEmpty()) {
                 String s = favorites.get((String) list.getSelectedValue());
@@ -43,7 +44,8 @@ public class FavoritesAction extends CustomAction {
             }
         } else if ("Delete".equals(value)) {
             if (!list.isSelectionEmpty()) {
-                if (Dialog.YES_OPTION == Dialog.show("Delete favorite", "Are you sure?", Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
+                if (Dialog.YES_OPTION == Dialog.show("Delete favorite", "Are you sure?",
+                        Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
                     favorites.remove((String) list.getSelectedValue());
                     Config.saveFavorites(favorites);
                 }

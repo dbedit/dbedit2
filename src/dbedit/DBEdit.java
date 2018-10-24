@@ -10,7 +10,8 @@ public class DBEdit extends JFrame {
 
     public static final String APPLICATION_NAME = "DBEdit 2";
 
-    public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException, InstantiationException, ClassNotFoundException {
+    public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException,
+                                                  InstantiationException, ClassNotFoundException {
         // Don't set the system look and feel for OS'es other than Windows
         // Xfce on Xubuntu looked OK (GTK)
         // GNOME on Red Hat Ent. Linux and Oracle Ent. Linux and Solaris didn't look too good (GTK)

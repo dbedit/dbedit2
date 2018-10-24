@@ -17,7 +17,7 @@ public class LobPasteAction extends LobAbstractAction {
         for (int i = 0; i < selectedRows.length; i++) {
             int selectedRow = selectedRows[i];
             table.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
-            ApplicationPanel.getInstance().setTableValue(savedLobs[i]);
+            ApplicationPanel.getInstance().setTableValue(getSavedLobs()[i]);
             editingStopped(null);
         }
     }

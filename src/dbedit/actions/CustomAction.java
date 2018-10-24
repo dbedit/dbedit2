@@ -18,14 +18,17 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.Vector;
 
-public abstract class CustomAction extends AbstractAction implements CellEditorListener, MouseListener, ListSelectionListener, TableColumnModelListener, AncestorListener, DocumentListener, KeyListener {
+public abstract class CustomAction extends AbstractAction
+                                   implements CellEditorListener, MouseListener, ListSelectionListener,
+                                              TableColumnModelListener, AncestorListener, DocumentListener,
+                                              KeyListener {
 
-    public static ConnectionData connectionData;
-    public static int[] columnTypes;
-    public static String[] columnTypeNames;
-    protected static Vector<ConnectionData> connectionDatas;
-    protected static int fetchLimit = -1;
-    protected static byte[][] savedLobs;
+    private static ConnectionData connectionData;
+    private static int[] columnTypes;
+    private static String[] columnTypeNames;
+    private static Vector<ConnectionData> connectionDatas;
+    private static int fetchLimit = -1;
+    private static byte[][] savedLobs;
     protected static final Plugin PLUGIN = PluginFactory.getPlugin();
     protected static final JFileChooser FILE_CHOOSER = new JFileChooser();
 
@@ -51,7 +54,11 @@ public abstract class CustomAction extends AbstractAction implements CellEditorL
             return false;
         }
         int columnType = columnTypes[column];
-        return Types.LONGVARBINARY == columnType || Types.VARBINARY == columnType || Types.BLOB == columnType || Types.CLOB == columnType || 2007 /* oracle xmltype */ == columnType;
+        return Types.LONGVARBINARY == columnType
+                || Types.VARBINARY == columnType
+                || Types.BLOB == columnType
+                || Types.CLOB == columnType
+                || 2007 /* oracle xmltype */ == columnType;
     }
 
     public void openFile(String prefix, String suffix, byte[] bytes) throws Exception {
@@ -66,7 +73,8 @@ public abstract class CustomAction extends AbstractAction implements CellEditorL
             FILE_CHOOSER.setSelectedFile(new File(prefix + suffix));
             if (JFileChooser.APPROVE_OPTION == FILE_CHOOSER.showSaveDialog(ApplicationPanel.getInstance())) {
                 File selectedFile = FILE_CHOOSER.getSelectedFile();
-                if (!selectedFile.exists() || Dialog.YES_OPTION == Dialog.show("File exists", "Overwrite existing file?", Dialog.QUESTION_MESSAGE, Dialog.YES_NO_OPTION)) {
+                if (!selectedFile.exists() || Dialog.YES_OPTION == Dialog.show("File exists",
+                        "Overwrite existing file?", Dialog.QUESTION_MESSAGE, Dialog.YES_NO_OPTION)) {
                     FileOutputStream out = new FileOutputStream(selectedFile);
                     out.write(bytes);
                     out.close();
@@ -126,7 +134,7 @@ public abstract class CustomAction extends AbstractAction implements CellEditorL
                     ApplicationPanel.getInstance().setTableValue(value);
                 }
             } catch (Exception e1) {
-                e1.printStackTrace();
+                ExceptionDialog.hideException(e1);
             }
         }
     }
@@ -175,6 +183,54 @@ public abstract class CustomAction extends AbstractAction implements CellEditorL
             }
             resultSet.updateObject(column, o);
         }
+    }
+
+    public static ConnectionData getConnectionData() {
+        return connectionData;
+    }
+
+    protected static void setConnectionData(ConnectionData newConnectionData) {
+        connectionData = newConnectionData;
+    }
+
+    public static int[] getColumnTypes() {
+        return columnTypes;
+    }
+
+    protected static void setColumnTypes(int[] newColumnTypes) {
+        columnTypes = newColumnTypes;
+    }
+
+    public static String[] getColumnTypeNames() {
+        return columnTypeNames;
+    }
+
+    protected static void setColumnTypeNames(String[] newColumnTypeNames) {
+        columnTypeNames = newColumnTypeNames;
+    }
+
+    protected static Vector<ConnectionData> getConnectionDatas() {
+        return connectionDatas;
+    }
+
+    protected static void setConnectionDatas(Vector<ConnectionData> newConnectionDatas) {
+        connectionDatas = newConnectionDatas;
+    }
+
+    protected static int getFetchLimit() {
+        return fetchLimit;
+    }
+
+    protected static void setFetchLimit(int newFetchLimit) {
+        fetchLimit = newFetchLimit;
+    }
+
+    protected static byte[][] getSavedLobs() {
+        return savedLobs;
+    }
+
+    protected static void setSavedLobs(byte[][] newSavedLobs) {
+        savedLobs = newSavedLobs;
     }
 
     public void mouseClicked(MouseEvent e) {

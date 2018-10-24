@@ -19,7 +19,8 @@ public class ExportFlatFileAction extends CustomAction {
         JTable table = ApplicationPanel.getInstance().getTable();
         boolean selection = false;
         if (table.getSelectedRowCount() > 0 && table.getSelectedRowCount() != table.getRowCount()) {
-            Object option = Dialog.show("Flat file", "Export", Dialog.QUESTION_MESSAGE, new Object[] {"Everything", "Selection"}, "Everything");
+            Object option = Dialog.show("Flat file", "Export", Dialog.QUESTION_MESSAGE,
+                    new Object[] {"Everything", "Selection"}, "Everything");
             if (option == null) {
                 return;
             }
@@ -42,10 +43,12 @@ public class ExportFlatFileAction extends CustomAction {
                     }
                     String s = row.get(j) == null ? "" : row.get(j).toString();
                     if (!"".equals(s) && CustomAction.isLob(j)) {
-                        s = CustomAction.columnTypeNames[j];
+                        s = CustomAction.getColumnTypeNames()[j];
                     }
                     s = s.replaceAll("\r\n", " | ").replaceAll("\n", " | ").replaceAll("\t", "    ");
-                    if (s.length() > 500) s = s.substring(0, 500);
+                    if (s.length() > 500) {
+                        s = s.substring(0, 500);
+                    }
                     grid.set(j, count, s);
                 }
                 count++;

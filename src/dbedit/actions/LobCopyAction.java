@@ -16,16 +16,16 @@ public class LobCopyAction extends LobAbstractAction {
     protected void performThreaded(ActionEvent e) throws Exception {
         JTable table = ApplicationPanel.getInstance().getTable();
         int[] selectedRows = table.getSelectedRows();
-        savedLobs = new byte[selectedRows.length][];
+        setSavedLobs(new byte[selectedRows.length][]);
         for (int i = 0; i < selectedRows.length; i++) {
             int selectedRow = selectedRows[i];
             Object lob = table.getValueAt(selectedRow, table.getSelectedColumn());
             if (lob instanceof Blob) {
-                savedLobs[i] = ((Blob) lob).getBytes(1, (int) ((Blob) lob).length());
+                getSavedLobs()[i] = ((Blob) lob).getBytes(1, (int) ((Blob) lob).length());
             } else if (lob instanceof Clob) {
-                savedLobs[i] = ((Clob) lob).getSubString(1, (int) ((Clob) lob).length()).getBytes();
+                getSavedLobs()[i] = ((Clob) lob).getSubString(1, (int) ((Clob) lob).length()).getBytes();
             } else if (lob instanceof byte[]) {
-                savedLobs[i] = (byte[]) lob;
+                getSavedLobs()[i] = (byte[]) lob;
             } else if (lob != null) {
                 throw new UnsupportedOperationException("Unsupported type");
             }

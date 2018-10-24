@@ -45,8 +45,10 @@
             </config>
         </launch4j>
 
-        <unzip src="${lib}/nsis-2.23.zip" dest="${lib}"/>
-        <exec executable="${lib}/nsis-2.23/makensis.exe" failonerror="true"><arg line="${lib}/installer.nsi"/></exec>
+        <unzip src="${lib}/nsis-2.24.zip" dest="${lib}"/>
+        <exec executable="${lib}/nsis-2.24/makensis.exe" failonerror="true">
+            <arg line="${lib}/installer.nsi"/>
+        </exec>
         <delete file="${dist}/DBEdit.exe"/>
         <move file="${dist}/DBEdit_setup.exe" tofile="${dist}/DBEdit${version}_setup.exe"/>
     </target>
@@ -75,10 +77,4 @@
         <delete dir="${dist}"/>
 		<delete dir="${build}"/>
 	</target>
-
-    <target name="test">
-        <path id="b"><fileset dir="dist" includes="DBEdit*_dupont.zip"/></path>
-        <property name="a" refid="b"></property>
-        <echo message="${a}"/>
-    </target>
 </project>

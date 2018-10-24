@@ -1,3 +1,8 @@
+2.1.1 (28/03/2007)
+- Fixed queries starting with WITH not executing
+- Fixed history not working smoothly all the time
+- Fixed "Export to insert statements" not escaping single quotes
+
 2.1 (30/01/2007)
 - Included work around for the IBM driver that prevented selecting LOB's
 - Migrated from JDK 1.4 to 1.5

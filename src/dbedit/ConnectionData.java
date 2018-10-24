@@ -32,53 +32,54 @@ public class ConnectionData implements Comparable, Cloneable {
     public ConnectionData() {
     }
 
-    public ConnectionData(String name, String url, String user, String password, String driver, String defaultOwner) {
-        this.name = name;
-        this.url = url;
-        this.user = user;
-        this.password = password;
-        this.driver = driver;
-        this.defaultOwner = defaultOwner;
+    public ConnectionData(String newName, String newUrl, String newUser,
+                          String newPassword, String newDriver, String newDefaultOwner) {
+        this.name = newName;
+        this.url = newUrl;
+        this.user = newUser;
+        this.password = newPassword;
+        this.driver = newDriver;
+        this.defaultOwner = newDefaultOwner;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String newName) {
+        this.name = newName;
     }
 
     public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setUrl(String newUrl) {
+        this.url = newUrl;
     }
 
     public String getUser() {
         return user;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUser(String newUser) {
+        this.user = newUser;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String newPassword) {
+        this.password = newPassword;
     }
 
     public String getDriver() {
         return driver;
     }
 
-    public void setDriver(String driver) {
-        this.driver = driver;
+    public void setDriver(String newDriver) {
+        this.driver = newDriver;
     }
 
     public Connection getConnection() {
@@ -89,21 +90,21 @@ public class ConnectionData implements Comparable, Cloneable {
         return resultSet;
     }
 
-    public void setResultSet(ResultSet resultSet) {
-        this.resultSet = resultSet;
+    public void setResultSet(ResultSet newResultSet) {
+        this.resultSet = newResultSet;
     }
 
     public String getDefaultOwner() {
         return defaultOwner;
     }
 
-    public void setDefaultOwner(String defaultOwner) {
-        this.defaultOwner = defaultOwner;
+    public void setDefaultOwner(String newDefaultOwner) {
+        this.defaultOwner = newDefaultOwner;
     }
 
     public void connect() throws Exception {
         ClassLoader classLoader = new URLClassLoader(retrieveAllJars());
-        Driver driver = (Driver) Class.forName(this.driver, true, classLoader).newInstance();
+        Driver driverInstance = (Driver) Class.forName(this.driver, true, classLoader).newInstance();
         Properties properties = new Properties();
         properties.setProperty("user", user);
         properties.setProperty("password", password);
@@ -119,21 +120,21 @@ public class ConnectionData implements Comparable, Cloneable {
             properties.setProperty("connectionRetryCount", "0");
         }
 
-        connection = driver.connect(url, properties);
-        if (isDataDirect()) {
+        connection = driverInstance.connect(url, properties);
+//        if (isDataDirect()) {
             // set application name
             // http://media.datadirect.com/download/docs/jdbc/jdbcref/extensions.html
             // it doesn't work: "JDBC4DB2" is sent hard coded
 //            connection.getClass().getMethod("setClientApplicationName", new Class[] {String.class})
 //                    .invoke(connection, new Object[] {DBEdit.APPLICATION_NAME});
-        }
+//        }
         connection.setAutoCommit(false);
     }
 
     private static URL[] retrieveAllJars() throws MalformedURLException {
         File[] files = new File(".").listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".jar") || name.toLowerCase().endsWith(".zip");
+            public boolean accept(File dir, String fileName) {
+                return fileName.toLowerCase().endsWith(".jar") || fileName.toLowerCase().endsWith(".zip");
             }
         });
         URL[] urls = new URL[files.length];

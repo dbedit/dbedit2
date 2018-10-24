@@ -10,6 +10,6 @@ public class CommitAction extends CustomAction {
 
     protected void performThreaded(ActionEvent e) throws Exception {
         PLUGIN.audit("Commit");
-        connectionData.getConnection().commit();
+        getConnectionData().getConnection().commit();
     }
 }

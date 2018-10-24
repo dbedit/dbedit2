@@ -8,7 +8,8 @@ public class WaitingDialog {
     private JDialog dialog;
 
     public WaitingDialog(final Runnable onCancel) {
-        final Dialog pane = new Dialog(message, Dialog.PLAIN_MESSAGE, Dialog.DEFAULT_OPTION, new Object[] {"Cancel"}, "Cancel");
+        final Dialog pane = new Dialog(message, Dialog.PLAIN_MESSAGE, Dialog.DEFAULT_OPTION,
+                new Object[] {"Cancel"}, "Cancel");
         dialog = pane.createDialog(ApplicationPanel.getInstance(), null);
         new Thread(new Runnable() {
             public void run() {
@@ -18,7 +19,11 @@ public class WaitingDialog {
                 }
             }
         }).start();
-        while (!dialog.isVisible()) { /*wait*/ }
+        // wait
+        boolean visible = false;
+        while (!visible) {
+            visible = dialog.isVisible();
+        }
     }
 
     public void setText(String text) {

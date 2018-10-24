@@ -13,8 +13,8 @@ public class Grid {
         this(new ArrayList<List<Object>>());
     }
 
-    public Grid(List<List<Object>> rows) {
-        this.rows = rows;
+    public Grid(List<List<Object>> newRows) {
+        this.rows = newRows;
     }
 
     public Grid set(int x, int y, String text) {
@@ -50,8 +50,8 @@ public class Grid {
         return rows.size();
     }
 
-    public void setColumnSeparator(String columnSeparator) {
-        this.columnSeparator = columnSeparator;
+    public void setColumnSeparator(String newColumnSeparator) {
+        this.columnSeparator = newColumnSeparator;
     }
 
     public int[] calculateWidths() {
@@ -59,12 +59,15 @@ public class Grid {
         int[] widths = new int[1024];
         for (List<Object> row : rows) {
             for (int j = 0; j < row.size(); j++) {
-                widths[j] = Math.max(widths[j], row.get(j) == null || row.get(j) == getClass() ? 0 : row.get(j).toString().length());
+                widths[j] = Math.max(widths[j],
+                        row.get(j) == null || row.get(j) == getClass() ? 0 : row.get(j).toString().length());
             }
             cols = Math.max(cols, row.size());
         }
         // put total width in last index
-        for (int i = 0; i < widths.length - 1; i++) widths[widths.length - 1] += widths[i];
+        for (int i = 0; i < widths.length - 1; i++) {
+            widths[widths.length - 1] += widths[i];
+        }
         widths[widths.length - 1] += cols * columnSeparator.length() - columnSeparator.length();
         return widths;
     }
@@ -85,7 +88,9 @@ public class Grid {
                     break;
                 }
                 buffer.append(toString(text, widths[j], Arrays.binarySearch(rightAlignedColumns, j) >= 0));
-                if (j + 1 < row.size()) buffer.append(columnSeparator);
+                if (j + 1 < row.size()) {
+                    buffer.append(columnSeparator);
+                }
             }
             buffer.append('\n');
         }

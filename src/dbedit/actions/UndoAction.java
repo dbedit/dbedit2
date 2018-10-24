@@ -13,7 +13,7 @@ public class UndoAction extends CustomAction {
     }
 
     public void actionPerformed(final ActionEvent e) {
-        ApplicationPanel.getInstance().undoManager.undo();
+        ApplicationPanel.getInstance().getUndoManager().undo();
     }
 
     protected void performThreaded(ActionEvent e) throws Exception {

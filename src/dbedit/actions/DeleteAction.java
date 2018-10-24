@@ -13,7 +13,7 @@ public class DeleteAction extends CustomAction {
 
     protected void performThreaded(ActionEvent e) throws Exception {
         int[] rows = ApplicationPanel.getInstance().getTable().getSelectedRows();
-        ResultSet resultSet = connectionData.getResultSet();
+        ResultSet resultSet = getConnectionData().getResultSet();
         for (int i = rows.length - 1; i > -1; i--) {
             int row = rows[i];
             int origRow = ApplicationPanel.getInstance().getOriginalSelectedRow(row);

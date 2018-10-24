@@ -1,6 +1,7 @@
 package dbedit.actions;
 
 import dbedit.ApplicationPanel;
+import dbedit.ExceptionDialog;
 import dbedit.WaitingDialog;
 
 import java.awt.event.ActionEvent;
@@ -19,7 +20,7 @@ public class RunScriptAction extends ActionChangeAbstractAction {
 
     protected void performThreaded(ActionEvent e) throws Exception {
         String text = ApplicationPanel.getInstance().getTextArea().getText();
-        history.add(text);
+        getHistory().add(text);
         handleTextActions();
         // Search and capture all text that is followed by a semicolon,
         // zero or more whitespace characters [ \t\n\x0B\f\r],
@@ -28,17 +29,20 @@ public class RunScriptAction extends ActionChangeAbstractAction {
         Pattern pattern = Pattern.compile("(.*?);\\s*?$\\s*", Pattern.DOTALL + Pattern.MULTILINE);
         Matcher matcher = pattern.matcher(text);
         int total = 0;
-        while (matcher.find()) total++;
+        while (matcher.find()) {
+            total++;
+        }
         matcher.reset();
         final Vector<Vector> dataVector = new Vector<Vector>();
         int count = 0;
-        final Statement statement = connectionData.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        final Statement statement = getConnectionData().getConnection()
+                .createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         Runnable onCancel = new Runnable() {
             public void run() {
                 try {
                     statement.cancel();
                 } catch (Throwable t) {
-                    // ignore
+                    ExceptionDialog.hideException(t);
                 }
             }
         };
@@ -62,11 +66,11 @@ public class RunScriptAction extends ActionChangeAbstractAction {
             throw ex;
         } finally {
             waitingDialog.hide();
-            connectionData.setResultSet(null);
+            getConnectionData().setResultSet(null);
             final Vector<String> columnIdentifiers = new Vector<String>(1);
             columnIdentifiers.add("Rows updated");
-            columnTypes = new int[] {Types.INTEGER};
-            columnTypeNames = new String[1];
+            setColumnTypes(new int[] {Types.INTEGER});
+            setColumnTypeNames(new String[1]);
             ApplicationPanel.getInstance().setDataVector(dataVector, columnIdentifiers);
             handleActions();
         }
