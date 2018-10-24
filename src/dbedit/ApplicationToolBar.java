@@ -73,11 +73,9 @@ public class ApplicationToolBar extends JToolBar {
         String toolTipText = (String) button.getAction().getValue(Action.NAME);
         KeyStroke accelerator = (KeyStroke) button.getAction().getValue(AbstractAction.ACCELERATOR_KEY);
         if (accelerator != null) {
-            toolTipText += " (";
-            toolTipText += KeyEvent.getModifiersExText(accelerator.getModifiers());
-            toolTipText += "+";
-            toolTipText += KeyEvent.getKeyText(accelerator.getKeyCode());
-            toolTipText += ")";
+            toolTipText += String.format(" (%s+%s)",
+                    KeyEvent.getModifiersExText(accelerator.getModifiers()),
+                    KeyEvent.getKeyText(accelerator.getKeyCode()));
         }
         button.setToolTipText(toolTipText);
         return button;

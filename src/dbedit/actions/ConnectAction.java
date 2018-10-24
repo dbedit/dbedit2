@@ -62,7 +62,7 @@ public class ConnectAction extends ActionChangeAbstractAction {
 
                         setConnectionData(connectionData);
                         ApplicationPanel.getInstance().getFrame().setTitle(
-                                DBEdit.APPLICATION_NAME + " - " + getConnectionData().getName());
+                                String.format("%s - %s", DBEdit.APPLICATION_NAME, getConnectionData().getName()));
                         handleActions();
                         ApplicationPanel.getInstance().initializeObjectChooser(getConnectionData());
                         connected = true;

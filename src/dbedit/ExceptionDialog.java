@@ -26,6 +26,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 
 public final class ExceptionDialog {
@@ -89,42 +90,42 @@ public final class ExceptionDialog {
         }
 
         //some tips
-        String msg = null;
+        StringBuilder msg = new StringBuilder();
         if (t instanceof SQLException) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             t.printStackTrace(new PrintStream(out));
             String exception = new String(out.toByteArray());
-            if (t.getMessage().contains("Unsupported VM encoding")) {
-                msg = "This can be resolved by reinstalling your JRE and enabling "
-                        + "\"Support for additional languages\" during setup.";
+            if (t.getMessage().contains("Unsupported VM encoding")
+                    || t.getCause() instanceof UnsupportedEncodingException) {
+                msg.append("This can be resolved by reinstalling your JRE and enabling ");
+                msg.append("\"Support for additional languages\" during setup.");
             } else if (((SQLException) t).getErrorCode() == 907) {
                 if (text.toLowerCase().contains("order")
-                        && (exception.contains("editingStopped") || exception.contains("deleteRow"))) {
-                    msg = "Updating a resultset mostly fails when the ORDER BY clause is used.\n"
-                            + "Try the select without ORDER BY and sort the column afterwards.";
-                }
-            } else if (exception.contains("ResultSet is not updat")) {
-                if (text.toLowerCase().trim().endsWith("for fetch only")) {
-                    msg = "Try your select without \"for fetch only\".";
+                        && (exception.contains("updateRow")
+                         || exception.contains("insertRow")
+                         || exception.contains("deleteRow"))) {
+                    msg.append("Updating a resultset mostly fails when the ORDER BY clause is used.\n");
+                    msg.append("Try the select without ORDER BY and sort the column afterwards.");
                 }
             } else if (CustomAction.getConnectionData() != null && CustomAction.getConnectionData().isIbm()) {
                 if (t.getMessage().contains("Invalid operation: result set is closed.")) {
                     int length = CustomAction.getColumnTypes().length;
                     for (int i = 0; i < length; i++) {
                         if (CustomAction.isLob(i)) {
-                            msg = "The IBM JDBC driver doesn't support modifying rows with BLOB's or CLOB's "
-                                    + "in the resultset yet.\n"
-                                    + "Please execute the update statement manually or try the DataDirect DB2 driver.\n"
-                                    + "http://www.datadirect.com/products/jdbc/";
+                            msg.append("The IBM JDBC driver doesn't support modifying rows with BLOB's or CLOB's ");
+                            msg.append("in the resultset yet.\n");
+                            msg.append("Please execute the update statement manually ");
+                            msg.append("or try the DataDirect DB2 driver.\n");
+                            msg.append("http://www.datadirect.com/products/jdbc/");
                             break;
                         }
                     }
                 }
             } else {
-                msg = PluginFactory.getPlugin().analyzeException(exception);
+                msg.append(PluginFactory.getPlugin().analyzeException(exception));
             }
         }
-        if (msg != null) {
+        if (msg.length() > 0) {
             Dialog.show("Tip", msg, Dialog.INFORMATION_MESSAGE, Dialog.DEFAULT_OPTION);
         }
     }

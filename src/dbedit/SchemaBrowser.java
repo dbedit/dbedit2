@@ -27,8 +27,11 @@ import java.sql.SQLException;
 
 public class SchemaBrowser extends JTree {
 
+    private ConnectionData connectionData;
+
     public SchemaBrowser(ConnectionData connectionData) {
         super(new ObjectNode(connectionData));
+        this.connectionData = connectionData;
         ((DefaultTreeCellRenderer) getCellRenderer()).setLeafIcon(null);
         ((DefaultTreeCellRenderer) getCellRenderer()).setOpenIcon(null);
         ((DefaultTreeCellRenderer) getCellRenderer()).setClosedIcon(null);
@@ -58,7 +61,7 @@ public class SchemaBrowser extends JTree {
         for (int i = 0; i < selectionPaths.length; i++) {
             TreePath selectionPath = selectionPaths[i];
             DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
-            String s = treeNode.toString();
+            String s = connectionData.checkMixedCaseQuotedIdentifier(treeNode.toString());
             if (treeNode.getLevel() == 3) {
                 TreeNode parent = treeNode.getParent().getParent();
                 if (!"Schema".equals(parent.toString())) {

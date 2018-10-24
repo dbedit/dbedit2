@@ -73,10 +73,15 @@ public class WaitingDialog extends TimerTask {
         long hours = executionTime / 60 / 60;
         long minutes = executionTime / 60 % 60;
         long seconds = executionTime % 60;
-        String text = hours == 0 ? "" : hours + (hours == 1 ? " hour " : " hours ");
-        text += minutes == 0 ? "" : minutes + (minutes == 1 ? " minute " : " minutes ");
-        text += seconds + (seconds == 1 ? " second" : " seconds");
-        return text;
+        StringBuilder text = new StringBuilder();
+        if (hours > 0) {
+            text.append(hours).append(hours == 1 ? " hour " : " hours ");
+        }
+        if (minutes > 0) {
+            text.append(minutes).append(minutes == 1 ? " minute " : " minutes ");
+        }
+        text.append(seconds).append(seconds == 1 ? " second" : " seconds");
+        return text.toString();
     }
 
     @Override

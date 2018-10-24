@@ -71,7 +71,7 @@ public class ExportFlatFileAction extends CustomAction {
             }
         }
         grid.addSeparator();
-        grid.set(0, grid.getHeight(), "Total: " + (grid.getHeight() - 3));
+        grid.set(0, grid.getHeight(), String.format("Total: %d", (grid.getHeight() - 3)));
         String text = grid.toString(rightAlignedColumns);
         showFile(text, null);
     }

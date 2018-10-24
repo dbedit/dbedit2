@@ -23,7 +23,7 @@ import dbedit.Dialog;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.sql.Types;
-import java.util.StringTokenizer;
+import java.util.Scanner;
 
 public class ExportInsertsAction extends CustomAction {
 
@@ -44,16 +44,16 @@ public class ExportInsertsAction extends CustomAction {
             selection = "Selection".equals(option);
         }
         String tableName = "?";
-        StringTokenizer tokenizer = new StringTokenizer(getQuery());
-        while (tokenizer.hasMoreTokens()) {
-            if ("from".equals(tokenizer.nextToken().toLowerCase())) {
-                if (tokenizer.hasMoreTokens()) {
-                    tableName = tokenizer.nextToken();
+        Scanner scanner = new Scanner(getQuery());
+        while (scanner.hasNext()) {
+            if ("from".equals(scanner.next().toLowerCase())) {
+                if (scanner.hasNext()) {
+                    tableName = scanner.next();
                 }
                 break;
             }
         }
-        StringBuffer prefix = new StringBuffer();
+        StringBuilder prefix = new StringBuilder();
         prefix.append("insert into ");
         prefix.append(tableName);
         prefix.append(" (");
@@ -62,7 +62,7 @@ public class ExportInsertsAction extends CustomAction {
         boolean[] isLob = new boolean[columnCount];
         boolean[] parseDate = new boolean[columnCount];
         for (int column = 0; column < columnCount; column++) {
-            prefix.append(table.getColumnName(column));
+            prefix.append(getConnectionData().checkMixedCaseQuotedIdentifier(table.getColumnName(column)));
             if (column + 1 < columnCount) {
                 prefix.append(",");
             }
@@ -71,7 +71,7 @@ public class ExportInsertsAction extends CustomAction {
             isLob[column] = isLob(column);
         }
         prefix.append(") values (");
-        StringBuffer inserts = new StringBuffer();
+        StringBuilder inserts = new StringBuilder();
         for (int row = 0; row < rowCount; row++) {
             if (!selection || table.isRowSelected(row)) {
                 inserts.append(prefix);

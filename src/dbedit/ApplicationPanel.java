@@ -297,13 +297,13 @@ public final class ApplicationPanel extends JPanel {
     public void setDataVector(Vector<Vector> dataVector, Vector columnIdentifiers, String executionTime) {
         originalOrder = new ArrayList<Vector>(dataVector);
         ((DefaultTableModel) table.getModel()).setDataVector(dataVector, columnIdentifiers);
-        String rows = dataVector.size() + " row" + (dataVector.size() != 1 ? "s" : "");
+        String rows = String.format("%d %s", dataVector.size(), dataVector.size() != 1 ? "rows" : "row");
         JComponent scrollPane = (JComponent) table.getParent().getParent();
         if (dataVector.isEmpty()) {
-            scrollPane.setToolTipText(rows + " - " + executionTime);
+            scrollPane.setToolTipText(String.format("%s - %s", rows, executionTime));
             table.setToolTipText(null);
         } else {
-            table.setToolTipText(rows + " - " + executionTime);
+            table.setToolTipText(String.format("%s - %s", rows, executionTime));
             scrollPane.setToolTipText(null);
         }
         SwingUtilities.invokeLater(new Runnable() {

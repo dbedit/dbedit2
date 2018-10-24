@@ -47,6 +47,8 @@ public class ConnectionData implements Comparable, Cloneable {
 
     private String defaultOwner;
 
+    private String identifierQuoteString;
+
     public ConnectionData() {
     }
 
@@ -136,9 +138,10 @@ public class ConnectionData implements Comparable, Cloneable {
             connection = driverInstance.connect(url, originalProperties);
         }
         if (connection == null) {
-            throw new Exception("Unable to connect.\nURL = " + url + "\nDriver = " + driver);
+            throw new Exception(String.format("Unable to connect.\nURL = %s\nDriver = %s", url, driver));
         }
         connection.setAutoCommit(false);
+        setMixedCaseQuotedIdentifiers();
     }
 
     private void addExtraProperties(Properties properties) {
@@ -190,6 +193,28 @@ public class ConnectionData implements Comparable, Cloneable {
 
     public boolean isHSQLDB() {
         return HSQLDB_DRIVER.equals(driver);
+    }
+
+    private void setMixedCaseQuotedIdentifiers() {
+        try {
+            if (!connection.getMetaData().supportsMixedCaseIdentifiers()
+              && connection.getMetaData().supportsMixedCaseQuotedIdentifiers()) {
+                identifierQuoteString = connection.getMetaData().getIdentifierQuoteString();
+            } else {
+                identifierQuoteString = "";
+            }
+        } catch (Exception e) {
+            identifierQuoteString = "";
+            ExceptionDialog.hideException(e);
+        }
+    }
+
+    public String checkMixedCaseQuotedIdentifier(String s) {
+        boolean hasLowerCase = !s.equals(s.toUpperCase());
+        if (hasLowerCase) {
+            s = String.format("%s%s%s", identifierQuoteString, s, identifierQuoteString);
+        }
+        return s;
     }
 
     @Override

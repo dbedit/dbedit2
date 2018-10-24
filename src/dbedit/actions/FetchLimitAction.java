@@ -35,6 +35,7 @@ public class FetchLimitAction extends CustomAction {
         if (Dialog.OK_OPTION == Dialog.show("Fetch limit", spinner, Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
             setFetchLimit(((Number) spinner.getValue()).intValue());
         }
-        putValue(NAME, "Fetch limit = " + (getFetchLimit() == 0 ? "unlimited" : "" + getFetchLimit()));
+        putValue(NAME, String.format("Fetch limit = %s",
+                getFetchLimit() == 0 ? "unlimited" : String.valueOf(getFetchLimit())));
     }
 }

@@ -66,17 +66,17 @@ public class RunScriptAction extends ActionChangeAbstractAction {
             }
         };
         WaitingDialog waitingDialog = new WaitingDialog(onCancel);
-        waitingDialog.setText("0/" + total);
+        waitingDialog.setText(String.format("0/%d", total));
         try {
             while (waitingDialog.isVisible() && matcher.find()) {
                 String sql = text.substring(matcher.start(1), matcher.end(1));
                 Vector<String> row = new Vector<String>(1);
                 PLUGIN.audit(sql);
                 int i = statement.executeUpdate(sql);
-                PLUGIN.audit("[" + i + " rows updated]");
+                PLUGIN.audit(String.format("[%d rows updated]", i));
                 row.add(Integer.toString(i));
                 dataVector.add(row);
-                waitingDialog.setText(count++ + "/" + total);
+                waitingDialog.setText(String.format("%d/%d", count++, total));
             }
         } catch (Exception ex) {
             ApplicationPanel.getInstance().getTextComponent().setSelectionStart(matcher.start(1));

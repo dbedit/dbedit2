@@ -126,7 +126,7 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
     @Override
     public void onEndPage(PdfWriter writer, Document document) {
         PdfContentByte cb = writer.getDirectContent();
-        String text = "Page " + writer.getPageNumber() + " of ";
+        String text = String.format("Page %d of ", writer.getPageNumber());
         float textSize = BASE_FONT.getWidthPoint(text, 12);
         float textBase = document.bottom() - 20;
         cb.beginText();
@@ -147,7 +147,7 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
     public void onCloseDocument(PdfWriter writer, Document document) {
        pdfTemplate.beginText();
        pdfTemplate.setFontAndSize(BASE_FONT, 12);
-       pdfTemplate.showText("" + (writer.getPageNumber() - 1));
+       pdfTemplate.showText(String.valueOf(writer.getPageNumber() - 1));
        pdfTemplate.endText();
     }
 

@@ -62,7 +62,8 @@ public class LobExportAction extends LobAbstractAction {
                         }
                         for (int selectedRow : selectedRows) {
                             table.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
-                            exportLob(new File(dir, "" + table.getValueAt(selectedRow, selectedIndex)), getLob());
+                            exportLob(new File(dir,
+                                    String.valueOf(table.getValueAt(selectedRow, selectedIndex))), getLob());
                         }
                     }
                 }

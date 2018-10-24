@@ -56,8 +56,8 @@ public class AboutAction extends CustomAction {
         c.gridy++;
         c.gridwidth = 2;
         c.anchor = GridBagConstraints.SOUTHWEST;
-        panel.add(new JLabel(
-                "<html><font style=\"font-weight:bold\">DBEdit " + Config.getVersion() + "</font></html>"), c);
+        panel.add(new JLabel(String.format(
+                "<html><font style=\"font-weight:bold\">DBEdit %s</font></html>", Config.getVersion())), c);
         c.gridy++;
         panel.add(new JLabel(
                 "<html><font style=\"color:gray\">Copyright © 2006-2010 Jef Van Den Ouweland</font></html>"), c);
@@ -86,7 +86,7 @@ public class AboutAction extends CustomAction {
                 c.gridy++;
                 panel.add(new JLabel(""), c);
                 String databaseProductVersion = metaData.getDatabaseProductVersion().replaceAll("\n", "<br>");
-                panel.add(new JLabel("<html>" + databaseProductVersion + "</html>"), c);
+                panel.add(new JLabel(String.format("<html>%s</html>", databaseProductVersion)), c);
                 c.gridy++;
                 panel.add(new JLabel("Driver: "), c);
                 panel.add(new JLabel(metaData.getDriverName()), c);

@@ -44,7 +44,7 @@ public class History {
     public void add(String text) {
         offset = history.size() - 1;
         // don't add empty text or text that just has been added
-        if (text.trim().length() > 0 && (history.isEmpty() || !text.equals(history.get(offset)))) {
+        if (!text.trim().isEmpty() && (history.isEmpty() || !text.equals(history.get(offset)))) {
             history.add(text);
             offset++;
         }

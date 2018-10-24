@@ -97,7 +97,7 @@ public class Grid {
     public String toString(int[] rightAlignedColumns) {
         int[] widths = calculateWidths();
         Arrays.sort(rightAlignedColumns);
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (List<Object> row : rows) {
             for (int j = 0; j < row.size(); j++) {
                 Object text = row.get(j);

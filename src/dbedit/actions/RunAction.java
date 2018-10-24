@@ -113,21 +113,21 @@ public class RunAction extends ActionChangeAbstractAction {
                             row.add(object);
                         } catch (Exception e1) {
                             row.add("###");
-                            System.err.println("Unable to retrieve value for row "
-                                    + (dataVector.size() + 1) + " col " + (i + 1));
+                            System.err.format("Unable to retrieve value for row %s col %s",
+                                    dataVector.size() + 1, i + 1);
                             ExceptionDialog.hideException(e1);
                         }
                     }
                     dataVector.add(row);
-                    waitingDialog.setText(dataVector.size() + " rows retrieved");
+                    waitingDialog.setText(String.format("%d rows retrieved", dataVector.size()));
                 }
-                PLUGIN.audit("[" + dataVector.size() + " rows retrieved]");
+                PLUGIN.audit(String.format("[%d rows retrieved]", dataVector.size()));
             } else {
                 getConnectionData().setResultSet(null);
                 int updateCount = statement.getUpdateCount();
                 if (updateCount != -1) {
                     Vector<Object> row = new Vector<Object>(1);
-                    PLUGIN.audit("[" + updateCount + " rows updated]");
+                    PLUGIN.audit(String.format("[%d rows updated]", updateCount));
                     row.add(Integer.toString(updateCount));
                     dataVector.add(row);
                     columnIdentifiers.add("Rows updated");
@@ -172,7 +172,7 @@ public class RunAction extends ActionChangeAbstractAction {
         if (query) {
             if (getConnectionData().isOracle()) {
                 // http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/resltset.htm#CIHEJHJI
-                sql = "select x.* from (" + sql + ") x where 1 = 1";
+                sql = String.format("select x.* from (%s) x where 1 = 1", sql);
             }
             DatabaseMetaData metaData = connection.getMetaData();
             if (metaData.supportsResultSetConcurrency(
@@ -214,7 +214,7 @@ public class RunAction extends ActionChangeAbstractAction {
             ParameterMetaData metaData = statement.getParameterMetaData();
             String[] bindVariables = new String[metaData.getParameterCount()];
             for (int i = 0; i < metaData.getParameterCount(); i++) {
-                bindVariables[i] = JOptionPane.showInputDialog("Bind variable " + (i + 1));
+                bindVariables[i] = JOptionPane.showInputDialog(String.format("Bind variable %d", i + 1));
             }
             handleBindVariables(statement, bindVariables);
             return bindVariables;
