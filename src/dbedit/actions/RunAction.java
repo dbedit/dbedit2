@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ public class RunAction extends ActionChangeAbstractAction {
         super("Run", "run.png", KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK));
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         String text = ApplicationPanel.getInstance().getText();
         String originalText = text;
@@ -45,30 +46,25 @@ public class RunAction extends ActionChangeAbstractAction {
         Vector<Vector> dataVector = new Vector<Vector>();
         int[] columnTypes;
         String[] columnTypeNames;
-        int resultSetType;
         String originalQuery = text;
         boolean query = text.trim().toLowerCase().startsWith("select")
                 || text.trim().toLowerCase().startsWith("with");
+        Statement statement;
         if (query) {
             if (getConnectionData().isOracle()) {
                 // http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/resltset.htm#CIHEJHJI
                 text = "select x.* from (" + text + ") x where 1 = 1";
-                resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
-            } else if (getConnectionData().isDb2()) {
-                resultSetType = ResultSet.TYPE_SCROLL_SENSITIVE;
-            } else if (getConnectionData().isMySql()) {
-                resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
-            } else if (getConnectionData().isHSQLDB()) {
-                resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
+            }
+            if (getConnectionData().isIbm()) {
+                statement = getConnectionData().getConnection().createStatement(
+                        ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE, ResultSet.CLOSE_CURSORS_AT_COMMIT);
             } else {
-                // ?
-                resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
+                statement = getConnectionData().getConnection().createStatement(
+                        ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             }
         } else {
-            resultSetType = ResultSet.TYPE_FORWARD_ONLY;
+            statement = getConnectionData().getConnection().createStatement();
         }
-        Statement statement = getConnectionData().getConnection()
-                .createStatement(resultSetType, ResultSet.CONCUR_UPDATABLE);
         statement.setMaxRows(getFetchLimit());
         final Statement[] statements = new Statement[] {statement};
         Runnable onCancel = new Runnable() {

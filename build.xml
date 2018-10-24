@@ -37,7 +37,7 @@
     </target>
 
 	<target name="make-win" depends="jar, get-version">
-        <unzip src="${lib}/launch4j-3.0.0-win32.zip" dest="${lib}"/>
+        <unzip src="${lib}/launch4j-3.0.1-win32.zip" dest="${lib}"/>
         <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpathref="dist.classpath" />
         <launch4j>
             <config jar="${dist}/dbedit.jar" outfile="${dist}/DBEdit.exe" icon="${lib}/launcher.ico" customProcName="true" errTitle="DBEdit 2">
@@ -45,8 +45,8 @@
             </config>
         </launch4j>
 
-        <unzip src="${lib}/nsis-2.37.zip" dest="${lib}"/>
-        <exec executable="${lib}/nsis-2.37/makensis.exe" failonerror="true">
+        <unzip src="${lib}/nsis-2.44.zip" dest="${lib}"/>
+        <exec executable="${lib}/nsis-2.44/makensis.exe" failonerror="true">
             <arg line="${lib}/installer.nsi"/>
         </exec>
         <delete file="${dist}/DBEdit.exe"/>

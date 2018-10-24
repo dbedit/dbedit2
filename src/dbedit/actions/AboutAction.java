@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,9 +38,11 @@ public class AboutAction extends CustomAction {
         setEnabled(true);
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         final Font logoFont = new Font("Dialog", Font.BOLD, 28);
         JPanel panel = new JPanel(new GridBagLayout()) {
+            @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 int x = 10;
@@ -62,7 +64,7 @@ public class AboutAction extends CustomAction {
         panel.add(new JLabel(Config.getVersion()), c);
         c.gridy++;
         panel.add(new JLabel(), c);
-        panel.add(new JLabel("Copyright (C) 2006-2008"), c);
+        panel.add(new JLabel("Copyright (C) 2006-2009"), c);
         c.gridy++;
         panel.add(new JLabel("Author: "), c);
         panel.add(new JLabel("Jef Van Den Ouweland"), c);
@@ -106,6 +108,7 @@ public class AboutAction extends CustomAction {
         PLUGIN.customizeAboutPanel(panel, c);
         panel.setBorder(new BevelBorder(BevelBorder.RAISED) {
             private Insets insets = new Insets(42, 10, 10, 10);
+            @Override
             public Insets getBorderInsets(Component c) {
                 return insets;
             }
@@ -119,6 +122,7 @@ public class AboutAction extends CustomAction {
         dialog.setVisible(true);
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getSource() instanceof JLabel) {
             JLabel label = (JLabel) e.getSource();

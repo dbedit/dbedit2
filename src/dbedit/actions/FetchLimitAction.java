@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ public class FetchLimitAction extends CustomAction {
         setEnabled(true);
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         JSpinner spinner = new JSpinner(new SpinnerNumberModel(getFetchLimit(), 0, 999999, 1));
         if (Dialog.OK_OPTION == Dialog.show("Fetch limit", spinner, Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {

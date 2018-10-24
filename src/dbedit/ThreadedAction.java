@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ public abstract class ThreadedAction implements Runnable {
                         if (glassPane.getMouseListeners().length == 0) {
                             glassPane.setCursor(new Cursor(Cursor.WAIT_CURSOR));
                             glassPane.addMouseListener(new MouseAdapter() {
+                                @Override
                                 public void mouseClicked(MouseEvent e) {
                                     super.mouseClicked(e);
                                 }

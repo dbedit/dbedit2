@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ public class LobOpenAction extends LobAbstractAction {
         super(name, icon, accelerator);
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         File tempFile = getTempFile();
         tempFile.deleteOnExit();
@@ -46,6 +47,7 @@ public class LobOpenAction extends LobAbstractAction {
         return File.createTempFile("lob", ".txt");
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
         if (MouseEvent.BUTTON1 == e.getButton() && e.getClickCount() == 2
                 && isLob(ApplicationPanel.getInstance().getTable().getSelectedColumn())) {

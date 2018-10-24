@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,9 +36,11 @@ public abstract class GroupAction extends CustomAction {
         popupMenu.add(action).setMargin(new Insets(2, -14, 2, 2));
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
     }
 
+    @Override
     public void actionPerformed(final ActionEvent e) {
         popupMenu.show((Component) e.getSource(), 0, ((Component) e.getSource()).getHeight());
         popupMenu.addPopupMenuListener(new PopupMenuListener() {

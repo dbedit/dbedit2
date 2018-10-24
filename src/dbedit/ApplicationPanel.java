@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package dbedit;
 
 import dbedit.actions.Actions;
@@ -149,6 +150,7 @@ public final class ApplicationPanel extends JPanel {
         table.getColumnModel().addColumnModelListener(Actions.RUN);
         table.getDefaultEditor(Object.class).addCellEditorListener(Actions.EDIT);
         table.setModel(new DefaultTableModel() {
+            @Override
             public boolean isCellEditable(int row, int column) {
                 return CustomAction.getConnectionData() != null
                         && CustomAction.getConnectionData().getResultSet() != null
@@ -156,6 +158,7 @@ public final class ApplicationPanel extends JPanel {
             }
         });
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
             public Component getTableCellRendererComponent(JTable componentTable, Object value, boolean isSelected,
                                                            boolean hasFocus, int row, int column) {
                 if (value != null && CustomAction.isLob(column)) {

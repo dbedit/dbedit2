@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,6 +92,7 @@ public class DirectoryChooser extends JTree {
             super(value, children);
         }
 
+        @Override
         protected void loadChildren() {
             loadedChildren = true;
             File[] files = FILE_SYSTEM_VIEW.getFiles((File) userObject, true);
@@ -105,6 +106,7 @@ public class DirectoryChooser extends JTree {
     }
 
     private static class DirRenderer extends DefaultTreeCellRenderer {
+        @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
                                                       boolean leaf, int row, boolean hasFocus) {
             File file = (File) ((DefaultMutableTreeNode) value).getUserObject();

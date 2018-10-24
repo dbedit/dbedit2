@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,7 +132,7 @@ public class ConnectionData implements Comparable, Cloneable {
         } else if (isIbm()) {
             // set application name
             properties.setProperty("clientProgramName", DBEdit.APPLICATION_NAME);
-            if (url.indexOf("retrieveMessagesFromServerOnGetMessage") == -1) {
+            if (!url.contains("retrieveMessagesFromServerOnGetMessage")) {
                 properties.setProperty("retrieveMessagesFromServerOnGetMessage", "true");
             }
         } else if (isDataDirect()) {
@@ -188,6 +188,7 @@ public class ConnectionData implements Comparable, Cloneable {
         return HSQLDB_DRIVER.equals(driver);
     }
 
+    @Override
     public String toString() {
         return name;
     }
@@ -197,6 +198,7 @@ public class ConnectionData implements Comparable, Cloneable {
         return name.compareTo(connectionData.name);
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

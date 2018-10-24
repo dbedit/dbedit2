@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ public class FavoritesAction extends CustomAction {
         setEnabled(true);
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         favorites();
     }
@@ -55,7 +56,7 @@ public class FavoritesAction extends CustomAction {
                 new Object[] {"OK", "Cancel", "Add", "Delete"}, "OK");
         if ("OK".equals(value)) {
             if (!list.isSelectionEmpty()) {
-                String s = favorites.get((String) list.getSelectedValue());
+                String s = favorites.get(list.getSelectedValue());
                 ApplicationPanel.getInstance().getTextComponent().setText(s);
                 ApplicationPanel.getInstance().getTextComponent().setCaretPosition(s.length());
             }
@@ -63,7 +64,7 @@ public class FavoritesAction extends CustomAction {
             if (!list.isSelectionEmpty()) {
                 if (Dialog.YES_OPTION == Dialog.show("Delete favorite", "Are you sure?",
                         Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
-                    favorites.remove((String) list.getSelectedValue());
+                    favorites.remove(list.getSelectedValue());
                     Config.saveFavorites(favorites);
                 }
             }
@@ -83,6 +84,7 @@ public class FavoritesAction extends CustomAction {
         }
     }
 
+    @Override
     public void mouseClicked(final MouseEvent e) {
         if (e.getClickCount() == 2) {
             Container container = (Container) e.getSource();
@@ -102,6 +104,7 @@ public class FavoritesAction extends CustomAction {
         }
     }
 
+    @Override
     public void valueChanged(ListSelectionEvent e) {
         JList list = (JList) e.getSource();
         list.ensureIndexIsVisible(list.getSelectedIndex());

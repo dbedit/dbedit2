@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,6 +58,7 @@ public abstract class CustomAction extends AbstractAction
 
     public void actionPerformed(final ActionEvent e) {
         new ThreadedAction() {
+            @Override
             protected void execute() throws Exception {
                 performThreaded(e);
             }

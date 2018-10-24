@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ public class LobImportAction extends LobAbstractAction {
         super("Import from file", "import.png", null);
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         if (JFileChooser.APPROVE_OPTION == getFileChooser().showOpenDialog(ApplicationPanel.getInstance())) {
             FileInputStream in = new FileInputStream(getFileChooser().getSelectedFile());

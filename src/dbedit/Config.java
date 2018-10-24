@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -164,9 +164,6 @@ public final class Config {
                               new StreamResult(new ByteArrayOutputStream())); // test first
         transformer.transform(new DOMSource(config),
                               new StreamResult(new File(System.getProperty("user.home"), "dbedit.xml")));
-
-        // previous version
-        new File(System.getProperty("user.home"), "query.xml").delete();
     }
 
     protected static String decrypt(String encrypted) throws GeneralSecurityException, IOException {

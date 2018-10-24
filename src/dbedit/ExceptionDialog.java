@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,25 +87,25 @@ public final class ExceptionDialog {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             t.printStackTrace(new PrintStream(out));
             String exception = new String(out.toByteArray());
-            if (t.getMessage().indexOf("Unsupported VM encoding") != -1) {
+            if (t.getMessage().contains("Unsupported VM encoding")) {
                 msg = "This can be resolved by reinstalling your JRE and enabling "
                         + "\"Support for additional languages\" during setup.";
             } else if (((SQLException) t).getErrorCode() == 907) {
-                if (text.toLowerCase().indexOf("order") != -1
-                        && (exception.indexOf("editingStopped") != -1 || exception.indexOf("deleteRow") != -1)) {
+                if (text.toLowerCase().contains("order")
+                        && (exception.contains("editingStopped") || exception.contains("deleteRow"))) {
                     msg = "Updating a resultset mostly fails when the ORDER BY clause is used.\n"
                             + "Try the select without ORDER BY and sort the column afterwards.";
                 }
-            } else if (exception.indexOf("ResultSet is not updat") != -1) {
+            } else if (exception.contains("ResultSet is not updat")) {
                 if (text.toLowerCase().trim().endsWith("for fetch only")) {
                     msg = "Try your select without \"for fetch only\".";
                 }
             } else if (CustomAction.getConnectionData() != null && CustomAction.getConnectionData().isIbm()) {
-                if (t.getMessage().indexOf("JDBC 2 method called: Method is not yet supported") != -1) {
+                if (t.getMessage().contains("JDBC 2 method called: Method is not yet supported")) {
                     msg = "The IBM JDBC driver doesn't support inserting rows yet.\n"
                             + "Execute the insert statement manually or try the DataDirect DB2 driver.\n"
                             + "http://www.datadirect.com/products/jdbc/";
-                } else if (t.getMessage().indexOf("Invalid operation: result set is closed.") != -1) {
+                } else if (t.getMessage().contains("Invalid operation: result set is closed.")) {
                     int length = CustomAction.getColumnTypes().length;
                     for (int i = 0; i < length; i++) {
                         if (CustomAction.isLob(i)) {

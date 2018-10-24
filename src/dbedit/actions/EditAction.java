@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ public class EditAction extends CustomAction {
         super(name, icon, accelerator);
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         ResultSet resultSet = getConnectionData().getResultSet();
         JPanel panel = new JPanel(new GridBagLayout());

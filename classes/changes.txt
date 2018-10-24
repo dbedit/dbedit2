@@ -1,3 +1,7 @@
+2.1.6 (25/03/2009)
+- Changed IBM driver result set holdability to
+  "Close cursors at commit" to avoid unwanted locks
+
 2.1.5 (13/06/2008)
 - Added execution time to the progress panel and result grid
 - Added support for procedures returning a result set

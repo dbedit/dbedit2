@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ public class ExportExcelAction extends CustomAction {
         super("Excel", "spreadsheet.png", null);
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         boolean selection = false;
         JTable table = ApplicationPanel.getInstance().getTable();

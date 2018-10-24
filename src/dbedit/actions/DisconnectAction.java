@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ public class DisconnectAction extends ActionChangeAbstractAction {
         super("Disconnect", "disconnect.png", null);
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         if (getConnectionData() != null) {
             String selectedOwner = ApplicationPanel.getInstance().destroyObjectChooser();
@@ -55,6 +56,7 @@ public class DisconnectAction extends ActionChangeAbstractAction {
         handleActions();
     }
 
+    @Override
     public void ancestorRemoved(AncestorEvent event) {
         try {
             performThreaded(null);

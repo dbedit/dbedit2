@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ public class LobExportAction extends LobAbstractAction {
         super("Export to file", "export.png", null);
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         JTable table = ApplicationPanel.getInstance().getTable();
         int[] selectedRows = table.getSelectedRows();
@@ -76,6 +77,7 @@ public class LobExportAction extends LobAbstractAction {
         }
     }
 
+    @Override
     public void mouseClicked(final MouseEvent e) {
         if (e.getClickCount() == 2) {
             Container container = (Container) e.getSource();
@@ -95,6 +97,7 @@ public class LobExportAction extends LobAbstractAction {
         }
     }
 
+    @Override
     public void valueChanged(ListSelectionEvent e) {
         JList list = (JList) e.getSource();
         list.ensureIndexIsVisible(list.getSelectedIndex());

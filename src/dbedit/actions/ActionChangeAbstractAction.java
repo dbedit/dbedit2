@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,22 +80,27 @@ public abstract class ActionChangeAbstractAction extends CustomAction {
         Actions.LOB_PASTE.setEnabled(canImportFromMemory);
     }
 
+    @Override
     public void changedUpdate(DocumentEvent e) {
         handleTextActions();
     }
 
+    @Override
     public void insertUpdate(DocumentEvent e) {
         handleTextActions();
     }
 
+    @Override
     public void removeUpdate(DocumentEvent e) {
         handleTextActions();
     }
 
+    @Override
     public void valueChanged(ListSelectionEvent e) {
         handleActions();
     }
 
+    @Override
     public void columnSelectionChanged(ListSelectionEvent e) {
         if (!e.getValueIsAdjusting()) {
             handleActions();
@@ -107,6 +112,7 @@ public abstract class ActionChangeAbstractAction extends CustomAction {
         return history;
     }
 
+    @Override
     public void mouseClicked(final MouseEvent e) {
         JTableHeader tableHeader = (JTableHeader) e.getSource();
         final int col = tableHeader.columnAtPoint(e.getPoint());

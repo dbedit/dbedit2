@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ public class DeleteAction extends CustomAction {
         super("Delete", "delete.png", null);
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         int[] rows = ApplicationPanel.getInstance().getTable().getSelectedRows();
         ResultSet resultSet = getConnectionData().getResultSet();

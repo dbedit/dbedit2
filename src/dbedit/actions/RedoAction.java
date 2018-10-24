@@ -1,6 +1,6 @@
-/**
+/*
  * DBEdit 2
- * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ * Copyright (C) 2006-2009 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,10 +30,12 @@ public class RedoAction extends CustomAction {
                 KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK + KeyEvent.SHIFT_DOWN_MASK));
     }
 
+    @Override
     public void actionPerformed(final ActionEvent e) {
         ApplicationPanel.getInstance().getUndoManager().redo();
     }
 
+    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
     }
 }
