@@ -1,0 +1,37 @@
+2.0.7 (06/11/2006)
+- Included work around for the IBM driver that
+  prevented executing some analytic functions
+
+2.0.6 (19/10/2006)
+- Fixed bug which prevented result sets containing more
+  than 128 columns to be exported to a flat file
+- Changed Eclipse icon set to Crystal Clear icon set
+- Suppressed database update when a cell is exited
+  without the value being changed
+- Replaced "Query help" with a "Schema browser"
+    To open the schema browser press Alt+Enter or click the
+    most right button on the toolbar, repeat action to close
+    Use the keyboard arrow keys to navigate, Esc to cancel,
+    Enter or double click to select
+    (Ctrl+S now inserts the frequently used text "select * from " in the editor)
+
+2.0.5 (29/08/2006)
+- Added program name "DBEdit 2" to Oracle and IBM DB2 session
+- Added support for running large scripts
+- Added possibility to export multiple lobs at once
+- Added MySQL support
+
+2.0.4 (05/07/2006)
+- Added Edit - History
+- Added Edit - Undo/Redo
+- Added more toolbar items
+
+2.0.3 (22/06/2006)
+- Added "Grid - Lob - Copy and Paste" to transfer multiple lobs at once
+
+2.0.2 (08/03/2006)
+- Fixed "Help - About - Homepage" link and
+  "Update - Download latest version" link when using Internet explorer
+
+2.0.1 (13/01/2006)
+- Added "Grid - Export - Insert statements"

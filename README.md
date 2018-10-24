@@ -1,2 +1,2 @@
 # dbedit2
-A database editor, suitable as front-end for all your relational databases. Connects to Oracle, DB2, MySQL and many other databases. Used to easily query, update and administer your database, create reports and synchronize data.
+NOTE: The maintainer of the project on GitHub is NOT Jef Van Den Ouweland. The author of the official dbedit2 project is Jef Van Den Ouweland and the official project is hosted on SourceForge.net. A database editor, suitable as front-end for all your relational databases. Connects to Oracle, DB2, MySQL and many other databases. Used to easily query, update and administer your database, create reports and synchronize data.

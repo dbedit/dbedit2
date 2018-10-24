@@ -1,0 +1,54 @@
+<project name="dbedit" default="make-installer" basedir=".">
+	<property name="src" location="src"/>
+	<property name="lib"  location="lib"/>
+	<property name="build" location="classes"/>
+	<property name="dist" location="dist"/>
+	<property name="launch4j.dir" location="../.." />
+
+	<path id="dist.classpath">
+	       	<pathelement path="${build}"/>
+		<fileset dir="${lib}">
+		       	<include name="**/*.jar"/>
+	      	</fileset>
+	</path>
+
+	<target name="compile" description="compile the source">
+        <mkdir dir="${build}"/>
+		<javac srcdir="${src}"  destdir="${build}" classpathref="dist.classpath"  debug="on"/>
+        <copy todir="${build}"><fileset dir="${src}" includes="changes **/*.png **/*.gif"/></copy>
+    </target>
+
+	<target name="jar" depends="compile" description="create the jar">
+        <mkdir dir="${dist}"/>
+		<jar jarfile="${dist}/dbedit.jar">
+            <fileset dir="${build}" includes="**/*"/>
+			<manifest>
+                <attribute name="Main-Class" value="dbedit.DBEdit"/>
+                <attribute name="Class-Path" value="poi-2.5.1-final-20040804.jar"/>
+			</manifest>
+		</jar>
+    </target>
+
+	<target name="make-application" depends="jar">
+        <unzip src="${lib}/launch4j-2.1.5-win32.zip" dest="${lib}"/>
+        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpathref="dist.classpath" />
+        <launch4j>
+            <config jar="${dist}/dbedit.jar" outfile="${dist}/DBEdit.exe" icon="${lib}/launcher.ico" customProcName="true" errTitle="DBEdit 2">
+                <jre minVersion="1.4.2" maxHeapSize="512"/>
+            </config>
+        </launch4j>
+        <delete file="${dist}/dbedit.jar"/>
+        <copy todir="${dist}"><fileset dir="${lib}" includes="*.jar"/></copy>
+    </target>
+
+	<target name="make-installer" depends="make-application">
+        <unzip src="${lib}/nsis-2.20.zip" dest="${lib}"/>
+        <mkdir dir="${dist}/installer"/>
+        <exec executable="${lib}/nsis-2.20/makensis.exe" failonerror="true"><arg line="${lib}/installer.nsi"/></exec>
+    </target>
+
+    <target name="clean" description="clean up" >
+        <delete dir="${dist}"/>
+		<delete dir="${build}"/>
+	</target>
+</project>
