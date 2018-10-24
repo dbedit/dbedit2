@@ -29,7 +29,7 @@ public class WaitingDialog extends TimerTask {
     private JDialog dialog;
     private long startTime = System.currentTimeMillis();
 
-    public WaitingDialog(final Runnable onCancel) {
+    public WaitingDialog(final Runnable onCancel) throws InterruptedException {
         JPanel panel = new JPanel(new GridLayout(2, 1));
         panel.add(message1);
         panel.add(message2);
@@ -48,6 +48,8 @@ public class WaitingDialog extends TimerTask {
         // wait
         boolean visible = false;
         while (!visible) {
+            // x64 systems hang without this Thread.sleep(20)
+            Thread.sleep(20);
             visible = dialog.isVisible();
         }
         new Timer().schedule(this, 3000, 1000);
@@ -62,7 +64,7 @@ public class WaitingDialog extends TimerTask {
     }
 
     public void hide() {
-        dialog.setVisible(false);
+        dialog.dispose();
         cancel();
     }
 

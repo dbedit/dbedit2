@@ -38,6 +38,7 @@ public class DBEdit extends JFrame {
         if (Config.IS_OS_WINDOWS) {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
+        UIManager.put("TextArea.font", new Font(Font.MONOSPACED, Font.PLAIN, 12));
 
         new DBEdit();
     }

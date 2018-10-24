@@ -48,7 +48,6 @@ public class FavoritesAction extends CustomAction {
     public void favorites() throws ParserConfigurationException, IOException, TransformerException, SAXException {
         Map<String, String> favorites = Config.getFavorites();
         final JList list = new JList(favorites.keySet().toArray());
-        list.setVisibleRowCount(15);
         list.addMouseListener(this);
         list.addListSelectionListener(this);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

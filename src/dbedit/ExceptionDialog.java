@@ -47,7 +47,6 @@ public final class ExceptionDialog {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             t.printStackTrace(new PrintStream(out));
             JTextArea textArea = new JTextArea(new String(out.toByteArray()));
-            textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
             textArea.append("\n");
             textArea.append("DBEdit ");
             try {
@@ -78,7 +77,6 @@ public final class ExceptionDialog {
             textArea.append(text);
             textArea.setEditable(false);
             JScrollPane scrollPane = new JScrollPane(textArea);
-            scrollPane.setPreferredSize(new Dimension(600, 400));
             if ("Copy to clipboard".equals(Dialog.show(t.getClass().getName(), scrollPane, Dialog.ERROR_MESSAGE,
                     new Object[] {"Close", "Copy to clipboard"}, "Close"))) {
                 try {

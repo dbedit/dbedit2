@@ -37,7 +37,6 @@ public class DirectoryChooser extends JTree {
             directoryChooser.setSelectedDirectory(new File(lastUsedDir));
         }
         JScrollPane scrollPane = new JScrollPane(directoryChooser);
-        scrollPane.setPreferredSize(new Dimension(400, 400));
         if (Dialog.OK_OPTION == Dialog.show("Choose directory", scrollPane,
                 Dialog.PLAIN_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
             File selectedDir = directoryChooser.getSelectedDirectory();

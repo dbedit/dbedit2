@@ -133,7 +133,6 @@ public final class ApplicationPanel extends JPanel {
 //        Scanner scanner = new JavaScanner();
 //        text = new SyntaxHighlighter(24, 80, scanner);
 
-        text.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         text.setMargin(new Insets(2, 2, 2, 2));
         undoManager = new UndoManager();
         text.getDocument().addUndoableEditListener(undoManager);

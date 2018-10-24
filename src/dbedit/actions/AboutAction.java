@@ -19,6 +19,7 @@ package dbedit.actions;
 
 import dbedit.ApplicationPanel;
 import dbedit.Config;
+import dbedit.Dialog;
 import dbedit.ExceptionDialog;
 
 import javax.swing.*;
@@ -132,10 +133,7 @@ public class AboutAction extends CustomAction {
                     JTextArea textArea = new JTextArea(new String(out.toByteArray()));
                     textArea.setEditable(false);
                     JScrollPane scrollPane = new JScrollPane(textArea);
-                    scrollPane.setPreferredSize(new Dimension(scrollPane.getPreferredSize().width
-                            + scrollPane.getVerticalScrollBar().getPreferredSize().width, 400));
-                    JOptionPane.showMessageDialog(ApplicationPanel.getInstance(), scrollPane, "License",
-                            JOptionPane.DEFAULT_OPTION);
+                    dbedit.Dialog.show("License", scrollPane, Dialog.PLAIN_MESSAGE, Dialog.DEFAULT_OPTION);
                 } else {
                     openURL(label.getText());
                 }

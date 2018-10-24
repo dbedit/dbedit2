@@ -35,59 +35,22 @@ public class RunAction extends ActionChangeAbstractAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        String text = ApplicationPanel.getInstance().getText();
-        if (text.trim().endsWith(";")) {
-            text = text.trim().substring(0, text.trim().length() - 1);
+        String sql = ApplicationPanel.getInstance().getText();
+        if (sql.trim().endsWith(";")) {
+            sql = sql.trim().substring(0, sql.trim().length() - 1);
         }
-        String originalText = text;
-        getHistory().add(text);
+        String originalSql = sql;
+        getHistory().add(sql);
         handleTextActions();
         Vector<String> columnIdentifiers = new Vector<String>();
         Vector<Vector> dataVector = new Vector<Vector>();
         int[] columnTypes;
         String[] columnTypeNames;
-        String originalQuery = text;
-        boolean query = text.trim().toLowerCase().startsWith("select")
-                || text.trim().toLowerCase().startsWith("with");
-        Statement statement;
-        if (query) {
-            if (getConnectionData().isOracle()) {
-                // http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/resltset.htm#CIHEJHJI
-                text = "select x.* from (" + text + ") x where 1 = 1";
-            }
-            DatabaseMetaData metaData = getConnectionData().getConnection().getMetaData();
-            if (metaData.supportsResultSetConcurrency(
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_UPDATABLE)) {
-                // Oracle, MySQL, DataDirect DB2
-                statement = getConnectionData().getConnection().createStatement(
-                        ResultSet.TYPE_SCROLL_INSENSITIVE,
-                        ResultSet.CONCUR_UPDATABLE);
-            } else if (metaData.supportsResultSetConcurrency(
-                    ResultSet.TYPE_SCROLL_SENSITIVE,
-                    ResultSet.CONCUR_UPDATABLE)) {
-                if (metaData.supportsResultSetHoldability(
-                        ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
-                    // IBM DB2
-                    statement = getConnectionData().getConnection().createStatement(
-                            ResultSet.TYPE_SCROLL_SENSITIVE,
-                            ResultSet.CONCUR_UPDATABLE,
-                            ResultSet.CLOSE_CURSORS_AT_COMMIT);
-                } else {
-                    statement = getConnectionData().getConnection().createStatement(
-                            ResultSet.TYPE_SCROLL_SENSITIVE,
-                            ResultSet.CONCUR_UPDATABLE);
-                }
-            } else {
-                // SQLite, HSQLDB
-                statement = getConnectionData().getConnection().createStatement(
-                        ResultSet.TYPE_FORWARD_ONLY,
-                        ResultSet.CONCUR_READ_ONLY);
-            }
-        } else {
-            statement = getConnectionData().getConnection().createStatement();
-        }
+        PreparedStatement statement = createStatement(getConnectionData().getConnection(), sql);
         statement.setMaxRows(getFetchLimit());
+
+        String[] bindVariables = handleBindVariables(statement);
+
         final Statement[] statements = new Statement[] {statement};
         final boolean[] executed = {false};
         Runnable onCancel = new Runnable() {
@@ -110,16 +73,21 @@ public class RunAction extends ActionChangeAbstractAction {
         try {
             boolean hasResultSet;
             try {
-                hasResultSet = statement.execute(text);
+                hasResultSet = statement.execute();
             } catch (SQLException e1) {
-                // try read-only and without modifications
-                statement = getConnectionData().getConnection()
-                        .createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-                statements[0] = statement;
-                hasResultSet = statement.execute(originalText);
+                if (statement.getResultSetConcurrency() != ResultSet.CONCUR_READ_ONLY) {
+                    // try read-only and without modifications
+                    statement = getConnectionData().getConnection().prepareStatement(originalSql);
+                    // Bind variables
+                    handleBindVariables(statement, bindVariables);
+                    statements[0] = statement;
+                    hasResultSet = statement.execute();
+                } else {
+                    throw e1;
+                }
             }
             executed[0] = true;
-            PLUGIN.audit(originalQuery);
+            PLUGIN.audit(originalSql);
             if (hasResultSet) {
 
                 ResultSet resultSet = statement.getResultSet();
@@ -165,6 +133,21 @@ public class RunAction extends ActionChangeAbstractAction {
                     columnIdentifiers.add("Rows updated");
                     columnTypes = new int[] {Types.INTEGER};
                     columnTypeNames = new String[1];
+                } else if (statement instanceof CallableStatement) {
+                    for (int i = 0; i < bindVariables.length; i++) {
+                        try {
+                            Object o = ((CallableStatement) statement).getObject(i + 1);
+                            Vector<Object> row = new Vector<Object>(1);
+                            row.add(o);
+                            dataVector.add(row);
+                        } catch (SQLException e1) {
+                            // Not an output parameter
+                            ExceptionDialog.ignoreException(e1);
+                        }
+                    }
+                    columnIdentifiers.add("Statement executed");
+                    columnTypes = new int[] {Types.VARCHAR};
+                    columnTypeNames = new String[1];
                 } else {
                     columnIdentifiers.add("Statement executed");
                     columnTypes = new int[] {Types.INTEGER};
@@ -174,10 +157,76 @@ public class RunAction extends ActionChangeAbstractAction {
         } finally {
             waitingDialog.hide();
         }
-        setQuery(originalQuery);
+        setQuery(originalSql);
         setColumnTypes(columnTypes);
         setColumnTypeNames(columnTypeNames);
         ApplicationPanel.getInstance().setDataVector(dataVector, columnIdentifiers, waitingDialog.getExecutionTime());
         handleActions();
+    }
+
+    private PreparedStatement createStatement(Connection connection, String sql) throws SQLException {
+        boolean query = sql.trim().toLowerCase().startsWith("select")
+                || sql.trim().toLowerCase().startsWith("with");
+        boolean call = sql.trim().toLowerCase().startsWith("call");
+        PreparedStatement statement;
+        if (query) {
+            if (getConnectionData().isOracle()) {
+                // http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/resltset.htm#CIHEJHJI
+                sql = "select x.* from (" + sql + ") x where 1 = 1";
+            }
+            DatabaseMetaData metaData = connection.getMetaData();
+            if (metaData.supportsResultSetConcurrency(
+                    ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE)) {
+                // Oracle, MySQL, DataDirect DB2
+                statement = connection.prepareStatement(sql,
+                        ResultSet.TYPE_SCROLL_INSENSITIVE,
+                        ResultSet.CONCUR_UPDATABLE);
+            } else if (metaData.supportsResultSetConcurrency(
+                    ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE)) {
+                if (metaData.supportsResultSetHoldability(
+                        ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                    // IBM DB2
+                    statement = connection.prepareStatement(sql,
+                            ResultSet.TYPE_SCROLL_SENSITIVE,
+                            ResultSet.CONCUR_UPDATABLE,
+                            ResultSet.CLOSE_CURSORS_AT_COMMIT);
+                } else {
+                    statement = connection.prepareStatement(sql,
+                            ResultSet.TYPE_SCROLL_SENSITIVE,
+                            ResultSet.CONCUR_UPDATABLE);
+                }
+            } else {
+                // SQLite, HSQLDB
+                statement = connection.prepareStatement(sql);
+            }
+        } else if (call) {
+            statement = connection.prepareCall(sql);
+        } else {
+            statement = connection.prepareStatement(sql);
+        }
+        return statement;
+    }
+
+    private String[] handleBindVariables(PreparedStatement statement) {
+        try {
+            ParameterMetaData metaData = statement.getParameterMetaData();
+            String[] bindVariables = new String[metaData.getParameterCount()];
+            for (int i = 0; i < metaData.getParameterCount(); i++) {
+                bindVariables[i] = JOptionPane.showInputDialog("Bind variable " + (i + 1));
+            }
+            handleBindVariables(statement, bindVariables);
+            return bindVariables;
+        } catch (Exception e1) {
+            ExceptionDialog.ignoreException(e1);
+            return new String[0];
+        }
+    }
+
+    private void handleBindVariables(PreparedStatement statement, String[] bindVariables) throws SQLException {
+        for (int i = 0; i < bindVariables.length; i++) {
+            statement.setObject(i + 1, bindVariables[i]);
+        }
     }
 }

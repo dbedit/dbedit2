@@ -1,3 +1,9 @@
+2.3.1 (14/05/2010)
+- Added support for bind variables
+- Added XML pretty printer to lob preview
+- Optimized dialog sizes
+- Fixed application hang during second query execution on Java 64-bit
+
 2.3 (12/04/2010)
 - Added extended generic database support
 - Added extended generic platform support

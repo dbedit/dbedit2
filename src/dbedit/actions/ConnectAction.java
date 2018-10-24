@@ -40,7 +40,6 @@ public class ConnectAction extends ActionChangeAbstractAction {
         ((DisconnectAction) Actions.DISCONNECT).saveDefaultOwner();
         Vector<ConnectionData> connectionDatas = Config.getDatabases();
         final JList list = new JList(connectionDatas);
-        list.setVisibleRowCount(15);
         list.addMouseListener(this);
         list.addListSelectionListener(this);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

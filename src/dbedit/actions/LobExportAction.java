@@ -50,12 +50,11 @@ public class LobExportAction extends LobAbstractAction {
                     }
                 }
                 final JList list = new JList(columnNames.toArray());
-                list.setVisibleRowCount(15);
                 list.addMouseListener(this);
                 list.addListSelectionListener(this);
                 list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 if (Dialog.OK_OPTION == Dialog.show("Column for file name", new JScrollPane(list),
-                        Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
+                        Dialog.PLAIN_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
                     int selectedIndex = list.getSelectedIndex();
                     if (selectedIndex != -1) {
                         if (selectedIndex >= table.getSelectedColumn()) {

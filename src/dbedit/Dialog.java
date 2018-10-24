@@ -18,6 +18,7 @@
 package dbedit;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class Dialog extends JOptionPane {
 
@@ -30,6 +31,10 @@ public class Dialog extends JOptionPane {
         dialog.createDialog(ApplicationPanel.getInstance(), title).setVisible(true);
         return dialog.getValue() == null ? CLOSED_OPTION : ((Number) dialog.getValue()).intValue();
     }
+    public static int show(String title, JScrollPane scrollPane, int messageType, int optionType) {
+        determineSize(scrollPane);
+        return show(title, (Object) scrollPane, messageType, optionType);
+    }
 
     public static Object show(String title, Object message, int messageType, Object[] options, Object initialValue) {
         Dialog dialog = new Dialog(message, messageType, DEFAULT_OPTION, options, initialValue);
@@ -39,6 +44,32 @@ public class Dialog extends JOptionPane {
             dialog.createDialog(null, title).setVisible(true);
         }
         return dialog.getValue();
+    }
+
+    public static Object show(String title, JScrollPane scrollPane, int messageType,
+                              Object[] options, Object initialValue) {
+        determineSize(scrollPane);
+        return show(title, (Object) scrollPane, messageType, options, initialValue);
+    }
+
+    private static void determineSize(JScrollPane scrollPane) {
+        int minWidth = 600;
+        int minHeight = 400;
+        double scrollBarWidth = new JScrollBar().getPreferredSize().getWidth();
+        if (scrollPane.getViewport().getComponent(0) instanceof JList) {
+            minWidth = 0;
+            minHeight = 0;
+            scrollBarWidth = 0;
+            JList jList = (JList) scrollPane.getViewport().getComponent(0);
+            jList.setVisibleRowCount(Math.max(15, jList.getModel().getSize()));
+        }
+        double maxWidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth() * .8;
+        double maxHeight = (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 100) * .8;
+        double preferedWidth = scrollPane.getPreferredSize().getWidth() + scrollBarWidth;
+        double preferedHeight = scrollPane.getPreferredSize().getHeight() + scrollBarWidth;
+        int width = (int) Math.min(maxWidth, Math.max(minWidth, preferedWidth));
+        int height = (int) Math.min(maxHeight, Math.max(minHeight, preferedHeight));
+        scrollPane.setPreferredSize(new Dimension(width, height));
     }
 
     @Override

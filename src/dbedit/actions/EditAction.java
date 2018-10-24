@@ -66,7 +66,6 @@ public class EditAction extends CustomAction {
             constraints.gridy++;
         }
         JScrollPane scrollPane = new JScrollPane(panel);
-        scrollPane.getViewport().setPreferredSize(new Dimension(600, 400));
         while (true) {
             try {
                 if (Dialog.OK_OPTION == Dialog.show((String) getValue(Action.NAME), scrollPane,

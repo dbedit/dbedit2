@@ -26,13 +26,15 @@ import org.xml.sax.SAXException;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.sql.*;
 
@@ -84,16 +86,17 @@ public abstract class CustomAction extends AbstractAction
     public void showFile(String text, byte[] bytes) throws Exception {
         JTextArea textArea = new JTextArea(text);
         textArea.setEditable(false);
-        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(800, 500));
-        Object value = Dialog.show("Preview", scrollPane, Dialog.PLAIN_MESSAGE,
-                new Object[] {"Save to file", "Save to file and open", "Copy to clipboard", "Cancel"}, "Save to file");
+        boolean isXml = text.startsWith("<?xml");
+        Object[] options = isXml
+            ? new Object[] {"Save to file", "Save to file and open", "Copy to clipboard", "Pretty print XML", "Cancel"}
+            : new Object[] {"Save to file", "Save to file and open", "Copy to clipboard", "Cancel"};
+        Object value = Dialog.show("Preview", scrollPane, Dialog.PLAIN_MESSAGE, options, "Save to file");
         if ("Save to file".equals(value)) {
-            String fileName = text.startsWith("<?xml") ? "export.xml" : "export.txt";
+            String fileName = isXml ? "export.xml" : "export.txt";
             saveFile(fileName, bytes != null ? bytes : text.getBytes());
         } else if ("Save to file and open".equals(value)) {
-            String fileName = text.startsWith("<?xml") ? "export.xml" : "export.txt";
+            String fileName = isXml ? "export.xml" : "export.txt";
             File file = saveFile(fileName, bytes != null ? bytes : text.getBytes());
             if (file != null) {
                 openFile(file);
@@ -104,6 +107,18 @@ public abstract class CustomAction extends AbstractAction
             } catch (Throwable t2) {
                 ExceptionDialog.hideException(t2);
             }
+        } else if ("Pretty print XML".equals(value)) {
+            try {
+                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                transformer.transform(new StreamSource(new StringReader(text)), new StreamResult(outputStream));
+                text = outputStream.toString();
+            } catch (Throwable t) {
+                ExceptionDialog.showException(t);
+            }
+            showFile(text, bytes);
         }
     }
 
