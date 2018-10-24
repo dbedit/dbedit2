@@ -45,69 +45,60 @@ public class RunAction extends ActionChangeAbstractAction {
         Vector<Vector> dataVector = new Vector<Vector>();
         int[] columnTypes;
         String[] columnTypeNames;
-        if (text.trim().toLowerCase().startsWith("select")
-                || text.trim().toLowerCase().startsWith("with")
-                || text.trim().toLowerCase().startsWith("show")) {
-            int resultSetType;
-            String originalQuery = text;
-            int fetchLimit = getFetchLimit();
+        int resultSetType;
+        String originalQuery = text;
+        boolean query = text.trim().toLowerCase().startsWith("select")
+                || text.trim().toLowerCase().startsWith("with");
+        if (query) {
             if (getConnectionData().isOracle()) {
+                // http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/resltset.htm#CIHEJHJI
                 text = "select x.* from (" + text + ") x where 1 = 1";
                 resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
-                if (fetchLimit > -1) {
-                    text += " and rownum <= " + fetchLimit;
-                    originalText += " and rownum <= " + fetchLimit;
-                }
             } else if (getConnectionData().isDb2()) {
                 resultSetType = ResultSet.TYPE_SCROLL_SENSITIVE;
-                if (fetchLimit > -1) {
-                    text += " fetch first " + fetchLimit + " rows only";
-                    originalText += " fetch first " + fetchLimit + " rows only";
-                }
             } else if (getConnectionData().isMySql()) {
                 resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
-                if (fetchLimit > -1) {
-                    text += " limit " + fetchLimit;
-                    originalText += " limit " + fetchLimit;
-                }
             } else if (getConnectionData().isHSQLDB()) {
                 resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
-                if (fetchLimit > -1) {
-                    text = "select * from (" + text + ") x limit " + fetchLimit;
-                }
             } else {
                 // ?
                 resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
             }
-            int columnCount;
-            Statement statement = getConnectionData().getConnection()
-                    .createStatement(resultSetType, ResultSet.CONCUR_UPDATABLE);
-            final Statement[] statements = new Statement[] {statement};
-            Runnable onCancel = new Runnable() {
-                public void run() {
-                    try {
-                        statements[0].cancel();
-                    } catch (Throwable t) {
-                        ExceptionDialog.hideException(t);
-                    }
-                }
-            };
-            WaitingDialog waitingDialog = new WaitingDialog(onCancel);
-            waitingDialog.setText("Executing query");
-            try {
-                ResultSet resultSet;
+        } else {
+            resultSetType = ResultSet.TYPE_FORWARD_ONLY;
+        }
+        Statement statement = getConnectionData().getConnection()
+                .createStatement(resultSetType, ResultSet.CONCUR_UPDATABLE);
+        statement.setMaxRows(getFetchLimit());
+        final Statement[] statements = new Statement[] {statement};
+        Runnable onCancel = new Runnable() {
+            public void run() {
                 try {
-                    resultSet = statement.executeQuery(text);
-                } catch (SQLException e1) {
-                    // try read-only and without modifications
-                    statement = getConnectionData().getConnection()
-                            .createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-                    statements[0] = statement;
-                    resultSet = statement.executeQuery(originalText);
+                    statements[0].cancel();
+                } catch (Throwable t) {
+                    ExceptionDialog.hideException(t);
                 }
-                getConnectionData().setResultSet(resultSet);
-                PLUGIN.audit(originalQuery);
-                columnCount = resultSet.getMetaData().getColumnCount();
+            }
+        };
+        WaitingDialog waitingDialog = new WaitingDialog(onCancel);
+        waitingDialog.setText("Executing statement");
+        try {
+            boolean hasResultSet;
+            try {
+                hasResultSet = statement.execute(text);
+            } catch (SQLException e1) {
+                // try read-only and without modifications
+                statement = getConnectionData().getConnection()
+                        .createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+                statements[0] = statement;
+                hasResultSet = statement.execute(originalText);
+            }
+            ResultSet resultSet = statement.getResultSet();
+            getConnectionData().setResultSet(resultSet);
+            PLUGIN.audit(originalQuery);
+            if (hasResultSet) {
+
+                int columnCount = resultSet.getMetaData().getColumnCount();
                 columnTypes = new int[columnCount];
                 columnTypeNames = new String[columnCount];
                 for (int i = 0; i < columnCount; i++) {
@@ -130,26 +121,28 @@ public class RunAction extends ActionChangeAbstractAction {
                     waitingDialog.setText(dataVector.size() + " rows retrieved");
                 }
                 PLUGIN.audit("[" + dataVector.size() + " rows retrieved]");
-            } finally {
-                waitingDialog.hide();
+            } else {
+                int updateCount = statement.getUpdateCount();
+                if (updateCount != -1) {
+                    Vector<Object> row = new Vector<Object>(1);
+                    PLUGIN.audit("[" + updateCount + " rows updated]");
+                    row.add(Integer.toString(updateCount));
+                    dataVector.add(row);
+                    columnIdentifiers.add("Rows updated");
+                    columnTypes = new int[] {Types.INTEGER};
+                    columnTypeNames = new String[1];
+                } else {
+                    columnIdentifiers.add("Statement executed");
+                    columnTypes = new int[] {Types.INTEGER};
+                    columnTypeNames = new String[1];
+                }
             }
-        } else {
-            Vector<Object> row = new Vector<Object>(1);
-            Statement statement = getConnectionData().getConnection()
-                    .createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            PLUGIN.audit(text);
-            int i = statement.executeUpdate(text);
-            PLUGIN.audit("[" + i + " rows updated]");
-            row.add(Integer.toString(i));
-            dataVector.add(row);
-            columnIdentifiers.add("Rows updated");
-            getConnectionData().setResultSet(null);
-            columnTypes = new int[] {Types.INTEGER};
-            columnTypeNames = new String[1];
+        } finally {
+            waitingDialog.hide();
         }
         setColumnTypes(columnTypes);
         setColumnTypeNames(columnTypeNames);
-        ApplicationPanel.getInstance().setDataVector(dataVector, columnIdentifiers);
+        ApplicationPanel.getInstance().setDataVector(dataVector, columnIdentifiers, waitingDialog.getExecutionTime());
         handleActions();
     }
 }

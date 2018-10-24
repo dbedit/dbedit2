@@ -132,6 +132,9 @@ public class ConnectionData implements Comparable, Cloneable {
         } else if (isIbm()) {
             // set application name
             properties.setProperty("clientProgramName", DBEdit.APPLICATION_NAME);
+            if (url.indexOf("retrieveMessagesFromServerOnGetMessage") == -1) {
+                properties.setProperty("retrieveMessagesFromServerOnGetMessage", "true");
+            }
         } else if (isDataDirect()) {
             // Workaround for a bug in datadirect driver where default connectionRetryCount = 5
             properties.setProperty("connectionRetryCount", "0");

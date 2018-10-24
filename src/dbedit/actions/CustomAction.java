@@ -44,7 +44,7 @@ public abstract class CustomAction extends AbstractAction
     private static int[] columnTypes;
     private static String[] columnTypeNames;
     private static Vector<ConnectionData> connectionDatas;
-    private static int fetchLimit = -1;
+    private static int fetchLimit = 0;
     private static byte[][] savedLobs;
     protected static final Plugin PLUGIN = PluginFactory.getPlugin();
     private static JFileChooser fileChooser;

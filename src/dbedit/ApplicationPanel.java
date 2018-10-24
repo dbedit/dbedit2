@@ -268,7 +268,7 @@ public final class ApplicationPanel extends JPanel {
     }
 
     public int getOriginalSelectedRow(int selectedRow) {
-        return originalOrder.indexOf((Vector) ((DefaultTableModel) table.getModel()).getDataVector().get(selectedRow));
+        return originalOrder.indexOf(((DefaultTableModel) table.getModel()).getDataVector().get(selectedRow));
     }
 
     public void removeRow(int row) {
@@ -281,10 +281,18 @@ public final class ApplicationPanel extends JPanel {
         return table;
     }
 
-    public void setDataVector(Vector<Vector> dataVector, Vector columnIdentifiers) {
+    public void setDataVector(Vector<Vector> dataVector, Vector columnIdentifiers, String executionTime) {
         originalOrder = new ArrayList<Vector>(dataVector);
         ((DefaultTableModel) table.getModel()).setDataVector(dataVector, columnIdentifiers);
-        table.setToolTipText(dataVector.size() + " row" + (dataVector.size() != 1 ? "s" : ""));
+        String rows = dataVector.size() + " row" + (dataVector.size() != 1 ? "s" : "");
+        JComponent scrollPane = (JComponent) table.getParent().getParent();
+        if (dataVector.isEmpty()) {
+            scrollPane.setToolTipText(rows + " - " + executionTime);
+            table.setToolTipText(null);
+        } else {
+            table.setToolTipText(rows + " - " + executionTime);
+            scrollPane.setToolTipText(null);
+        }
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 resizeColumns(table);

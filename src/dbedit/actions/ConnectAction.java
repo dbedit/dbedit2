@@ -25,6 +25,7 @@ import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.sql.SQLWarning;
 
 public class ConnectAction extends ActionChangeAbstractAction {
 
@@ -50,6 +51,13 @@ public class ConnectAction extends ActionChangeAbstractAction {
                 while (!connected) {
                     try {
                         connectionData.connect();
+                        SQLWarning warnings = connectionData.getConnection().getWarnings();
+                        while (warnings != null) {
+                            Dialog.show("Warning", warnings.getMessage(), Dialog.WARNING_MESSAGE,
+                                    Dialog.DEFAULT_OPTION);
+                            warnings = warnings.getNextWarning();
+                        }
+
                         setConnectionData(connectionData);
                         ApplicationPanel.getInstance().getFrame().setTitle(
                                 DBEdit.APPLICATION_NAME + " - " + getConnectionData().getName());

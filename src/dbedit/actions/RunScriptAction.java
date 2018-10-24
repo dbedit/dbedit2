@@ -88,7 +88,8 @@ public class RunScriptAction extends ActionChangeAbstractAction {
             columnIdentifiers.add("Rows updated");
             setColumnTypes(new int[] {Types.INTEGER});
             setColumnTypeNames(new String[1]);
-            ApplicationPanel.getInstance().setDataVector(dataVector, columnIdentifiers);
+            ApplicationPanel.getInstance().setDataVector(dataVector, columnIdentifiers,
+                    waitingDialog.getExecutionTime());
             handleActions();
         }
     }

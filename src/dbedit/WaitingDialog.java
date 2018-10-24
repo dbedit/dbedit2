@@ -18,14 +18,22 @@
 package dbedit;
 
 import javax.swing.*;
+import java.awt.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class WaitingDialog {
+public class WaitingDialog extends TimerTask {
 
-    private JLabel message = new JLabel();
+    private JLabel message1 = new JLabel();
+    private JLabel message2 = new JLabel();
     private JDialog dialog;
+    private long startTime = System.currentTimeMillis();
 
     public WaitingDialog(final Runnable onCancel) {
-        final Dialog pane = new Dialog(message, Dialog.PLAIN_MESSAGE, Dialog.DEFAULT_OPTION,
+        JPanel panel = new JPanel(new GridLayout(2, 1));
+        panel.add(message1);
+        panel.add(message2);
+        final Dialog pane = new Dialog(panel, Dialog.PLAIN_MESSAGE, Dialog.DEFAULT_OPTION,
                 new Object[] {"Cancel"}, "Cancel");
         dialog = pane.createDialog(ApplicationPanel.getInstance(), null);
         new Thread(new Runnable() {
@@ -41,10 +49,11 @@ public class WaitingDialog {
         while (!visible) {
             visible = dialog.isVisible();
         }
+        new Timer().schedule(this, 3000, 1000);
     }
 
     public void setText(String text) {
-        message.setText(text);
+        message1.setText(text);
     }
 
     public boolean isVisible() {
@@ -53,5 +62,21 @@ public class WaitingDialog {
 
     public void hide() {
         dialog.setVisible(false);
+        cancel();
+    }
+
+    public String getExecutionTime() {
+        long executionTime = (System.currentTimeMillis() - startTime) / 1000;
+        long hours = executionTime / 60 / 60;
+        long minutes = executionTime / 60 % 60;
+        long seconds = executionTime % 60;
+        String text = hours == 0 ? "" : hours + (hours == 1 ? " hour " : " hours ");
+        text += minutes == 0 ? "" : minutes + (minutes == 1 ? " minute " : " minutes ");
+        text += seconds + (seconds == 1 ? " second" : " seconds");
+        return text;
+    }
+
+    public void run() {
+        message2.setText(getExecutionTime());
     }
 }

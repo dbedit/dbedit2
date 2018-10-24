@@ -1,3 +1,10 @@
+2.1.5 (13/06/2008)
+- Added execution time to the progress panel and result grid
+- Added support for procedures returning a result set
+- Added more meaningful DB2 error messages
+- Added connection warnings (password expiration grace period)
+- Optimized result set fetch limit
+
 2.1.4 (01/04/2008)
 - Distributed under the terms of the GNU General Public License
 - Fixed Java version in About dialog

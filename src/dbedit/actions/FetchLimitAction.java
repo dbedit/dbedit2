@@ -30,10 +30,10 @@ public class FetchLimitAction extends CustomAction {
     }
 
     protected void performThreaded(ActionEvent e) throws Exception {
-        JSpinner spinner = new JSpinner(new SpinnerNumberModel(getFetchLimit(), -1, 999999, 1));
+        JSpinner spinner = new JSpinner(new SpinnerNumberModel(getFetchLimit(), 0, 999999, 1));
         if (Dialog.OK_OPTION == Dialog.show("Fetch limit", spinner, Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
             setFetchLimit(((Number) spinner.getValue()).intValue());
         }
-        putValue(NAME, "Fetch limit = " + (getFetchLimit() == -1 ? "unlimited" : "" + getFetchLimit()));
+        putValue(NAME, "Fetch limit = " + (getFetchLimit() == 0 ? "unlimited" : "" + getFetchLimit()));
     }
 }
