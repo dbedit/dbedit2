@@ -69,8 +69,17 @@
             </config>
         </launch4j>
 
-        <exec executable="${resources}/nsis-2.46/makensis.exe" failonerror="true">
-            <arg line="${resources}/installer.nsi"/>
+        <condition property="executable" value="nsis-2.46/makensis.exe" else="wine">
+            <os family="windows" />
+        </condition>
+
+        <condition property="arg1" value="" else="nsis-2.46/makensis.exe">
+            <os family="windows" />
+        </condition>
+
+        <exec executable="${executable}" dir="${resources}" failonerror="true">
+            <arg line="${arg1}"/>
+            <arg line="installer.nsi"/>
             <env key="version" value="${version}"/>
             <env key="longversion" value="${longversion}"/>
         </exec>
@@ -95,10 +104,18 @@
         </zip>
     </target>
 
-    <target name="make-all" depends="make-src, make-unix, make-win"/>
+    <target name="make-backup" depends="get-version">
+        <delete file="DBEdit${version}.zip"/>
+        <zip file="DBEdit${version}.zip">
+            <fileset dir="." excludes="classes dist classes/**/* dist/**/* *.iws"/>
+        </zip>
+    </target>
+
+    <target name="make-all" depends="clean, make-src, make-unix, make-win"/>
 
     <target name="clean">
         <delete dir="${dist}"/>
         <delete dir="${build}"/>
     </target>
+
 </project>

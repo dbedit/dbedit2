@@ -17,8 +17,6 @@
  */
 package dbedit;
 
-import dbedit.plugin.PluginFactory;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
@@ -120,8 +118,6 @@ public final class ExceptionDialog {
                         }
                     }
                 }
-            } else {
-                msg.append(PluginFactory.getPlugin().analyzeException(exception));
             }
         } else if (t instanceof OutOfMemoryError) {
             msg.append("DBEdit has a memory limit of 512 MB.\n");

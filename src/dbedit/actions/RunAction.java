@@ -18,7 +18,6 @@
 package dbedit.actions;
 
 import dbedit.*;
-import dbedit.plugin.PluginFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -86,7 +85,6 @@ public class RunAction extends CustomAction {
                 }
             }
             executed[0] = true;
-            PluginFactory.getPlugin().audit(originalSql);
             if (hasResultSet) {
 
                 ResultSet resultSet = statement.getResultSet();
@@ -120,13 +118,11 @@ public class RunAction extends CustomAction {
                     dataVector.add(row);
                     waitingDialog.setText(String.format("%d rows retrieved", dataVector.size()));
                 }
-                PluginFactory.getPlugin().audit(String.format("[%d rows retrieved]", dataVector.size()));
             } else {
                 Context.getInstance().setResultSet(null);
                 int updateCount = statement.getUpdateCount();
                 if (updateCount != -1) {
                     Vector<Object> row = new Vector<Object>(1);
-                    PluginFactory.getPlugin().audit(String.format("[%d rows updated]", updateCount));
                     row.add(Integer.toString(updateCount));
                     dataVector.add(row);
                     columnIdentifiers.add("Rows updated");

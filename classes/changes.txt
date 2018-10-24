@@ -1,3 +1,6 @@
+2.4.2 (13/05/2011)
+- Removed unnecessary dialog after each exception
+
 2.4.1 (26/04/2011)
 - Added password prompt dialog when left empty in the connection settings
 - Added progress dialog with cancel button for multiple lob export/copy/paste

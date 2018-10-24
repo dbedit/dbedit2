@@ -18,7 +18,6 @@
 package dbedit.actions;
 
 import dbedit.*;
-import dbedit.plugin.PluginFactory;
 
 import java.awt.event.ActionEvent;
 import java.sql.ResultSet;
@@ -70,9 +69,7 @@ public class RunScriptAction extends CustomAction {
             while (waitingDialog.isVisible() && matcher.find()) {
                 String sql = text.substring(matcher.start(1), matcher.end(1));
                 Vector<String> row = new Vector<String>(1);
-                PluginFactory.getPlugin().audit(sql);
                 int i = statement.executeUpdate(sql);
-                PluginFactory.getPlugin().audit(String.format("[%d rows updated]", i));
                 row.add(Integer.toString(i));
                 dataVector.add(row);
                 waitingDialog.setText(String.format("%d/%d", count++, total));

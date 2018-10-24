@@ -19,7 +19,6 @@ package dbedit.actions;
 
 import dbedit.*;
 import dbedit.Dialog;
-import dbedit.plugin.PluginFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -74,7 +73,7 @@ public class ConnectAction extends CustomAction {
                         }
                     } catch (Throwable t) {
                         ExceptionDialog.showException(t);
-                        if (editConnection(connectionData, false)) {
+                        if (editConnection(connectionData)) {
                             Config.saveDatabases(connectionDatas);
                         } else {
                             performThreaded(e);
@@ -85,7 +84,7 @@ public class ConnectAction extends CustomAction {
             }
         } else if ("Add".equals(value)) {
             ConnectionData connectionData = newConnectionWizard();
-            if (editConnection(connectionData, true)) {
+            if (editConnection(connectionData)) {
                 connectionDatas.add(connectionData);
                 Config.saveDatabases(connectionDatas);
             }
@@ -93,7 +92,7 @@ public class ConnectAction extends CustomAction {
         } else if ("Edit".equals(value)) {
             if (!list.isSelectionEmpty()) {
                 ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
-                if (editConnection(connectionData, false)) {
+                if (editConnection(connectionData)) {
                     Config.saveDatabases(connectionDatas);
                 }
             }
@@ -102,7 +101,7 @@ public class ConnectAction extends CustomAction {
             if (!list.isSelectionEmpty()) {
                 ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
                 connectionData = (ConnectionData) connectionData.clone();
-                if (editConnection(connectionData, false)) {
+                if (editConnection(connectionData)) {
                     connectionDatas.add(connectionData);
                     Config.saveDatabases(connectionDatas);
                 }
@@ -170,11 +169,11 @@ public class ConnectAction extends CustomAction {
         return s == null ? "" : s;
     }
 
-    private boolean editConnection(ConnectionData connectionData, boolean add) throws Exception {
-        return editConnection(connectionData, add, false);
+    private boolean editConnection(ConnectionData connectionData) throws Exception {
+        return editConnection(connectionData, false);
     }
 
-    private boolean editConnection(ConnectionData connectionData, boolean add, boolean nested) throws Exception {
+    private boolean editConnection(ConnectionData connectionData, boolean nested) throws Exception {
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
@@ -201,9 +200,6 @@ public class ConnectAction extends CustomAction {
         panel.add(new JLabel("Password"), c);
         JTextField password = new JPasswordField(connectionData.getPassword());
         panel.add(password, c);
-        if (add) {
-            PluginFactory.getPlugin().customizeConnectionPanel(panel, c, connectionData);
-        }
         int i = Dialog.show("Connection", panel, Dialog.PLAIN_MESSAGE, Dialog.OK_CANCEL_OPTION);
         connectionData.setName(name.getText());
         connectionData.setUrl(url.getText());
@@ -212,7 +208,7 @@ public class ConnectAction extends CustomAction {
         if (Dialog.OK_OPTION == i && connectionData.getName().trim().isEmpty()) {
             Dialog.show("Empty name", "Why would you want an empty name?", Dialog.ERROR_MESSAGE,
                     new Object[] {"OK, I'm sorry, I will give it a name."}, null);
-            boolean okay = editConnection(connectionData, add, true);
+            boolean okay = editConnection(connectionData, true);
             if (!nested) {
                 if (okay) {
                     Dialog.show(null, "That's more like it!", Dialog.INFORMATION_MESSAGE, new Object[] {

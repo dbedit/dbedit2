@@ -19,7 +19,6 @@ package dbedit.actions;
 
 import dbedit.*;
 import dbedit.Dialog;
-import dbedit.plugin.PluginFactory;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -59,7 +58,7 @@ public class AboutAction extends CustomAction {
                 "<html><font style=\"font-weight:bold\">DBEdit %s</font></html>", Config.getVersion())), c);
         c.gridy++;
         panel.add(new JLabel(
-                "<html><font style=\"color:gray\">Copyright © 2006-2011 Jef Van Den Ouweland</font></html>"), c);
+                "<html><font style=\"color:gray\">Copyright Â© 2006-2011 Jef Van Den Ouweland</font></html>"), c);
         c.gridy++;
         JLabel link = new JLabel("GNU General Public License");
         link.setForeground(Color.BLUE);
@@ -96,7 +95,6 @@ public class AboutAction extends CustomAction {
                 ExceptionDialog.hideException(t);
             }
         }
-        PluginFactory.getPlugin().customizeAboutPanel(panel, c);
         panel.setBorder(new BevelBorder(BevelBorder.RAISED) {
             private Insets insets = new Insets(65, 10, 10, 10);
             @Override

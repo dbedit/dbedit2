@@ -18,7 +18,6 @@
 package dbedit;
 
 import dbedit.actions.Actions;
-import dbedit.plugin.PluginFactory;
 
 import javax.swing.*;
 import java.util.HashSet;
@@ -98,8 +97,6 @@ public class ApplicationMenuBar extends JMenuBar {
         menu.add(Actions.ABOUT);
 
 //        new UpdateChecker(this).check();
-
-        PluginFactory.getPlugin().checkForUpdate(this);
 
         setMnemonics(this);
     }

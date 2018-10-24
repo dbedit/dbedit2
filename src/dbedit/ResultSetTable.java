@@ -19,7 +19,6 @@ package dbedit;
 
 import dbedit.actions.Actions;
 import dbedit.actions.CopyCellValueAction;
-import dbedit.plugin.PluginFactory;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -166,7 +165,6 @@ public final class ResultSetTable extends JTable {
                 resultSet.updateRow();
                 value = resultSet.getObject(column + 1);
                 log += " -> " + ("" + resultSet.getObject(column + 1)).trim();
-                PluginFactory.getPlugin().audit(log);
             }
         } catch (Throwable t) {
             if (e == null) {
