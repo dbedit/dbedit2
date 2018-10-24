@@ -1,13 +1,10 @@
 package dbedit;
 
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.UIManager;
-
 import dbedit.actions.Actions;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,6 +33,7 @@ public class DBEdit extends JFrame {
             setTitle(APPLICATION_NAME);
             setIconImage(new ImageIcon(DBEdit.class.getResource("/icons/icon.gif")).getImage());
             getContentPane().add(ApplicationPanel.getInstance());
+            setJMenuBar(new ApplicationMenuBar());
             double screenWidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
             double screenHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
             setSize((int) (screenWidth * .8), (int) (screenHeight * .8));

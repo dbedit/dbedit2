@@ -47,8 +47,6 @@ public class ApplicationPanel extends JPanel {
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 100;
         c.gridy++;
-        add(new ApplicationMenuBar(), c);
-        c.gridy++;
         add(new ApplicationToolBar(schemaBrowserToggleButton), c);
         c.weighty = 100;
         c.gridy++;
@@ -169,7 +167,7 @@ public class ApplicationPanel extends JPanel {
     }
 
     public void setText(String t) {
-        text.insert(t, text.getCaretPosition());
+        text.replaceSelection(t);
     }
 
     public JTextArea getTextArea() {

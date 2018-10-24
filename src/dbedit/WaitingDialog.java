@@ -18,7 +18,7 @@ public class WaitingDialog {
     }
 
     public WaitingDialog(final Runnable onCancel) {
-        final JOptionPane pane = new JOptionPane(message, JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[] {"Cancel"}, "Cancel");
+        final Dialog pane = new Dialog(message, Dialog.PLAIN_MESSAGE, Dialog.DEFAULT_OPTION, new Object[] {"Cancel"}, "Cancel");
         dialog = pane.createDialog(ApplicationPanel.getInstance(), null);
         new Thread(new Runnable() {
             public void run() {

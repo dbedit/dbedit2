@@ -1,6 +1,7 @@
 package dbedit.actions;
 
 import dbedit.ApplicationPanel;
+import dbedit.Dialog;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -18,12 +19,12 @@ public class ExportInsertsAction extends CustomAction {
     protected void performThreaded(ActionEvent e) throws Exception {
         JTable table = ApplicationPanel.getInstance().getTable();
         boolean selection = false;
-        if (table.getSelectedRowCount() > 0) {
-            int option = JOptionPane.showOptionDialog(ApplicationPanel.getInstance(), "Export", "Insert statements", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[] {"Everything", "Selection"}, "Everything");
-            if (JOptionPane.CLOSED_OPTION == option) {
+        if (table.getSelectedRowCount() > 0 && table.getSelectedRowCount() != table.getRowCount()) {
+            Object option = Dialog.show("Insert statements", "Export", Dialog.QUESTION_MESSAGE, new Object[] {"Everything", "Selection"}, "Everything");
+            if (option == null) {
                 return;
             }
-            selection = 1 == option;
+            selection = "Selection".equals(option);
         }
         String tableName = "?";
         StringTokenizer tokenizer = new StringTokenizer(ApplicationPanel.getInstance().getText());

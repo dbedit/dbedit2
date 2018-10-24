@@ -1,6 +1,6 @@
 Name "DBEdit 2"
 
-OutFile "..\dist\installer\DBEdit2_setup.exe"
+OutFile "..\dist\setup.exe"
 
 InstallDir "$PROGRAMFILES\DBEdit 2"
 

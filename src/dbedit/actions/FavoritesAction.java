@@ -2,6 +2,7 @@ package dbedit.actions;
 
 import dbedit.ApplicationPanel;
 import dbedit.Config;
+import dbedit.Dialog;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
@@ -33,27 +34,31 @@ public class FavoritesAction extends CustomAction {
         list.addMouseListener(this);
         list.addListSelectionListener(this);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JOptionPane pane = new JOptionPane(new JScrollPane(list), JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, new Object[] {"OK", "Cancel", "Add", "Delete"}, "OK");
-        pane.createDialog(ApplicationPanel.getInstance(), "Favorites").show();
-        if ("OK".equals(pane.getValue())) {
+        Object value = Dialog.show("Favorites", new JScrollPane(list), Dialog.PLAIN_MESSAGE, new Object[] {"OK", "Cancel", "Add", "Delete"}, "OK");
+        if ("OK".equals(value)) {
             if (!list.isSelectionEmpty()) {
                 String s = (String) favorites.get(list.getSelectedValue());
                 ApplicationPanel.getInstance().getTextArea().setText(s);
                 ApplicationPanel.getInstance().getTextArea().setCaretPosition(s.length());
             }
-        } else if ("Delete".equals(pane.getValue())) {
+        } else if ("Delete".equals(value)) {
             if (!list.isSelectionEmpty()) {
-                if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ApplicationPanel.getInstance(), "Are you sure?", "Delete favorite", JOptionPane.YES_NO_OPTION)) {
+                if (Dialog.YES_OPTION == Dialog.show("Delete favorite", "Are you sure?", Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
                     favorites.remove(list.getSelectedValue());
                     Config.saveFavorites(favorites);
                 }
             }
             favorites();
-        } else if ("Add".equals(pane.getValue())) {
-            String name = JOptionPane.showInputDialog("Name");
-            if (name != null && !"".equals(name.trim())) {
-                favorites.put(name, ApplicationPanel.getInstance().getText());
-                Config.saveFavorites(favorites);
+        } else if ("Add".equals(value)) {
+            JComboBox comboBox = new JComboBox(favorites.keySet().toArray());
+            comboBox.setEditable(true);
+            comboBox.setSelectedIndex(-1);
+            if (Dialog.OK_OPTION == Dialog.show("Name", comboBox, Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
+                String name = (String) comboBox.getSelectedItem();
+                if (name != null && !"".equals(name.trim())) {
+                    favorites.put(name, ApplicationPanel.getInstance().getText());
+                    Config.saveFavorites(favorites);
+                }
             }
             favorites();
         }

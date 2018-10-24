@@ -27,7 +27,7 @@ public class ExceptionDialog {
         } catch (Throwable e) {
             e.printStackTrace();
         }
-        if (1 == JOptionPane.showOptionDialog(applicationPanel, t.getMessage() != null ? t.getMessage() : "Error", t.getClass().getName(), JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, new Object[] {"Close", "Details"}, "Close")) {
+        if ("Details".equals(Dialog.show(t.getClass().getName(), t.getMessage() != null ? t.getMessage() : "Error", Dialog.ERROR_MESSAGE, new Object[] {"Close", "Details"}, "Close"))) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             t.printStackTrace(new PrintStream(out));
             JTextArea textArea = new JTextArea(new String(out.toByteArray()));
@@ -48,7 +48,7 @@ public class ExceptionDialog {
             textArea.setEditable(false);
             JScrollPane scrollPane = new JScrollPane(textArea);
             scrollPane.setPreferredSize(new Dimension(600, 400));
-            if (1 == JOptionPane.showOptionDialog(applicationPanel, scrollPane, t.getClass().getName(), JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, new Object[] {"Close", "Copy"}, "Close")) {
+            if ("Copy".equals(Dialog.show(t.getClass().getName(), scrollPane, Dialog.ERROR_MESSAGE, new Object[] {"Close", "Copy"}, "Close"))) {
                 try {
                     Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(textArea.getText().replace('\r', ' ')), null);
                 } catch (Throwable t2) {
@@ -80,7 +80,7 @@ public class ExceptionDialog {
             }
         }
         if (msg != null) {
-            JOptionPane.showMessageDialog(applicationPanel, msg, "Tip", JOptionPane.INFORMATION_MESSAGE);
+            Dialog.show("Tip", msg, Dialog.INFORMATION_MESSAGE, Dialog.DEFAULT_OPTION);
         }
     }
 }

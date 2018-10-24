@@ -19,7 +19,7 @@ public class DirectoryChooser extends JTree {
         }
         JScrollPane scrollPane = new JScrollPane(DIRECTORY_CHOOSER);
         scrollPane.setPreferredSize(new Dimension(400, 400));
-        if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, scrollPane, "Choose directory", JOptionPane.OK_CANCEL_OPTION, JOptionPane.DEFAULT_OPTION)) {
+        if (Dialog.OK_OPTION == Dialog.show("Choose directory", scrollPane, Dialog.PLAIN_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
             return DIRECTORY_CHOOSER.getSelectedDirectory();
         } else {
             return null;

@@ -1,6 +1,7 @@
 package dbedit.actions;
 
 import dbedit.ApplicationPanel;
+import dbedit.Dialog;
 import dbedit.ExceptionDialog;
 
 import javax.swing.*;
@@ -43,13 +44,9 @@ public class EditAction extends CustomAction {
         }
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.getViewport().setPreferredSize(new Dimension(600, 400));
-        JOptionPane pane = new JOptionPane(scrollPane, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-        JDialog dialog = pane.createDialog(ApplicationPanel.getInstance(), (String) getValue(Action.NAME));
-        dialog.setResizable(true);
         while (true) {
             try {
-                dialog.show();
-                if (JOptionPane.OK_OPTION == ((Number) pane.getValue()).intValue()) {
+                if (Dialog.OK_OPTION == Dialog.show((String) getValue(Action.NAME), scrollPane, Dialog.PLAIN_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
                     position(resultSet);
                     for (int i = 0; i < textAreas.length; i++) {
                         String text = textAreas[i].getText();

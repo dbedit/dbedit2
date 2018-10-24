@@ -80,6 +80,7 @@ public class ApplicationToolBar extends JToolBar {
         JToggleButton toggleButton = (JToggleButton) add(new JToggleButton(action));
         toggleButton.setHorizontalTextPosition(JButton.LEFT);
         toggleButton.setVerticalTextPosition(JButton.BOTTOM);
+        toggleButton.setFocusable(false);
         return toggleButton;
     }
 }

@@ -1,6 +1,6 @@
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
+import dbedit.Dialog;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -14,7 +14,7 @@ public class FetchLimitAction extends CustomAction {
 
     protected void performThreaded(ActionEvent e) throws Exception {
         JSpinner spinner = new JSpinner(new SpinnerNumberModel(fetchLimit, -1, 999999, 1));
-        if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ApplicationPanel.getInstance(), spinner, "Fetch limit", JOptionPane.OK_CANCEL_OPTION)) {
+        if (Dialog.OK_OPTION == Dialog.show("Fetch limit", spinner, Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
             fetchLimit = ((Number) spinner.getValue()).intValue();
         }
         putValue(NAME, "Fetch limit = " + (fetchLimit == -1 ? "unlimited" : ""+fetchLimit));

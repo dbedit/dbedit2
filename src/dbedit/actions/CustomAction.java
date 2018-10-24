@@ -6,6 +6,7 @@ import dbedit.ExceptionDialog;
 import dbedit.ThreadedAction;
 import dbedit.plugin.Plugin;
 import dbedit.plugin.PluginFactory;
+import icons.EmptyIcon;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -30,6 +31,8 @@ public abstract class CustomAction extends AbstractAction implements CellEditorL
         super(name);
         if (icon != null) {
             putValue(SMALL_ICON, new ImageIcon(CustomAction.class.getResource("/icons/" + icon)));
+        } else {
+            putValue(SMALL_ICON, EmptyIcon.getInstance());
         }
         putValue(ACCELERATOR_KEY, accelerator);
         setEnabled(false);

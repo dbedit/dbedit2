@@ -1,6 +1,7 @@
 package dbedit.actions;
 
 import dbedit.ApplicationPanel;
+import dbedit.Dialog;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
 
@@ -22,12 +23,12 @@ public class ExportExcelAction extends CustomAction {
     protected void performThreaded(ActionEvent e) throws Exception {
         boolean selection = false;
         JTable table = ApplicationPanel.getInstance().getTable();
-        if (table.getSelectedRowCount() > 0) {
-            int option = JOptionPane.showOptionDialog(ApplicationPanel.getInstance(), "Export", "Excel", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[] {"Everything", "Selection"}, "Everything");
-            if (JOptionPane.CLOSED_OPTION == option) {
+        if (table.getSelectedRowCount() > 0 && table.getSelectedRowCount() != table.getRowCount()) {
+            Object option = Dialog.show("Excel", "Export", Dialog.QUESTION_MESSAGE, new Object[] {"Everything", "Selection"}, "Everything");
+            if (option == null) {
                 return;
             }
-            selection = 1 == option;
+            selection = "Selection".equals(option);
         }
         List list = ((DefaultTableModel) table.getModel()).getDataVector();
         JProgressBar progressBar = new JProgressBar(0, list.size());

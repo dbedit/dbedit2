@@ -12,13 +12,13 @@
 	      	</fileset>
 	</path>
 
-	<target name="compile" description="compile the source">
+	<target name="compile">
         <mkdir dir="${build}"/>
 		<javac srcdir="${src}"  destdir="${build}" classpathref="dist.classpath"  debug="on"/>
         <copy todir="${build}"><fileset dir="${src}" includes="changes **/*.png **/*.gif"/></copy>
     </target>
 
-	<target name="jar" depends="compile" description="create the jar">
+	<target name="jar" depends="compile">
         <mkdir dir="${dist}"/>
 		<jar jarfile="${dist}/dbedit.jar">
             <fileset dir="${build}" includes="**/*"/>
@@ -42,12 +42,11 @@
     </target>
 
 	<target name="make-installer" depends="make-application">
-        <unzip src="${lib}/nsis-2.20.zip" dest="${lib}"/>
-        <mkdir dir="${dist}/installer"/>
-        <exec executable="${lib}/nsis-2.20/makensis.exe" failonerror="true"><arg line="${lib}/installer.nsi"/></exec>
+        <unzip src="${lib}/nsis-2.23.zip" dest="${lib}"/>
+        <exec executable="${lib}/nsis-2.23/makensis.exe" failonerror="true"><arg line="${lib}/installer.nsi"/></exec>
     </target>
 
-    <target name="clean" description="clean up" >
+    <target name="clean">
         <delete dir="${dist}"/>
 		<delete dir="${build}"/>
 	</target>

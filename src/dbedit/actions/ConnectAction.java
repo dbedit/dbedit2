@@ -1,6 +1,7 @@
 package dbedit.actions;
 
 import dbedit.*;
+import dbedit.Dialog;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -22,9 +23,8 @@ public class ConnectAction extends ActionChangeAbstractAction {
         list.addMouseListener(this);
         list.addListSelectionListener(this);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JOptionPane pane = new JOptionPane(new JScrollPane(list), JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, new Object[] {"Connect", "Cancel", "Add", "Edit", "Duplicate", "Delete"}, "Connect");
-        pane.createDialog(ApplicationPanel.getInstance(), "Connections").show();
-        if ("Connect".equals(pane.getValue())) {
+        Object value = Dialog.show("Connections", new JScrollPane(list), Dialog.PLAIN_MESSAGE, new Object[] {"Connect", "Cancel", "Add", "Edit", "Duplicate", "Delete"}, "Connect");
+        if ("Connect".equals(value)) {
             if (!list.isSelectionEmpty()) {
                 Actions.DISCONNECT.performThreaded(e);
                 connectionData = (ConnectionData) list.getSelectedValue();
@@ -47,14 +47,14 @@ public class ConnectAction extends ActionChangeAbstractAction {
                     }
                 }
             }
-        } else if ("Add".equals(pane.getValue())) {
+        } else if ("Add".equals(value)) {
             ConnectionData connectionData = new ConnectionData();
             if (editConnection(connectionData, true)) {
                 connectionDatas.add(connectionData);
                 Config.saveDatabases(connectionDatas);
             }
             performThreaded(e);
-        } else if ("Edit".equals(pane.getValue())) {
+        } else if ("Edit".equals(value)) {
             if (!list.isSelectionEmpty()) {
                 ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
                 if (editConnection(connectionData, false)) {
@@ -62,7 +62,7 @@ public class ConnectAction extends ActionChangeAbstractAction {
                 }
             }
             performThreaded(e);
-        } else if ("Duplicate".equals(pane.getValue())) {
+        } else if ("Duplicate".equals(value)) {
             if (!list.isSelectionEmpty()) {
                 ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
                 connectionData = (ConnectionData) connectionData.clone();
@@ -72,9 +72,9 @@ public class ConnectAction extends ActionChangeAbstractAction {
                 }
             }
             performThreaded(e);
-        } else if ("Delete".equals(pane.getValue())) {
+        } else if ("Delete".equals(value)) {
             if (!list.isSelectionEmpty()) {
-                if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ApplicationPanel.getInstance(), "Are you sure?", "Delete connection", JOptionPane.YES_NO_OPTION)) {
+                if (Dialog.YES_OPTION == Dialog.show("Delete connection", "Are you sure?", Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
                     ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
                     connectionDatas.remove(connectionData);
                     Config.saveDatabases(connectionDatas);
@@ -115,13 +115,13 @@ public class ConnectAction extends ActionChangeAbstractAction {
         if (add) {
             PLUGIN.customizeConnectionPanel(panel, c, connectionData);
         }
-        int i = JOptionPane.showConfirmDialog(ApplicationPanel.getInstance(), panel, "Connection", JOptionPane.OK_CANCEL_OPTION, JOptionPane.DEFAULT_OPTION);
+        int i = Dialog.show("Connection", panel, Dialog.PLAIN_MESSAGE, Dialog.OK_CANCEL_OPTION);
         connectionData.setName(name.getText());
         connectionData.setUrl(url.getText());
         connectionData.setUser(user.getText());
         connectionData.setPassword(password.getText());
         connectionData.setDriver(driver.getSelectedItem() == null ? "" : (String) driver.getSelectedItem());
-        return JOptionPane.OK_OPTION == i;
+        return Dialog.OK_OPTION == i;
     }
 
     public void mouseClicked(final MouseEvent e) {

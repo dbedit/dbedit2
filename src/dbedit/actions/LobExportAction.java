@@ -1,6 +1,7 @@
 package dbedit.actions;
 
 import dbedit.ApplicationPanel;
+import dbedit.Dialog;
 import dbedit.DirectoryChooser;
 
 import javax.swing.*;
@@ -35,7 +36,7 @@ public class LobExportAction extends LobAbstractAction {
                 list.addMouseListener(this);
                 list.addListSelectionListener(this);
                 list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                if (JOptionPane.OK_OPTION == JOptionPane.showOptionDialog(ApplicationPanel.getInstance(), new JScrollPane(list), "Column for file name", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null)) {
+                if (Dialog.OK_OPTION == Dialog.show("Column for file name", new JScrollPane(list), Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
                     int selectedIndex = list.getSelectedIndex();
                     if (selectedIndex != -1) {
                         if (selectedIndex >= table.getSelectedColumn()) selectedIndex++;
