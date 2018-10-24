@@ -135,39 +135,39 @@ public class SchemaBrowser extends JTree {
                         if (connectionData.isDataDirect()) {
                             addQuery("select rtrim(tabname) from syscat.tables "
                                     + "where tabschema = '" + owner + "' and type = 'T' order by tabname", true);
-                        } else if (connectionData.getConnection().getMetaData().supportsCatalogsInTableDefinitions()) {
-                            addQuery(connectionData.getConnection().getMetaData()
-                                    .getTables(owner, null, null, new String[] {"TABLE", "SYSTEM TABLE"}), true, 3);
-                        } else {
+                        } else if (connectionData.getConnection().getMetaData().supportsSchemasInTableDefinitions()) {
                             addQuery(connectionData.getConnection().getMetaData()
                                     .getTables(null, owner, null, new String[] {"TABLE", "SYSTEM TABLE"}), true, 3);
+                        } else {
+                            addQuery(connectionData.getConnection().getMetaData()
+                                    .getTables(owner, null, null, new String[] {"TABLE", "SYSTEM TABLE"}), true, 3);
                         }
                     } else if ("VIEWS".equals(type)) {
-                        if (connectionData.getConnection().getMetaData().supportsCatalogsInTableDefinitions()) {
-                            addQuery(connectionData.getConnection().getMetaData()
-                                    .getTables(owner, null, null, new String[] {"VIEW"}), true, 3);
-                        } else {
+                        if (connectionData.getConnection().getMetaData().supportsSchemasInTableDefinitions()) {
                             addQuery(connectionData.getConnection().getMetaData()
                                     .getTables(null, owner, null, new String[] {"VIEW"}), true, 3);
-                        }
-                    } else if ("PROCEDURES".equals(type)) {
-                        if (connectionData.getConnection().getMetaData().supportsCatalogsInTableDefinitions()) {
-                            addQuery(connectionData.getConnection().getMetaData()
-                                    .getProcedures(owner, null, null), true, 3);
                         } else {
                             addQuery(connectionData.getConnection().getMetaData()
+                                    .getTables(owner, null, null, new String[] {"VIEW"}), true, 3);
+                        }
+                    } else if ("PROCEDURES".equals(type)) {
+                        if (connectionData.getConnection().getMetaData().supportsSchemasInTableDefinitions()) {
+                            addQuery(connectionData.getConnection().getMetaData()
                                     .getProcedures(null, owner, null), true, 3);
+                        } else {
+                            addQuery(connectionData.getConnection().getMetaData()
+                                    .getProcedures(owner, null, null), true, 3);
                         }
                     }
                     break;
                 case 3:
                     String table = toString();
-                    if (connectionData.getConnection().getMetaData().supportsCatalogsInTableDefinitions()) {
-                        addQuery(connectionData.getConnection().getMetaData()
-                                .getColumns(getParent().getParent().toString(), null, table, null), false, 4);
-                    } else {
+                    if (connectionData.getConnection().getMetaData().supportsSchemasInTableDefinitions()) {
                         addQuery(connectionData.getConnection().getMetaData()
                                 .getColumns(null, getParent().getParent().toString(), table, null), false, 4);
+                    } else {
+                        addQuery(connectionData.getConnection().getMetaData()
+                                .getColumns(getParent().getParent().toString(), null, table, null), false, 4);
                     }
                     break;
                 default:

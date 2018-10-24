@@ -21,11 +21,9 @@ import dbedit.*;
 import dbedit.Dialog;
 import dbedit.plugin.Plugin;
 import dbedit.plugin.PluginFactory;
-import org.xml.sax.SAXException;
 
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -280,7 +278,7 @@ public abstract class CustomAction extends AbstractAction
         openedFile = newOpenedFile;
     }
 
-    protected static JFileChooser getFileChooser() throws IOException, SAXException, ParserConfigurationException {
+    protected static JFileChooser getFileChooser() throws Exception {
         if (fileChooser == null) {
             fileChooser = new JFileChooser();
         }

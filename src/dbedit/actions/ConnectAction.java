@@ -120,34 +120,49 @@ public class ConnectAction extends ActionChangeAbstractAction {
     private ConnectionData newConnectionWizard() throws IOException {
         ConnectionData connectionData = new ConnectionData();
         Object db = Dialog.show("New Connection", "Choose database", Dialog.PLAIN_MESSAGE,
-                new Object[] {"Oracle", "DB2", "MySQL", "SQLite", "HSQLDB", "Other"}, null);
+                new Object[] {"Oracle", "DB2", "MySQL", "SQLite", "HSQLDB", "H2", "Derby", "Other"}, null);
         if ("Oracle".equals(db)) {
-            connectionData.setDriver(ConnectionData.ORACLE_DRIVER);
-            connectionData.setUrl(String.format("jdbc:oracle:thin:@%s:1521:%s",
-                    JOptionPane.showInputDialog("Server name"), JOptionPane.showInputDialog("Database name")));
+            String serverName = JOptionPane.showInputDialog("Server name");
+            String databaseName = JOptionPane.showInputDialog("Database name");
+            connectionData.setName(databaseName);
+            connectionData.setUrl(String.format("jdbc:oracle:thin:@%s:1521:%s", serverName, databaseName));
         } else if ("DB2".equals(db)) {
-            connectionData.setDriver(ConnectionData.IBM_DRIVER);
-            connectionData.setUrl(String.format("jdbc:db2://%s:%s/%s",
-                    JOptionPane.showInputDialog("Server name"), JOptionPane.showInputDialog("Port number", "50000"),
-                    JOptionPane.showInputDialog("Database name")));
+            String serverName = JOptionPane.showInputDialog("Server name");
+            String databaseName = JOptionPane.showInputDialog("Database name");
+            String portNumber = JOptionPane.showInputDialog("Port number", "50000");
+            connectionData.setName(databaseName);
+            connectionData.setUrl(String.format("jdbc:db2://%s:%s/%s", serverName, portNumber, databaseName));
         } else if ("MySQL".equals(db)) {
-            connectionData.setDriver(ConnectionData.MYSQL_DRIVER);
-            connectionData.setUrl(String.format("jdbc:mysql://%s/%s",
-                    JOptionPane.showInputDialog("Server name"), JOptionPane.showInputDialog("Database name")));
+            String serverName = JOptionPane.showInputDialog("Server name");
+            String databaseName = JOptionPane.showInputDialog("Database name");
+            connectionData.setName(databaseName);
+            connectionData.setUrl(String.format("jdbc:mysql://%s/%s", serverName, databaseName));
         } else if ("SQLite".equals(db)) {
-            connectionData.setDriver(ConnectionData.SQLITE_DRIVER);
-            connectionData.setUrl(String.format("jdbc:sqlite:%s",
-                    JOptionPane.showInputDialog("File name", new File("/sqlite.db").getCanonicalPath())));
+            String fileName = JOptionPane.showInputDialog("File name", new File("/sqlite.db").getCanonicalPath());
+            connectionData.setName(new File(fileName).getName());
+            connectionData.setUrl(String.format("jdbc:sqlite:%s", fileName));
         } else if ("HSQLDB".equals(db)) {
+            String fileName = JOptionPane.showInputDialog("File name", new File("/hsqldb").getCanonicalPath());
+            connectionData.setName(new File(fileName).getName());
+            connectionData.setUrl(String.format("jdbc:hsqldb:%s", fileName));
             connectionData.setUser("sa");
-            connectionData.setDriver(ConnectionData.HSQLDB_DRIVER);
-            connectionData.setUrl(String.format("jdbc:hsqldb:%s",
-                    JOptionPane.showInputDialog("File name", new File("/hsqldb").getCanonicalPath())));
+        } else if ("H2".equals(db)) {
+            String fileName = JOptionPane.showInputDialog("File name", new File("/h2db").getCanonicalPath());
+            connectionData.setName(new File(fileName).getName());
+            connectionData.setUrl(String.format("jdbc:h2:%s", fileName));
+        } else if ("Derby".equals(db)) {
+            String fileName = JOptionPane.showInputDialog("File name", new File("/derbydb").getCanonicalPath());
+            connectionData.setName(new File(fileName).getName());
+            connectionData.setUrl(String.format("jdbc:derby:%s", fileName));
         }
         return connectionData;
     }
 
-    private boolean editConnection(final ConnectionData connectionData, boolean add) throws Exception {
+    private boolean editConnection(ConnectionData connectionData, boolean add) throws Exception {
+        return editConnection(connectionData, add, false);
+    }
+
+    private boolean editConnection(ConnectionData connectionData, boolean add, boolean nested) throws Exception {
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
@@ -174,14 +189,6 @@ public class ConnectAction extends ActionChangeAbstractAction {
         panel.add(new JLabel("Password"), c);
         JTextField password = new JPasswordField(connectionData.getPassword());
         panel.add(password, c);
-        c.gridy++;
-        panel.add(new JLabel("Driver"), c);
-        JComboBox driver = new JComboBox(new Object[] {
-                ConnectionData.ORACLE_DRIVER, ConnectionData.IBM_DRIVER, ConnectionData.DATADIRECT_DRIVER,
-                ConnectionData.MYSQL_DRIVER, ConnectionData.HSQLDB_DRIVER, ConnectionData.SQLITE_DRIVER});
-        driver.setEditable(true);
-        driver.setSelectedItem(connectionData.getDriver());
-        panel.add(driver, c);
         if (add) {
             PLUGIN.customizeConnectionPanel(panel, c, connectionData);
         }
@@ -190,8 +197,23 @@ public class ConnectAction extends ActionChangeAbstractAction {
         connectionData.setUrl(url.getText());
         connectionData.setUser(user.getText());
         connectionData.setPassword(password.getText());
-        connectionData.setDriver(driver.getSelectedItem() == null ? "" : (String) driver.getSelectedItem());
-        return Dialog.OK_OPTION == i;
+        if (Dialog.OK_OPTION == i && connectionData.getName().trim().length() == 0) {
+            Dialog.show("Empty name", "Why would you want an empty name?", Dialog.ERROR_MESSAGE,
+                    new Object[] {"OK, I'm sorry, I will give it a name."}, null);
+            boolean okay = editConnection(connectionData, add, true);
+            if (!nested) {
+                if (okay) {
+                    Dialog.show(null, "That's more like it!", Dialog.INFORMATION_MESSAGE, new Object[] {
+                            "You were right, it's better to give it a name."}, null);
+                } else {
+                    Dialog.show(null, "So you won't give it a name, won't you?", Dialog.QUESTION_MESSAGE, new Object[] {
+                            "No, If I can't have a nameless connection, I rather have no connection at all!"}, null);
+                }
+            }
+            return okay;
+        } else {
+            return Dialog.OK_OPTION == i;
+        }
     }
 
     @Override

@@ -80,7 +80,6 @@ public final class Config {
                     element.getAttribute("connection"),
                     element.getAttribute("user"),
                     Config.decrypt(element.getAttribute("password")),
-                    element.getAttribute("driver"),
                     element.getAttribute("defaultOwner")
             ));
         }
@@ -101,7 +100,6 @@ public final class Config {
             element.setAttribute("user", connectionData.getUser());
             element.setAttribute("password", Config.encrypt(connectionData.getPassword()));
             element.setAttribute("connection", connectionData.getUrl());
-            element.setAttribute("driver", connectionData.getDriver());
             element.setAttribute("defaultOwner", connectionData.getDefaultOwner());
             config.appendChild(element);
         }
@@ -136,29 +134,48 @@ public final class Config {
         Config.saveConfig(config);
     }
 
-    public static String getLastUsedDir() throws ParserConfigurationException, IOException, SAXException {
+    public static String getLastUsedDir() throws Exception {
+        return getSetting("dir");
+    }
+
+    public static String getDrivers() throws Exception {
+        String drivers = getSetting("drivers");
+        if (drivers == null || drivers.length() == 0) {
+            drivers = "org.sqlite.JDBC";
+        }
+        return drivers;
+    }
+
+    private static String getSetting(String name) throws Exception {
         Element config = getConfig();
         NodeList list = config.getElementsByTagName("settings");
         if (list.getLength() > 0) {
             Element settings = (Element) list.item(0);
-            return settings.getAttribute("dir");
+            return settings.getAttribute(name);
         }
         return null;
     }
 
-    public static void saveLastUsedDir(String dir) throws ParserConfigurationException, IOException,
-                                                           TransformerException, SAXException {
+    public static void saveLastUsedDir(String dir) throws Exception {
+        saveSetting("dir", dir);
+    }
+
+    public static void saveDrivers(String drivers) throws Exception {
+        saveSetting("drivers", drivers);
+    }
+
+    private static void saveSetting(String name, String value) throws Exception {
         Element config = getConfig();
         NodeList list = config.getElementsByTagName("settings");
         if (list.getLength() > 0) {
             Element settings = (Element) list.item(0);
-            if (dir.equals(settings.getAttribute("dir"))) {
+            if (value.equals(settings.getAttribute(name))) {
                 return;
             }
-            settings.setAttribute("dir", dir);
+            settings.setAttribute(name, value);
         } else {
             Element settings = config.getOwnerDocument().createElement("settings");
-            settings.setAttribute("dir", dir);
+            settings.setAttribute(name, value);
             config.appendChild(settings);
         }
         Config.saveConfig(config);

@@ -1,3 +1,9 @@
+2.3.5 (25/02/2011)
+- Added automatic driver detection
+- Added H2 support
+- Added Apache Derby support
+- Upgraded HSQLDB driver 1.8.1 -> 2.0
+
 2.3.4 (19/01/2011)
 - Added open/save feature for SQL files
 

@@ -72,7 +72,7 @@ public final class ExceptionDialog {
                 textArea.append("\n");
                 textArea.append(connectionData.getUrl());
                 textArea.append("\n");
-                textArea.append(connectionData.getDriver());
+                textArea.append(connectionData.getDriver().getClass().getName());
                 textArea.append("\n");
             }
             textArea.append(text);

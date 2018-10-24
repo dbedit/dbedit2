@@ -17,31 +17,29 @@
  */
 package dbedit;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.ResultSet;
+import java.sql.*;
+import java.util.Enumeration;
 import java.util.Properties;
+import java.util.Scanner;
 
 public class ConnectionData implements Comparable, Cloneable {
 
-    public static final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";
-    public static final String IBM_DRIVER = "com.ibm.db2.jcc.DB2Driver";
-    public static final String DATADIRECT_DRIVER = "com.ddtek.jdbc.db2.DB2Driver";
-    public static final String MYSQL_DRIVER = "com.mysql.jdbc.Driver";
-    public static final String HSQLDB_DRIVER = "org.hsqldb.jdbcDriver";
-    public static final String SQLITE_DRIVER = "org.sqlite.JDBC";
+    private static boolean initialized = false;
 
     private String name;
     private String url;
     private String user;
     private String password;
-    private String driver;
 
+    private Driver driver;
     private Connection connection;
     private ResultSet resultSet;
 
@@ -52,13 +50,11 @@ public class ConnectionData implements Comparable, Cloneable {
     public ConnectionData() {
     }
 
-    public ConnectionData(String newName, String newUrl, String newUser,
-                          String newPassword, String newDriver, String newDefaultOwner) {
+    public ConnectionData(String newName, String newUrl, String newUser, String newPassword, String newDefaultOwner) {
         this.name = newName;
         this.url = newUrl;
         this.user = newUser;
         this.password = newPassword;
-        this.driver = newDriver;
         this.defaultOwner = newDefaultOwner;
     }
 
@@ -94,12 +90,8 @@ public class ConnectionData implements Comparable, Cloneable {
         this.password = newPassword;
     }
 
-    public String getDriver() {
+    public Driver getDriver() {
         return driver;
-    }
-
-    public void setDriver(String newDriver) {
-        this.driver = newDriver;
     }
 
     public Connection getConnection() {
@@ -123,16 +115,31 @@ public class ConnectionData implements Comparable, Cloneable {
     }
 
     public void connect() throws Exception {
-        ClassLoader classLoader = new URLClassLoader(retrieveAllJars());
-        Driver driverInstance = (Driver) Class.forName(this.driver, true, classLoader).newInstance();
+        if (!initialized) {
+            addAllJarsToClasspath();
+            loadCustomDrivers();
+            initialized = true;
+        }
+
+        try {
+            driver = DriverManager.getDriver(url);
+        } catch (SQLException e) {
+            editDrivers();
+            loadCustomDrivers();
+            try {
+                driver = DriverManager.getDriver(url);
+            } catch (SQLException e1) {
+                throw new Exception(String.format("No suitable driver for URL \"%s\"", url), e1);
+            }
+        }
         Properties properties = new Properties();
         properties.setProperty("user", user);
         properties.setProperty("password", password);
         addExtraProperties(properties);
-
-        connection = driverInstance.connect(url, properties);
+        connection = driver.connect(url, properties);
         if (connection == null) {
-            throw new Exception(String.format("Unable to connect.\nURL = %s\nDriver = %s", url, driver));
+            throw new Exception(String.format("Unable to connect.\nURL = %s\nDriver = %s",
+                    url, driver.getClass().getName()));
         }
         connection.setAutoCommit(false);
         setMixedCaseQuotedIdentifiers();
@@ -158,6 +165,16 @@ public class ConnectionData implements Comparable, Cloneable {
         }
     }
 
+    private static void addAllJarsToClasspath() throws Exception {
+        ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+        Method addURL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+        addURL.setAccessible(true);
+        URL[] urls = retrieveAllJars();
+        for (URL url1 : urls) {
+            addURL.invoke(systemClassLoader, url1);
+        }
+    }
+
     private static URL[] retrieveAllJars() throws MalformedURLException {
         File[] files = new File(".").listFiles(new FilenameFilter() {
             @Override
@@ -172,20 +189,34 @@ public class ConnectionData implements Comparable, Cloneable {
         return urls;
     }
 
+    private static void loadCustomDrivers() throws Exception {
+        String drivers = Config.getDrivers();
+        Scanner scanner = new Scanner(drivers);
+        scanner.useDelimiter("[\\s,;]+");
+        while (scanner.hasNext()) {
+            String driver = scanner.next();
+            try {
+                Class.forName(driver);
+            } catch (ClassNotFoundException e) {
+                ExceptionDialog.hideException(e);
+            }
+        }
+    }
+
     public boolean isOracle() {
-        return ORACLE_DRIVER.equals(driver);
+        return url.toLowerCase().trim().startsWith("jdbc:oracle");
     }
 
     public boolean isIbm() {
-        return IBM_DRIVER.equals(driver);
+        return url.toLowerCase().trim().startsWith("jdbc:db2");
     }
 
     public boolean isDataDirect() {
-        return DATADIRECT_DRIVER.equals(driver);
+        return url.toLowerCase().trim().startsWith("jdbc:datadirect");
     }
 
     public boolean isHSQLDB() {
-        return HSQLDB_DRIVER.equals(driver);
+        return url.toLowerCase().trim().startsWith("jdbc:hsqldb");
     }
 
     private void setMixedCaseQuotedIdentifiers() {
@@ -208,6 +239,40 @@ public class ConnectionData implements Comparable, Cloneable {
             s = String.format("%s%s%s", identifierQuoteString, s, identifierQuoteString);
         }
         return s;
+    }
+
+    private void editDrivers() throws Exception {
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.BOTH;
+        c.insets = new Insets(2, 2, 2, 2);
+        c.gridy++;
+        panel.add(new JLabel(String.format("Driver could not be loaded for URL \"%s\".", url)), c);
+        c.gridy++;
+        panel.add(new JLabel(String.format("Make sure the JDBC driver jar file is located in \"%s\".",
+                new File(".").getCanonicalPath())), c);
+        c.gridy++;
+        panel.add(new JLabel("Most drivers are automatically detected."), c);
+        c.gridy++;
+        panel.add(new JLabel("Add any driver that couldn't automatically be loaded to the list below,"
+                + " separated by a comma or a new line."), c);
+        c.gridy++;
+        String drivers = Config.getDrivers();
+        JTextArea driverfield = new JTextArea(drivers, 6, 0);
+        panel.add(new JScrollPane(driverfield), c);
+        c.gridy++;
+        panel.add(new JLabel("Currently loaded drivers:"), c);
+        Enumeration<Driver> loadedDrivers = DriverManager.getDrivers();
+        while (loadedDrivers.hasMoreElements()) {
+            Driver loadedDriver = loadedDrivers.nextElement();
+            c.gridy++;
+            panel.add(new JLabel(loadedDriver.getClass().getName()
+                    + " v" + loadedDriver.getMajorVersion() + "." + loadedDriver.getMinorVersion()), c);
+        }
+        if (Dialog.OK_OPTION  == Dialog.show("Drivers", panel, Dialog.ERROR_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
+            Config.saveDrivers(driverfield.getText());
+        }
     }
 
     @Override
