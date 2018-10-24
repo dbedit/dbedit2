@@ -17,9 +17,7 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
-import dbedit.Dialog;
-import dbedit.Grid;
+import dbedit.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -34,7 +32,7 @@ public class ExportFlatFileAction extends CustomAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        JTable table = ApplicationPanel.getInstance().getTable();
+        JTable table = ResultSetTable.getInstance();
         boolean selection = false;
         if (table.getSelectedRowCount() > 0 && table.getSelectedRowCount() != table.getRowCount()) {
             Object option = Dialog.show("Flat File", "Export", Dialog.QUESTION_MESSAGE,
@@ -58,8 +56,8 @@ public class ExportFlatFileAction extends CustomAction {
                 for (int j = 0; j < row.size(); j++) {
                     rightAlignedColumns[j] = (rightAlignedColumns[j] > 0 || row.get(j) instanceof Number) ? j : -1;
                     String s = row.get(j) == null ? "" : row.get(j).toString();
-                    if (!"".equals(s) && CustomAction.isLob(j)) {
-                        s = CustomAction.getColumnTypeNames()[j];
+                    if (!"".equals(s) && ResultSetTable.isLob(j)) {
+                        s = Context.getInstance().getColumnTypeNames()[j];
                     }
                     s = s.replaceAll("\r\n", " | ").replaceAll("\n", " | ").replaceAll("\t", "    ");
                     if (s.length() > 500) {
@@ -73,6 +71,6 @@ public class ExportFlatFileAction extends CustomAction {
         grid.addSeparator();
         grid.set(0, grid.getHeight(), String.format("Total: %d", (grid.getHeight() - 3)));
         String text = grid.toString(rightAlignedColumns);
-        showFile(text, null);
+        ExportPreviewer.preview(text, null);
     }
 }

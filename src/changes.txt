@@ -1,3 +1,10 @@
+2.4.1 (26/04/2011)
+- Added password prompt dialog when left empty in the connection settings
+- Added progress dialog with cancel button for multiple lob export/copy/paste
+- Added driver assistant dialog
+- Suppressed derby.log creation in Apache Derby
+- Code refactoring & minor improvements
+
 2.4 (18/03/2011)
 - Added syntax highlighting, line numbers, find and replace, ...
   Right click the editor to see all the features

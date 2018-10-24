@@ -17,6 +17,8 @@
  */
 package dbedit.actions;
 
+import dbedit.Context;
+
 import java.awt.event.ActionEvent;
 
 public class RollbackAction extends CustomAction {
@@ -27,6 +29,6 @@ public class RollbackAction extends CustomAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        getConnectionData().getConnection().rollback();
+        Context.getInstance().getConnectionData().getConnection().rollback();
     }
 }

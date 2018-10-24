@@ -17,8 +17,10 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
+import dbedit.Context;
 import dbedit.Dialog;
+import dbedit.FileIO;
+import dbedit.ResultSetTable;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
 
@@ -37,7 +39,7 @@ public class ExportExcelAction extends CustomAction {
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         boolean selection = false;
-        JTable table = ApplicationPanel.getInstance().getTable();
+        JTable table = ResultSetTable.getInstance();
         if (table.getSelectedRowCount() > 0 && table.getSelectedRowCount() != table.getRowCount()) {
             Object option = Dialog.show("Excel", "Export", Dialog.QUESTION_MESSAGE,
                     new Object[] {"Everything", "Selection"}, "Everything");
@@ -74,8 +76,8 @@ public class ExportExcelAction extends CustomAction {
                     if (o instanceof Number) {
                         cell.setCellValue(((Number) o).doubleValue());
                     } else if (o != null) {
-                        if (CustomAction.isLob(j)) {
-                            cell.setCellValue(new HSSFRichTextString(getColumnTypeNames()[j]));
+                        if (ResultSetTable.isLob(j)) {
+                            cell.setCellValue(new HSSFRichTextString(Context.getInstance().getColumnTypeNames()[j]));
                         } else {
                             cell.setCellValue(new HSSFRichTextString(o.toString()));
                         }
@@ -86,6 +88,6 @@ public class ExportExcelAction extends CustomAction {
         sheet.createFreezePane(0, 1);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         workbook.write(byteArrayOutputStream);
-        saveAndOpenFile("export.xls", byteArrayOutputStream.toByteArray());
+        FileIO.saveAndOpenFile("export.xls", byteArrayOutputStream.toByteArray());
     }
 }

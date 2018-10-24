@@ -17,30 +17,24 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
-import dbedit.Config;
+import dbedit.FileIO;
+import dbedit.ResultSetTable;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.io.FileInputStream;
+import java.io.File;
 
-public class LobImportAction extends LobAbstractAction {
+public class LobImportAction extends CustomAction {
 
     protected LobImportAction() {
-        super("Import", "import.png");
+        super("Import", "import.png", null);
     }
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        JFileChooser fileChooser = getFileChooser();
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog(ApplicationPanel.getInstance())) {
-            Config.saveLastUsedDir(fileChooser.getCurrentDirectory().getCanonicalPath());
-            FileInputStream in = new FileInputStream(fileChooser.getSelectedFile());
-            byte[] b = new byte[in.available()];
-            in.read(b);
-            in.close();
-            ApplicationPanel.getInstance().setTableValue(b);
-            editingStopped(null);
+        File file = FileIO.openFile();
+        if (file != null) {
+            ResultSetTable.getInstance().setTableValue(FileIO.readFile(file));
+            ResultSetTable.getInstance().editingStopped(null);
         }
     }
 }

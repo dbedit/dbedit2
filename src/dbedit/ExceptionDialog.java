@@ -17,16 +17,12 @@
  */
 package dbedit;
 
-import dbedit.actions.CustomAction;
 import dbedit.plugin.PluginFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.sql.SQLException;
 
 public final class ExceptionDialog {
@@ -67,14 +63,14 @@ public final class ExceptionDialog {
             textArea.append(System.getProperty("java.runtime.name"));
             textArea.append(" ");
             textArea.append(System.getProperty("java.runtime.version"));
-            ConnectionData connectionData = CustomAction.getConnectionData();
+            ConnectionData connectionData = Context.getInstance().getConnectionData();
             if (connectionData != null) {
                 textArea.append("\n");
                 textArea.append(connectionData.getUrl());
                 textArea.append("\n");
                 textArea.append(connectionData.getDriver().getClass().getName());
-                textArea.append("\n");
             }
+            textArea.append("\n");
             textArea.append(text);
             textArea.setEditable(false);
             JScrollPane scrollPane = new JScrollPane(textArea);
@@ -88,8 +84,10 @@ public final class ExceptionDialog {
                 }
             }
         }
+        showTip(t, text);
+    }
 
-        //some tips
+    private static void showTip(Throwable t, String text) {
         StringBuilder msg = new StringBuilder();
         if (t instanceof SQLException) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -107,11 +105,12 @@ public final class ExceptionDialog {
                     msg.append("Updating a resultset mostly fails when the ORDER BY clause is used.\n");
                     msg.append("Try the select without ORDER BY and sort the column afterwards.");
                 }
-            } else if (CustomAction.getConnectionData() != null && CustomAction.getConnectionData().isIbm()) {
+            } else if (Context.getInstance().getConnectionData() != null
+                    && Context.getInstance().getConnectionData().isIbm()) {
                 if (t.getMessage().contains("Invalid operation: result set is closed.")) {
-                    int length = CustomAction.getColumnTypes().length;
+                    int length = Context.getInstance().getColumnTypes().length;
                     for (int i = 0; i < length; i++) {
-                        if (CustomAction.isLob(i)) {
+                        if (ResultSetTable.isLob(i)) {
                             msg.append("The IBM JDBC driver doesn't support modifying rows with BLOB's or CLOB's ");
                             msg.append("in the resultset yet.\n");
                             msg.append("Please execute the update statement manually ");
@@ -124,6 +123,31 @@ public final class ExceptionDialog {
             } else {
                 msg.append(PluginFactory.getPlugin().analyzeException(exception));
             }
+        } else if (t instanceof OutOfMemoryError) {
+            msg.append("DBEdit has a memory limit of 512 MB.\n");
+            if (Config.IS_OS_WINDOWS) {
+                msg.append("If you really want to increase it, create a file called ");
+                try {
+                    msg.append(new File("DBEdit.l4j.ini").getCanonicalPath());
+                } catch (IOException e) {
+                    msg.append("DBEdit.l4j.ini");
+                }
+                msg.append(".\n");
+                msg.append("You can specify JVM options in that file.\n");
+                msg.append("Enter -Xmx1g for 1 GB, -Xmx2g for 2 GB ...");
+            } else {
+                msg.append("If you really want to increase it, edit the startup script ");
+                try {
+                    msg.append(new File("dbedit").getCanonicalPath());
+                } catch (IOException e) {
+                    msg.append("dbedit");
+                }
+                msg.append(".\n");
+                msg.append("Search for -Xmx512m.\n");
+                msg.append("-Xmx512m means 512 MB of memory.\n");
+                msg.append("Change it to -Xmx1g for 1 GB, -Xmx2g for 2 GB ...");
+            }
+
         }
         if (msg.length() > 0) {
             Dialog.show("Tip", msg, Dialog.INFORMATION_MESSAGE, Dialog.DEFAULT_OPTION);

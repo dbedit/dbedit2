@@ -19,9 +19,9 @@ package dbedit.actions;
 
 import dbedit.*;
 import dbedit.Dialog;
+import dbedit.plugin.PluginFactory;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.sql.SQLWarning;
 import java.util.Vector;
 
-public class ConnectAction extends ActionChangeAbstractAction {
+public class ConnectAction extends CustomAction {
 
     protected ConnectAction() {
         super("Connect", "connect.png", null);
@@ -43,7 +43,6 @@ public class ConnectAction extends ActionChangeAbstractAction {
         Vector<ConnectionData> connectionDatas = Config.getDatabases();
         final JList list = new JList(connectionDatas);
         list.addMouseListener(this);
-        list.addListSelectionListener(this);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         Object value = Dialog.show("Connections", new JScrollPane(list), Dialog.PLAIN_MESSAGE,
                 new Object[] {"Connect", "Cancel", "Add", "Edit", "Duplicate", "Delete"}, "Connect");
@@ -54,20 +53,25 @@ public class ConnectAction extends ActionChangeAbstractAction {
                 boolean connected = false;
                 while (!connected) {
                     try {
-                        connectionData.connect();
-                        SQLWarning warnings = connectionData.getConnection().getWarnings();
-                        while (warnings != null) {
-                            Dialog.show("Warning", warnings.getMessage(), Dialog.WARNING_MESSAGE,
-                                    Dialog.DEFAULT_OPTION);
-                            warnings = warnings.getNextWarning();
-                        }
+                        if (checkPassword(connectionData)) {
+                            connectionData.connect();
+                            SQLWarning warnings = connectionData.getConnection().getWarnings();
+                            while (warnings != null) {
+                                Dialog.show("Warning", warnings.getMessage(), Dialog.WARNING_MESSAGE,
+                                        Dialog.DEFAULT_OPTION);
+                                warnings = warnings.getNextWarning();
+                            }
 
-                        setConnectionData(connectionData);
-                        ApplicationPanel.getInstance().getFrame().setTitle(
-                                String.format("%s - %s", DBEdit.APPLICATION_NAME, getConnectionData().getName()));
-                        handleActions();
-                        ApplicationPanel.getInstance().initializeObjectChooser(getConnectionData());
-                        connected = true;
+                            Context.getInstance().setConnectionData(connectionData);
+                            ApplicationPanel.getInstance().getFrame().setTitle(
+                                    String.format("%s - %s", DBEdit.APPLICATION_NAME, connectionData.getName()));
+                            Actions.getInstance().validateActions();
+                            ApplicationPanel.getInstance().initializeObjectChooser(connectionData);
+                            connected = true;
+                        } else {
+                            performThreaded(e);
+                            return;
+                        }
                     } catch (Throwable t) {
                         ExceptionDialog.showException(t);
                         if (editConnection(connectionData, false)) {
@@ -198,14 +202,14 @@ public class ConnectAction extends ActionChangeAbstractAction {
         JTextField password = new JPasswordField(connectionData.getPassword());
         panel.add(password, c);
         if (add) {
-            PLUGIN.customizeConnectionPanel(panel, c, connectionData);
+            PluginFactory.getPlugin().customizeConnectionPanel(panel, c, connectionData);
         }
         int i = Dialog.show("Connection", panel, Dialog.PLAIN_MESSAGE, Dialog.OK_CANCEL_OPTION);
         connectionData.setName(name.getText());
         connectionData.setUrl(url.getText());
         connectionData.setUser(user.getText());
         connectionData.setPassword(password.getText());
-        if (Dialog.OK_OPTION == i && connectionData.getName().trim().length() == 0) {
+        if (Dialog.OK_OPTION == i && connectionData.getName().trim().isEmpty()) {
             Dialog.show("Empty name", "Why would you want an empty name?", Dialog.ERROR_MESSAGE,
                     new Object[] {"OK, I'm sorry, I will give it a name."}, null);
             boolean okay = editConnection(connectionData, add, true);
@@ -224,6 +228,21 @@ public class ConnectAction extends ActionChangeAbstractAction {
         }
     }
 
+    private boolean checkPassword(ConnectionData connectionData) {
+        if (connectionData.getPassword().isEmpty()) {
+            JPasswordField passwordField = new JPasswordField();
+            if (Dialog.OK_OPTION == Dialog.show("Password", passwordField,
+                    Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
+                connectionData.setTransientPassword(new String(passwordField.getPassword()));
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
     @Override
     public void mouseClicked(final MouseEvent e) {
         if (e.getSource() instanceof JLabel) {
@@ -232,27 +251,8 @@ public class ConnectAction extends ActionChangeAbstractAction {
             } catch (Exception e1) {
                 ExceptionDialog.showException(e1);
             }
-        } else if (e.getClickCount() == 2) {
-            Container container = (Container) e.getSource();
-            while (!(container instanceof JOptionPane)) {
-                container = container.getParent();
-            }
-            JOptionPane optionPane = (JOptionPane) container;
-            Object value = optionPane.getInitialValue();
-            if (value == null) {
-                value = JOptionPane.OK_OPTION;
-            }
-            optionPane.setValue(value);
-            while (!(container instanceof JDialog)) {
-                container = container.getParent();
-            }
-            container.setVisible(false);
+        } else  {
+            super.mouseClicked(e);
         }
-    }
-
-    @Override
-    public void valueChanged(ListSelectionEvent e) {
-        JList list = (JList) e.getSource();
-        list.ensureIndexIsVisible(list.getSelectedIndex());
     }
 }

@@ -17,9 +17,10 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
+import dbedit.Context;
 import dbedit.Dialog;
 import dbedit.ExceptionDialog;
+import dbedit.ResultSetTable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,12 +41,12 @@ public class EditAction extends CustomAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        ResultSet resultSet = getConnectionData().getResultSet();
+        ResultSet resultSet = Context.getInstance().getResultSet();
         JPanel panel = new JPanel(new GridBagLayout());
         JTextArea[] textAreas = new JTextArea[resultSet.getMetaData().getColumnCount()];
         GridBagConstraints constraints = new GridBagConstraints(-1, 0, 1, 1, 0, 0,
                 GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0);
-        List<String> selectedRow = ApplicationPanel.getInstance().getSelectedRow();
+        List<String> selectedRow = ResultSetTable.getInstance().getSelectedRowData();
         for (int column = 0; column < resultSet.getMetaData().getColumnCount(); column++) {
             String columnName = resultSet.getMetaData().getColumnName(column + 1);
             panel.add(new JLabel(columnName), constraints);
@@ -56,7 +57,7 @@ public class EditAction extends CustomAction {
             textAreas[column] = new JTextArea();
             panel.add(textAreas[column], constraints);
             fillTextArea(textAreas[column], selectedRow, column);
-            if (isLob(column)) {
+            if (ResultSetTable.isLob(column)) {
                 textAreas[column].setEnabled(false);
             }
             if (resultSet.getConcurrency() == ResultSet.CONCUR_READ_ONLY) {
@@ -76,7 +77,7 @@ public class EditAction extends CustomAction {
                     for (int i = 0; i < textAreas.length; i++) {
                         String text = textAreas[i].getText();
                         if (textAreas[i].isEnabled() && change(text, getOriginalValue(selectedRow, i))) {
-                            update(i + 1, text);
+                            ResultSetTable.getInstance().update(i + 1, text);
                             updateSelectedRow(selectedRow, i, text);
                             changed = true;
                         }
@@ -105,7 +106,7 @@ public class EditAction extends CustomAction {
     }
 
     protected void position(ResultSet resultSet) throws SQLException {
-        int origRow = ApplicationPanel.getInstance().getOriginalSelectedRow();
+        int origRow = ResultSetTable.getInstance().getOriginalSelectedRow();
         resultSet.first();
         resultSet.relative(origRow);
     }

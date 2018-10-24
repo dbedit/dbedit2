@@ -17,24 +17,20 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
-import dbedit.Context;
-import dbedit.FileIO;
+import dbedit.Drivers;
 
 import java.awt.event.ActionEvent;
-import java.io.File;
 
-public class FileSaveAction extends CustomAction {
+public class DriversAction extends CustomAction {
 
-    protected FileSaveAction() {
-        super("Save File", "filesave.png", null);
+    public DriversAction() {
+        super("Drivers", "empty.png", null);
         setEnabled(true);
     }
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        File openedFile = Context.getInstance().getOpenedFile();
-        FileIO.saveFile(openedFile == null ? "" : openedFile.toString(),
-                ApplicationPanel.getInstance().getText().getBytes());
+        Drivers.initialize();
+        Drivers.editDrivers();
     }
 }

@@ -19,8 +19,10 @@ package dbedit.actions;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
-import dbedit.ApplicationPanel;
+import dbedit.Context;
 import dbedit.Dialog;
+import dbedit.FileIO;
+import dbedit.ResultSetTable;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -43,7 +45,7 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         boolean selection = false;
-        JTable table = ApplicationPanel.getInstance().getTable();
+        JTable table = ResultSetTable.getInstance();
         if (table.getSelectedRowCount() > 0 && table.getSelectedRowCount() != table.getRowCount()) {
             Object option = Dialog.show("PDF", "Export", Dialog.QUESTION_MESSAGE,
                     new Object[] {"Everything", "Selection"}, "Everything");
@@ -78,8 +80,8 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
                 for (int j = 0; j < record.size(); j++) {
                     Object o = record.get(j);
                     if (o != null) {
-                        if (CustomAction.isLob(j)) {
-                            o = getColumnTypeNames()[j];
+                        if (ResultSetTable.isLob(j)) {
+                            o = Context.getInstance().getColumnTypeNames()[j];
                         }
                     } else {
                         o = "";
@@ -115,7 +117,7 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
         writer.setPageEvent(this);
         document.add(pdfPTable);
         document.close();
-        saveAndOpenFile("export.pdf", byteArrayOutputStream.toByteArray());
+        FileIO.saveAndOpenFile("export.pdf", byteArrayOutputStream.toByteArray());
     }
 
     /**

@@ -17,28 +17,27 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
-import dbedit.Dialog;
-import dbedit.DirectoryChooser;
+import dbedit.*;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LobExportAction extends LobAbstractAction {
+public class LobExportAction extends CustomAction {
 
     protected LobExportAction() {
-        super("Export", "export.png");
+        super("Export", "export.png", null);
     }
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        JTable table = ApplicationPanel.getInstance().getTable();
+        JTable table = ResultSetTable.getInstance();
         int[] selectedRows = table.getSelectedRows();
         if (selectedRows.length > 1) {
             File dir = DirectoryChooser.chooseDirectory();
@@ -51,7 +50,6 @@ public class LobExportAction extends LobAbstractAction {
                 }
                 final JList list = new JList(columnNames.toArray());
                 list.addMouseListener(this);
-                list.addListSelectionListener(this);
                 list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 if (Dialog.OK_OPTION == Dialog.show("Column for file name", new JScrollPane(list),
                         Dialog.PLAIN_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
@@ -60,24 +58,47 @@ public class LobExportAction extends LobAbstractAction {
                         if (selectedIndex >= table.getSelectedColumn()) {
                             selectedIndex++;
                         }
-                        for (int selectedRow : selectedRows) {
-                            table.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
-                            exportLob(new File(dir,
-                                    String.valueOf(table.getValueAt(selectedRow, selectedIndex))), getLob());
+                        WaitingDialog waitingDialog = new WaitingDialog(null);
+                        try {
+                            waitingDialog.setText(String.format("0/%d", selectedRows.length));
+                            for (int i = 0; i < selectedRows.length && waitingDialog.isVisible(); i++) {
+                                int selectedRow = selectedRows[i];
+                                FileIO.writeFile(
+                                        new File(dir, String.valueOf(table.getValueAt(selectedRow, selectedIndex))),
+                                        getLob(selectedRow, table.getSelectedColumn()));
+                                waitingDialog.setText(String.format("%d/%d", i + 1, selectedRows.length));
+                            }
+                        } finally {
+                            waitingDialog.hide();
                         }
                     }
                 }
             }
         } else {
-            byte[] lob = getLob();
+            byte[] lob = getLob(table.getSelectedRow(), table.getSelectedColumn());
             if (lob != null) {
                 if (isAscii(lob)) {
-                    showFile(new String(lob), lob);
+                    ExportPreviewer.preview(new String(lob), lob);
                 } else {
                     String ext = guessType(lob);
-                    saveAndOpenFile("export" + ext, lob);
+                    FileIO.saveAndOpenFile("export" + ext, lob);
                 }
             }
+        }
+    }
+
+    private byte[] getLob(int row, int column) throws SQLException {
+        Object lob = ResultSetTable.getInstance().getValueAt(row, column);
+        if (lob instanceof Blob) {
+            return ((Blob) lob).getBytes(1, (int) ((Blob) lob).length());
+        } else if (lob instanceof Clob) {
+            return ((Clob) lob).getSubString(1, (int) ((Clob) lob).length()).getBytes();
+        } else if (lob instanceof byte[]) {
+            return (byte[]) lob;
+        } else if (lob != null) {
+            throw new UnsupportedOperationException("Unsupported type");
+        } else {
+            return null;
         }
     }
 
@@ -125,30 +146,11 @@ public class LobExportAction extends LobAbstractAction {
     public void mouseClicked(final MouseEvent e) {
         if (e.getClickCount() == 2) {
             if (e.getSource() instanceof JTable
-                    && isLob(ApplicationPanel.getInstance().getTable().getSelectedColumn())) {
+                    && ResultSetTable.isLob(ResultSetTable.getInstance().getSelectedColumn())) {
                 actionPerformed(null);
-            } else if (e.getSource() instanceof JList) {
-                Container container = (Container) e.getSource();
-                while (!(container instanceof JOptionPane)) {
-                    container = container.getParent();
-                }
-                JOptionPane optionPane = (JOptionPane) container;
-                Object value = optionPane.getInitialValue();
-                if (value == null) {
-                    value = JOptionPane.OK_OPTION;
-                }
-                optionPane.setValue(value);
-                while (!(container instanceof JDialog)) {
-                    container = container.getParent();
-                }
-                container.setVisible(false);
+            } else  {
+                super.mouseClicked(e);
             }
         }
-    }
-
-    @Override
-    public void valueChanged(ListSelectionEvent e) {
-        JList list = (JList) e.getSource();
-        list.ensureIndexIsVisible(list.getSelectedIndex());
     }
 }

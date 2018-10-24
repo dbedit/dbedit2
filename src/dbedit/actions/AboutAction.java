@@ -17,10 +17,9 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
-import dbedit.Config;
+import dbedit.*;
 import dbedit.Dialog;
-import dbedit.ExceptionDialog;
+import dbedit.plugin.PluginFactory;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -77,9 +76,9 @@ public class AboutAction extends CustomAction {
         c.gridwidth = 1;
         panel.add(new JLabel("Java VM: "), c);
         panel.add(new JLabel(System.getProperty("java.version")), c);
-        if (getConnectionData() != null) {
+        if (Context.getInstance().getConnectionData() != null) {
             try {
-                DatabaseMetaData metaData = getConnectionData().getConnection().getMetaData();
+                DatabaseMetaData metaData = Context.getInstance().getConnectionData().getConnection().getMetaData();
                 c.gridy++;
                 panel.add(new JLabel("Database: "), c);
                 panel.add(new JLabel(metaData.getDatabaseProductName()), c);
@@ -97,7 +96,7 @@ public class AboutAction extends CustomAction {
                 ExceptionDialog.hideException(t);
             }
         }
-        PLUGIN.customizeAboutPanel(panel, c);
+        PluginFactory.getPlugin().customizeAboutPanel(panel, c);
         panel.setBorder(new BevelBorder(BevelBorder.RAISED) {
             private Insets insets = new Insets(65, 10, 10, 10);
             @Override

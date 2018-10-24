@@ -18,12 +18,11 @@
 package dbedit.actions;
 
 import dbedit.ApplicationPanel;
-import dbedit.Config;
+import dbedit.Context;
+import dbedit.FileIO;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileInputStream;
 
 public class FileOpenAction extends CustomAction {
 
@@ -34,16 +33,10 @@ public class FileOpenAction extends CustomAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        JFileChooser fileChooser = getFileChooser();
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog(ApplicationPanel.getInstance())) {
-            Config.saveLastUsedDir(fileChooser.getCurrentDirectory().getCanonicalPath());
-            File selectedFile = fileChooser.getSelectedFile();
-            setOpenedFile(selectedFile);
-            FileInputStream in = new FileInputStream(selectedFile);
-            byte[] b = new byte[in.available()];
-            in.read(b);
-            in.close();
-            ApplicationPanel.getInstance().setText(new String(b));
+        File file = FileIO.openFile();
+        if (file != null) {
+            Context.getInstance().setOpenedFile(file);
+            ApplicationPanel.getInstance().setText(new String(FileIO.readFile(file)));
         }
     }
 }

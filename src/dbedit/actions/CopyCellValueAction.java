@@ -17,7 +17,7 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
+import dbedit.ResultSetTable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,7 +36,7 @@ public class CopyCellValueAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         JTable table = (JTable) e.getSource();
         if (table.getSelectedRowCount() == 1) {
-            Object value = ApplicationPanel.getInstance().getTableValue();
+            Object value = ResultSetTable.getInstance().getTableValue();
             if (value != null) {
                 Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
                         new StringSelection(value.toString()), null);

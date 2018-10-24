@@ -17,47 +17,163 @@
  */
 package dbedit.actions;
 
-public interface Actions {
+import dbedit.ApplicationPanel;
+import dbedit.Context;
+import dbedit.History;
+import dbedit.ResultSetTable;
+
+import javax.swing.event.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public final class Actions implements ListSelectionListener, DocumentListener, TableColumnModelListener {
 
     //  Included in jsyntaxpane
-    Boolean UNDU_REDO_ENABLED = false;
-    Boolean CUT_COPY_PASTE_ENABLED = false;
+    public static final Boolean UNDU_REDO_ENABLED = false;
+    public static final Boolean CUT_COPY_PASTE_ENABLED = false;
 
-    CustomAction CONNECT = new ConnectAction();
-    CustomAction DISCONNECT = new DisconnectAction();
-    CustomAction COMMIT = new CommitAction();
-    CustomAction ROLLBACK = new RollbackAction();
-    CustomAction UNDO = new UndoAction();
-    CustomAction REDO = new RedoAction();
-    CustomAction CUT = new CutAction();
-    CustomAction COPY = new CopyAction();
-    CustomAction PASTE = new PasteAction();
-    CustomAction RUN = new RunAction();
-    CustomAction RUN_SCRIPT = new RunScriptAction();
-    CustomAction SCHEMA_BROWSER = new SchemaBrowserAction();
-    CustomAction FILE_OPEN = new FileOpenAction();
-    CustomAction FILE_SAVE = new FileSaveAction();
-    CustomAction FAVORITES = new FavoritesAction();
-    CustomAction HISTORY_PREVIOUS = new HistoryPreviousAction();
-    CustomAction HISTORY_NEXT = new HistoryNextAction();
-    CustomAction FORMAT_SQL = new FormatSQLAction();
-    CustomAction INSERT = new InsertAction();
-    CustomAction EDIT = new EditAction();
-    CustomAction DUPLICATE = new DuplicateAction();
-    CustomAction DELETE = new DeleteAction();
-    CustomAction LOB_IMPORT = new LobImportAction();
-    CustomAction LOB_EXPORT = new LobExportAction();
-    CustomAction LOB_COPY = new LobCopyAction();
-    CustomAction LOB_PASTE = new LobPasteAction();
-    GroupAction LOB_GROUP = new LobGroupAction();
-    CustomAction EXPORT_EXCEL = new ExportExcelAction();
-    CustomAction EXPORT_PDF = new ExportPdfAction();
-    CustomAction EXPORT_FLAT_FILE = new ExportFlatFileAction();
-    CustomAction EXPORT_INSERTS = new ExportInsertsAction();
-    GroupAction EXPORT_GROUP = new ExportGroupAction();
-    CustomAction FETCH_LIMIT = new FetchLimitAction();
-    CustomAction MANUAL = new ManualAction();
-    CustomAction SELECT_FROM = new SelectFromAction();
-    CustomAction ABOUT = new AboutAction();
-    CustomAction UPDATE = new UpdateAction();
+    public static final CustomAction CONNECT = new ConnectAction();
+    public static final CustomAction DISCONNECT = new DisconnectAction();
+    public static final CustomAction COMMIT = new CommitAction();
+    public static final CustomAction ROLLBACK = new RollbackAction();
+    public static final CustomAction UNDO = new UndoAction();
+    public static final CustomAction REDO = new RedoAction();
+    public static final CustomAction CUT = new CutAction();
+    public static final CustomAction COPY = new CopyAction();
+    public static final CustomAction PASTE = new PasteAction();
+    public static final CustomAction RUN = new RunAction();
+    public static final CustomAction RUN_SCRIPT = new RunScriptAction();
+    public static final CustomAction SCHEMA_BROWSER = new SchemaBrowserAction();
+    public static final CustomAction FILE_OPEN = new FileOpenAction();
+    public static final CustomAction FILE_SAVE = new FileSaveAction();
+    public static final CustomAction FAVORITES = new FavoritesAction();
+    public static final CustomAction HISTORY_PREVIOUS = new HistoryPreviousAction();
+    public static final CustomAction HISTORY_NEXT = new HistoryNextAction();
+    public static final CustomAction FORMAT_SQL = new FormatSQLAction();
+    public static final CustomAction INSERT = new InsertAction();
+    public static final CustomAction EDIT = new EditAction();
+    public static final CustomAction DUPLICATE = new DuplicateAction();
+    public static final CustomAction DELETE = new DeleteAction();
+    public static final CustomAction LOB_IMPORT = new LobImportAction();
+    public static final CustomAction LOB_EXPORT = new LobExportAction();
+    public static final CustomAction LOB_COPY = new LobCopyAction();
+    public static final CustomAction LOB_PASTE = new LobPasteAction();
+    public static final GroupAction LOB_GROUP = new LobGroupAction();
+    public static final CustomAction EXPORT_EXCEL = new ExportExcelAction();
+    public static final CustomAction EXPORT_PDF = new ExportPdfAction();
+    public static final CustomAction EXPORT_FLAT_FILE = new ExportFlatFileAction();
+    public static final CustomAction EXPORT_INSERTS = new ExportInsertsAction();
+    public static final GroupAction EXPORT_GROUP = new ExportGroupAction();
+    public static final CustomAction FETCH_LIMIT = new FetchLimitAction();
+    public static final CustomAction MANUAL = new ManualAction();
+    public static final CustomAction SELECT_FROM = new SelectFromAction();
+    public static final CustomAction DRIVERS = new DriversAction();
+    public static final CustomAction ABOUT = new AboutAction();
+    public static final CustomAction UPDATE = new UpdateAction();
+
+    private static final Actions ACTIONS = new Actions();
+
+    private Actions() {
+    }
+
+    public static Actions getInstance() {
+        return ACTIONS;
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        validateTextActions();
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        validateTextActions();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        validateTextActions();
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        validateActions();
+    }
+
+    @Override
+    public void columnSelectionChanged(ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting()) {
+            validateActions();
+        }
+    }
+
+    @Override
+    public void columnAdded(TableColumnModelEvent e) { }
+
+    @Override
+    public void columnRemoved(TableColumnModelEvent e) { }
+
+    @Override
+    public void columnMoved(TableColumnModelEvent e) { }
+
+    @Override
+    public void columnMarginChanged(ChangeEvent e) { }
+
+    protected void validateTextActions() {
+        if (UNDU_REDO_ENABLED) {
+            UNDO.setEnabled(ApplicationPanel.getInstance().getUndoManager().canUndo());
+            REDO.setEnabled(ApplicationPanel.getInstance().getUndoManager().canRedo());
+        }
+        HISTORY_PREVIOUS.setEnabled(History.getInstance().hasPrevious());
+        HISTORY_NEXT.setEnabled(History.getInstance().hasNext());
+    }
+
+    protected void validateActions() {
+        boolean isConnected = Context.getInstance().getConnectionData() != null;
+        DISCONNECT.setEnabled(isConnected);
+        COMMIT.setEnabled(isConnected);
+        ROLLBACK.setEnabled(isConnected);
+        RUN.setEnabled(isConnected);
+        RUN_SCRIPT.setEnabled(isConnected);
+
+        boolean hasResultSet = isConnected && Context.getInstance().getResultSet() != null;
+        EXPORT_EXCEL.setEnabled(hasResultSet);
+        EXPORT_PDF.setEnabled(hasResultSet);
+        EXPORT_FLAT_FILE.setEnabled(hasResultSet);
+        EXPORT_INSERTS.setEnabled(hasResultSet);
+        EXPORT_GROUP.setEnabled(hasResultSet);
+
+        boolean hasUpdatableResultSet;
+        try {
+            hasUpdatableResultSet = hasResultSet
+                    && Context.getInstance().getResultSet().getConcurrency()
+                    == ResultSet.CONCUR_UPDATABLE;
+        } catch (SQLException e) {
+            hasUpdatableResultSet = false;
+        }
+        INSERT.setEnabled(hasUpdatableResultSet);
+
+        boolean isRowSelected = hasResultSet
+                && !ResultSetTable.getInstance().getSelectionModel().isSelectionEmpty();
+        EDIT.setEnabled(isRowSelected);
+
+        boolean isUpdatableRowSelected = hasUpdatableResultSet && isRowSelected;
+        DUPLICATE.setEnabled(isUpdatableRowSelected);
+        DELETE.setEnabled(isUpdatableRowSelected);
+
+        boolean isLobSelected = hasResultSet
+                && ResultSetTable.isLob(ResultSetTable.getInstance().getSelectedColumn());
+        LOB_EXPORT.setEnabled(isLobSelected);
+        LOB_COPY.setEnabled(isLobSelected);
+        LOB_GROUP.setEnabled(isLobSelected);
+
+        boolean isUpdatableLobSelected = hasUpdatableResultSet
+                && ResultSetTable.isLob(ResultSetTable.getInstance().getSelectedColumn());
+        LOB_IMPORT.setEnabled(isUpdatableLobSelected);
+
+        boolean canImportFromMemory = Context.getInstance().getSavedLobs() != null && isUpdatableLobSelected
+                && ResultSetTable.getInstance().getSelectedRowCount()
+                == Context.getInstance().getSavedLobs().length;
+        LOB_PASTE.setEnabled(canImportFromMemory);
+    }
 }

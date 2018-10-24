@@ -18,12 +18,13 @@
 package dbedit.actions;
 
 import dbedit.ApplicationPanel;
+import dbedit.History;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-public class HistoryPreviousAction extends ActionChangeAbstractAction {
+public class HistoryPreviousAction extends CustomAction {
 
     protected HistoryPreviousAction() {
         super("History - Previous", "back.png", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.ALT_DOWN_MASK));
@@ -31,10 +32,10 @@ public class HistoryPreviousAction extends ActionChangeAbstractAction {
 
     @Override
     public void actionPerformed(final ActionEvent e) {
-        if (getHistory().hasPrevious()) {
-            ApplicationPanel.getInstance().setText(getHistory().previous());
+        if (History.getInstance().hasPrevious()) {
+            ApplicationPanel.getInstance().setText(History.getInstance().previous());
         }
-        handleTextActions();
+        Actions.getInstance().validateTextActions();
     }
 
     @Override

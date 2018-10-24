@@ -17,9 +17,8 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
-import dbedit.ExceptionDialog;
-import dbedit.WaitingDialog;
+import dbedit.*;
+import dbedit.plugin.PluginFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -27,7 +26,7 @@ import java.awt.event.KeyEvent;
 import java.sql.*;
 import java.util.Vector;
 
-public class RunAction extends ActionChangeAbstractAction {
+public class RunAction extends CustomAction {
 
     protected RunAction() {
         super("Run", "run.png", KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK));
@@ -40,14 +39,14 @@ public class RunAction extends ActionChangeAbstractAction {
             sql = sql.trim().substring(0, sql.trim().length() - 1);
         }
         String originalSql = sql;
-        getHistory().add(sql);
-        handleTextActions();
+        History.getInstance().add(sql);
+        Actions.getInstance().validateTextActions();
         Vector<String> columnIdentifiers = new Vector<String>();
         Vector<Vector> dataVector = new Vector<Vector>();
         int[] columnTypes;
         String[] columnTypeNames;
-        PreparedStatement statement = createStatement(getConnectionData().getConnection(), sql);
-        statement.setMaxRows(getFetchLimit());
+        PreparedStatement statement = createStatement(Context.getInstance().getConnectionData().getConnection(), sql);
+        statement.setMaxRows(Context.getInstance().getFetchLimit());
 
         String[] bindVariables = handleBindVariables(statement);
 
@@ -77,7 +76,7 @@ public class RunAction extends ActionChangeAbstractAction {
             } catch (SQLException e1) {
                 if (statement.getResultSetConcurrency() != ResultSet.CONCUR_READ_ONLY) {
                     // try read-only and without modifications
-                    statement = getConnectionData().getConnection().prepareStatement(originalSql);
+                    statement = Context.getInstance().getConnectionData().getConnection().prepareStatement(originalSql);
                     // Bind variables
                     handleBindVariables(statement, bindVariables);
                     statements[0] = statement;
@@ -87,11 +86,11 @@ public class RunAction extends ActionChangeAbstractAction {
                 }
             }
             executed[0] = true;
-            PLUGIN.audit(originalSql);
+            PluginFactory.getPlugin().audit(originalSql);
             if (hasResultSet) {
 
                 ResultSet resultSet = statement.getResultSet();
-                getConnectionData().setResultSet(resultSet);
+                Context.getInstance().setResultSet(resultSet);
                 int columnCount = resultSet.getMetaData().getColumnCount();
                 columnTypes = new int[columnCount];
                 columnTypeNames = new String[columnCount];
@@ -121,13 +120,13 @@ public class RunAction extends ActionChangeAbstractAction {
                     dataVector.add(row);
                     waitingDialog.setText(String.format("%d rows retrieved", dataVector.size()));
                 }
-                PLUGIN.audit(String.format("[%d rows retrieved]", dataVector.size()));
+                PluginFactory.getPlugin().audit(String.format("[%d rows retrieved]", dataVector.size()));
             } else {
-                getConnectionData().setResultSet(null);
+                Context.getInstance().setResultSet(null);
                 int updateCount = statement.getUpdateCount();
                 if (updateCount != -1) {
                     Vector<Object> row = new Vector<Object>(1);
-                    PLUGIN.audit(String.format("[%d rows updated]", updateCount));
+                    PluginFactory.getPlugin().audit(String.format("[%d rows updated]", updateCount));
                     row.add(Integer.toString(updateCount));
                     dataVector.add(row);
                     columnIdentifiers.add("Rows updated");
@@ -157,11 +156,11 @@ public class RunAction extends ActionChangeAbstractAction {
         } finally {
             waitingDialog.hide();
         }
-        setQuery(originalSql);
-        setColumnTypes(columnTypes);
-        setColumnTypeNames(columnTypeNames);
-        ApplicationPanel.getInstance().setDataVector(dataVector, columnIdentifiers, waitingDialog.getExecutionTime());
-        handleActions();
+        Context.getInstance().setQuery(originalSql);
+        Context.getInstance().setColumnTypes(columnTypes);
+        Context.getInstance().setColumnTypeNames(columnTypeNames);
+        ResultSetTable.getInstance().setDataVector(dataVector, columnIdentifiers, waitingDialog.getExecutionTime());
+        Actions.getInstance().validateActions();
     }
 
     private PreparedStatement createStatement(Connection connection, String sql) throws SQLException {
@@ -170,7 +169,7 @@ public class RunAction extends ActionChangeAbstractAction {
         boolean call = sql.trim().toLowerCase().startsWith("call");
         PreparedStatement statement;
         if (query) {
-            if (getConnectionData().isOracle()) {
+            if (Context.getInstance().getConnectionData().isOracle()) {
                 // http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/resltset.htm#CIHEJHJI
                 sql = String.format("select x.* from (%s) x where 1 = 1", sql);
             }

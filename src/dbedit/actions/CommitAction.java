@@ -17,6 +17,9 @@
  */
 package dbedit.actions;
 
+import dbedit.Context;
+import dbedit.plugin.PluginFactory;
+
 import java.awt.event.ActionEvent;
 
 public class CommitAction extends CustomAction {
@@ -27,7 +30,7 @@ public class CommitAction extends CustomAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        PLUGIN.audit("Commit");
-        getConnectionData().getConnection().commit();
+        PluginFactory.getPlugin().audit("Commit");
+        Context.getInstance().getConnectionData().getConnection().commit();
     }
 }

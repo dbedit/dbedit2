@@ -94,7 +94,10 @@ public class ApplicationMenuBar extends JMenuBar {
         menu.add(Actions.MANUAL);
         menu.add(Actions.SELECT_FROM);
         menu.addSeparator();
+        menu.add(Actions.DRIVERS);
         menu.add(Actions.ABOUT);
+
+//        new UpdateChecker(this).check();
 
         PluginFactory.getPlugin().checkForUpdate(this);
 

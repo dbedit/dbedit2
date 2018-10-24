@@ -17,9 +17,8 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
-import dbedit.ExceptionDialog;
-import dbedit.WaitingDialog;
+import dbedit.*;
+import dbedit.plugin.PluginFactory;
 
 import java.awt.event.ActionEvent;
 import java.sql.ResultSet;
@@ -29,7 +28,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RunScriptAction extends ActionChangeAbstractAction {
+public class RunScriptAction extends CustomAction {
 
     protected RunScriptAction() {
         super("Run Script", "script.png", null);
@@ -38,8 +37,8 @@ public class RunScriptAction extends ActionChangeAbstractAction {
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         String text = ApplicationPanel.getInstance().getTextComponent().getText();
-        getHistory().add(text);
-        handleTextActions();
+        History.getInstance().add(text);
+        Actions.getInstance().validateTextActions();
         // Search and capture all text that is followed by a semicolon,
         // zero or more whitespace characters [ \t\n\x0B\f\r],
         // end of the line and again zero or more whitespace characters
@@ -53,7 +52,7 @@ public class RunScriptAction extends ActionChangeAbstractAction {
         matcher.reset();
         final Vector<Vector> dataVector = new Vector<Vector>();
         int count = 0;
-        final Statement statement = getConnectionData().getConnection()
+        final Statement statement = Context.getInstance().getConnectionData().getConnection()
                 .createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         Runnable onCancel = new Runnable() {
             @Override
@@ -71,9 +70,9 @@ public class RunScriptAction extends ActionChangeAbstractAction {
             while (waitingDialog.isVisible() && matcher.find()) {
                 String sql = text.substring(matcher.start(1), matcher.end(1));
                 Vector<String> row = new Vector<String>(1);
-                PLUGIN.audit(sql);
+                PluginFactory.getPlugin().audit(sql);
                 int i = statement.executeUpdate(sql);
-                PLUGIN.audit(String.format("[%d rows updated]", i));
+                PluginFactory.getPlugin().audit(String.format("[%d rows updated]", i));
                 row.add(Integer.toString(i));
                 dataVector.add(row);
                 waitingDialog.setText(String.format("%d/%d", count++, total));
@@ -85,14 +84,14 @@ public class RunScriptAction extends ActionChangeAbstractAction {
             throw ex;
         } finally {
             waitingDialog.hide();
-            getConnectionData().setResultSet(null);
+            Context.getInstance().setResultSet(null);
             final Vector<String> columnIdentifiers = new Vector<String>(1);
             columnIdentifiers.add("Rows updated");
-            setColumnTypes(new int[] {Types.INTEGER});
-            setColumnTypeNames(new String[1]);
-            ApplicationPanel.getInstance().setDataVector(dataVector, columnIdentifiers,
+            Context.getInstance().setColumnTypes(new int[]{Types.INTEGER});
+            Context.getInstance().setColumnTypeNames(new String[1]);
+            ResultSetTable.getInstance().setDataVector(dataVector, columnIdentifiers,
                     waitingDialog.getExecutionTime());
-            handleActions();
+            Actions.getInstance().validateActions();
         }
     }
 }

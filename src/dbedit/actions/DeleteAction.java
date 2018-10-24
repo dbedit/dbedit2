@@ -17,7 +17,8 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
+import dbedit.Context;
+import dbedit.ResultSetTable;
 
 import java.awt.event.ActionEvent;
 import java.sql.ResultSet;
@@ -30,15 +31,15 @@ public class DeleteAction extends CustomAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        int[] rows = ApplicationPanel.getInstance().getTable().getSelectedRows();
-        ResultSet resultSet = getConnectionData().getResultSet();
+        int[] rows = ResultSetTable.getInstance().getSelectedRows();
+        ResultSet resultSet = Context.getInstance().getResultSet();
         for (int i = rows.length - 1; i > -1; i--) {
             int row = rows[i];
-            int origRow = ApplicationPanel.getInstance().getOriginalSelectedRow(row);
+            int origRow = ResultSetTable.getInstance().getOriginalSelectedRow(row);
             resultSet.first();
             resultSet.relative(origRow);
             resultSet.deleteRow();
-            ApplicationPanel.getInstance().removeRow(row);
+            ResultSetTable.getInstance().removeRow(row);
         }
     }
 }

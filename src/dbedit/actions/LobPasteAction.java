@@ -17,26 +17,40 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
+import dbedit.Context;
+import dbedit.ResultSetTable;
+import dbedit.WaitingDialog;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class LobPasteAction extends LobAbstractAction {
+public class LobPasteAction extends CustomAction {
 
     protected LobPasteAction() {
-        super("Paste", "paste.png");
+        super("Paste", "paste.png", null);
     }
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        JTable table = ApplicationPanel.getInstance().getTable();
-        int[] selectedRows = table.getSelectedRows();
-        for (int i = 0; i < selectedRows.length; i++) {
-            int selectedRow = selectedRows[i];
-            table.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
-            ApplicationPanel.getInstance().setTableValue(getSavedLobs()[i]);
-            editingStopped(null);
+        JTable table = ResultSetTable.getInstance();
+        if (table.getSelectedRowCount() == 1) {
+            ResultSetTable.getInstance().setTableValue(Context.getInstance().getSavedLobs()[0]);
+            ResultSetTable.getInstance().editingStopped(null);
+        } else {
+            WaitingDialog waitingDialog = new WaitingDialog(null);
+            try {
+                int[] selectedRows = table.getSelectedRows();
+                waitingDialog.setText(String.format("0/%d", selectedRows.length));
+                for (int i = 0; i < selectedRows.length && waitingDialog.isVisible(); i++) {
+                    int selectedRow = selectedRows[i];
+                    table.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
+                    ResultSetTable.getInstance().setTableValue(Context.getInstance().getSavedLobs()[i]);
+                    ResultSetTable.getInstance().editingStopped(null);
+                    waitingDialog.setText(String.format("%d/%d", i + 1, selectedRows.length));
+                }
+            } finally {
+                waitingDialog.hide();
+            }
         }
     }
 }

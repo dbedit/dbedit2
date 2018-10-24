@@ -23,10 +23,11 @@ import dbedit.SchemaBrowser;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
 
-public class SchemaBrowserAction extends CustomAction {
+public class SchemaBrowserAction extends CustomAction implements KeyListener {
 
     protected SchemaBrowserAction() {
         super("Schema Browser", "schema.png", KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.ALT_DOWN_MASK));
@@ -60,6 +61,12 @@ public class SchemaBrowserAction extends CustomAction {
             }
         }
     }
+
+    @Override
+    public void keyTyped(KeyEvent e) { }
+
+    @Override
+    public void keyReleased(KeyEvent e) { }
 
     private void selectFromObjectChooser(SchemaBrowser schemaBrowser) {
         String s = Arrays.asList(schemaBrowser.getSelectedItems()).toString();

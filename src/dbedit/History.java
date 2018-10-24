@@ -20,10 +20,19 @@ package dbedit;
 import java.util.ArrayList;
 import java.util.List;
 
-public class History {
+public final class History {
+
+    private static final History HISTORY = new History();
 
     private int offset = -1;
     private List<String> history = new ArrayList<String>();
+
+    private History() {
+    }
+
+    public static History getInstance() {
+        return HISTORY;
+    }
 
     public boolean hasPrevious() {
         return offset > 0;

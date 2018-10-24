@@ -45,7 +45,6 @@ public final class Config {
     private static String version;
     public static final boolean IS_OS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
 
-
     private Config() {
     }
 
@@ -138,11 +137,7 @@ public final class Config {
     }
 
     public static String getDrivers() throws Exception {
-        String drivers = getSetting("drivers");
-        if (drivers == null || drivers.length() == 0) {
-            drivers = "org.sqlite.JDBC";
-        }
-        return drivers;
+        return getSetting("drivers");
     }
 
     private static String getSetting(String name) throws Exception {

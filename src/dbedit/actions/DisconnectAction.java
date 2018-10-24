@@ -20,12 +20,14 @@ package dbedit.actions;
 import dbedit.*;
 
 import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import java.awt.event.ActionEvent;
+import java.sql.Connection;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
-public class DisconnectAction extends ActionChangeAbstractAction {
+public class DisconnectAction extends CustomAction implements AncestorListener {
 
     protected DisconnectAction() {
         super("Disconnect", "disconnect.png", null);
@@ -33,20 +35,22 @@ public class DisconnectAction extends ActionChangeAbstractAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        if (getConnectionData() != null) {
+        if (Context.getInstance().getConnectionData() != null) {
             saveDefaultOwner();
             ApplicationPanel.getInstance().destroyObjectChooser();
             try {
-                if (!getConnectionData().getConnection().isClosed()) {
-                    getConnectionData().getConnection().rollback();
-                    getConnectionData().getConnection().close();
+                Connection connection = Context.getInstance().getConnectionData().getConnection();
+                if (!connection.isClosed()) {
+                    connection.rollback();
+                    connection.close();
                 }
             } catch (Throwable t) {
                 ExceptionDialog.hideException(t);
             }
-            setConnectionData(null);
+            Context.getInstance().setConnectionData(null);
+            Context.getInstance().setResultSet(null);
             ApplicationPanel.getInstance().getFrame().setTitle(DBEdit.APPLICATION_NAME);
-            handleActions();
+            Actions.getInstance().validateActions();
         }
     }
 
@@ -54,13 +58,14 @@ public class DisconnectAction extends ActionChangeAbstractAction {
      * Remember last selected schema
      */
     public void saveDefaultOwner() throws Exception {
-        if (getConnectionData() != null && ApplicationPanel.getInstance().getObjectChooser() != null) {
+        ConnectionData thisConnectionData = Context.getInstance().getConnectionData();
+        if (thisConnectionData != null && ApplicationPanel.getInstance().getObjectChooser() != null) {
             String selectedOwner = ApplicationPanel.getInstance().getObjectChooser().getSelectedOwner();
-            if (selectedOwner != null && !selectedOwner.equals(getConnectionData().getDefaultOwner())) {
-                getConnectionData().setDefaultOwner(selectedOwner);
+            if (selectedOwner != null && !selectedOwner.equals(thisConnectionData.getDefaultOwner())) {
+                thisConnectionData.setDefaultOwner(selectedOwner);
                 Vector<ConnectionData> connectionDatas = Config.getDatabases();
                 for (ConnectionData connectionData : connectionDatas) {
-                    if (connectionData.getName().equals(getConnectionData().getName())) {
+                    if (connectionData.getName().equals(thisConnectionData.getName())) {
                         connectionData.setDefaultOwner(selectedOwner);
                     }
                 }
@@ -85,4 +90,10 @@ public class DisconnectAction extends ActionChangeAbstractAction {
         }
         System.exit(0);
     }
+
+    @Override
+    public void ancestorAdded(AncestorEvent event) { }
+
+    @Override
+    public void ancestorMoved(AncestorEvent event) { }
 }

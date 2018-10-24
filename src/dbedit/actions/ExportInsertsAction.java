@@ -17,8 +17,10 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
+import dbedit.Context;
 import dbedit.Dialog;
+import dbedit.ExportPreviewer;
+import dbedit.ResultSetTable;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -33,7 +35,7 @@ public class ExportInsertsAction extends CustomAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        JTable table = ApplicationPanel.getInstance().getTable();
+        JTable table = ResultSetTable.getInstance();
         boolean selection = false;
         if (table.getSelectedRowCount() > 0 && table.getSelectedRowCount() != table.getRowCount()) {
             Object option = Dialog.show("Insert Statements", "Export", Dialog.QUESTION_MESSAGE,
@@ -44,7 +46,7 @@ public class ExportInsertsAction extends CustomAction {
             selection = "Selection".equals(option);
         }
         String tableName = "?";
-        Scanner scanner = new Scanner(getQuery());
+        Scanner scanner = new Scanner(Context.getInstance().getQuery());
         while (scanner.hasNext()) {
             if ("from".equals(scanner.next().toLowerCase())) {
                 if (scanner.hasNext()) {
@@ -62,13 +64,15 @@ public class ExportInsertsAction extends CustomAction {
         boolean[] isLob = new boolean[columnCount];
         boolean[] parseDate = new boolean[columnCount];
         for (int column = 0; column < columnCount; column++) {
-            prefix.append(getConnectionData().checkMixedCaseQuotedIdentifier(table.getColumnName(column)));
+            prefix.append(Context.getInstance().getConnectionData()
+                    .checkMixedCaseQuotedIdentifier(table.getColumnName(column)));
             if (column + 1 < columnCount) {
                 prefix.append(",");
             }
-            parseDate[column] = getConnectionData().isOracle()
-                    && (getColumnTypes()[column] == Types.DATE || getColumnTypes()[column] == Types.TIMESTAMP);
-            isLob[column] = isLob(column);
+            parseDate[column] = Context.getInstance().getConnectionData().isOracle()
+                    && (Context.getInstance().getColumnTypes()[column] == Types.DATE
+                     || Context.getInstance().getColumnTypes()[column] == Types.TIMESTAMP);
+            isLob[column] = ResultSetTable.isLob(column);
         }
         prefix.append(") values (");
         StringBuilder inserts = new StringBuilder();
@@ -99,6 +103,6 @@ public class ExportInsertsAction extends CustomAction {
             }
         }
         String text = inserts.toString();
-        showFile(text, null);
+        ExportPreviewer.preview(text, null);
     }
 }

@@ -17,6 +17,7 @@
  */
 package dbedit.actions;
 
+import dbedit.Context;
 import dbedit.Dialog;
 
 import javax.swing.*;
@@ -31,11 +32,12 @@ public class FetchLimitAction extends CustomAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        JSpinner spinner = new JSpinner(new SpinnerNumberModel(getFetchLimit(), 0, 999999, 1));
+        JSpinner spinner = new JSpinner(new SpinnerNumberModel(Context.getInstance().getFetchLimit(), 0, 999999, 1));
         if (Dialog.OK_OPTION == Dialog.show("Fetch Limit", spinner, Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
-            setFetchLimit(((Number) spinner.getValue()).intValue());
+            Context.getInstance().setFetchLimit(((Number) spinner.getValue()).intValue());
         }
         putValue(NAME, String.format("Fetch Limit = %s",
-                getFetchLimit() == 0 ? "Unlimited" : String.valueOf(getFetchLimit())));
+                Context.getInstance().getFetchLimit() == 0 ? "Unlimited"
+                        : String.valueOf(Context.getInstance().getFetchLimit())));
     }
 }
