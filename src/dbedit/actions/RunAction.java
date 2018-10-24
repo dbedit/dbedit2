@@ -183,10 +183,17 @@ public class RunAction extends CustomAction {
                 if (metaData.supportsResultSetHoldability(
                         ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
                     // IBM DB2
-                    statement = connection.prepareStatement(sql,
-                            ResultSet.TYPE_SCROLL_SENSITIVE,
-                            ResultSet.CONCUR_UPDATABLE,
-                            ResultSet.CLOSE_CURSORS_AT_COMMIT);
+                    try {
+                        statement = connection.prepareStatement(sql,
+                                ResultSet.TYPE_SCROLL_SENSITIVE,
+                                ResultSet.CONCUR_UPDATABLE,
+                                ResultSet.CLOSE_CURSORS_AT_COMMIT);
+                    } catch (SQLException e) {
+                        // Microsoft (obviously)
+                        statement = connection.prepareStatement(sql,
+                                ResultSet.TYPE_SCROLL_SENSITIVE,
+                                ResultSet.CONCUR_UPDATABLE);
+                    }
                 } else {
                     statement = connection.prepareStatement(sql,
                             ResultSet.TYPE_SCROLL_SENSITIVE,

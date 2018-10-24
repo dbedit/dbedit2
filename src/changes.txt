@@ -1,3 +1,6 @@
+2.4.3 (07/07/2011)
+- Added work around for Microsoft SQL server not complying to the JDBC specs
+
 2.4.2 (13/05/2011)
 - Removed unnecessary dialog after each exception
 
