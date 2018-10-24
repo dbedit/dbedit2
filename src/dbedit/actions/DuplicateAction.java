@@ -24,7 +24,12 @@ import java.util.List;
 public class DuplicateAction extends EditAction {
 
     protected DuplicateAction() {
-        super("Duplicate", "copy.png", null);
+        super("Duplicate", "copy.png");
+    }
+
+    @Override
+    protected boolean change(String text, String originalText) {
+        return text != null && !"".equals(text);
     }
 
     @Override

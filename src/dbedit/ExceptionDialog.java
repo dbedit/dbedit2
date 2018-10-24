@@ -47,11 +47,13 @@ public final class ExceptionDialog {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             t.printStackTrace(new PrintStream(out));
             JTextArea textArea = new JTextArea(new String(out.toByteArray()));
+            textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
             textArea.append("\n");
             textArea.append("DBEdit ");
             try {
                 textArea.append(Config.getVersion());
-            } catch (IOException ignore) {
+            } catch (IOException e) {
+                hideException(e);
             }
             textArea.append("\n");
             textArea.append(System.getProperty("os.name"));
@@ -77,8 +79,8 @@ public final class ExceptionDialog {
             textArea.setEditable(false);
             JScrollPane scrollPane = new JScrollPane(textArea);
             scrollPane.setPreferredSize(new Dimension(600, 400));
-            if ("Copy".equals(Dialog.show(t.getClass().getName(), scrollPane, Dialog.ERROR_MESSAGE,
-                    new Object[] {"Close", "Copy"}, "Close"))) {
+            if ("Copy to clipboard".equals(Dialog.show(t.getClass().getName(), scrollPane, Dialog.ERROR_MESSAGE,
+                    new Object[] {"Close", "Copy to clipboard"}, "Close"))) {
                 try {
                     Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
                             new StringSelection(textArea.getText().replace('\r', ' ')), null);
@@ -108,11 +110,7 @@ public final class ExceptionDialog {
                     msg = "Try your select without \"for fetch only\".";
                 }
             } else if (CustomAction.getConnectionData() != null && CustomAction.getConnectionData().isIbm()) {
-                if (t.getMessage().contains("JDBC 2 method called: Method is not yet supported")) {
-                    msg = "The IBM JDBC driver doesn't support inserting rows yet.\n"
-                            + "Execute the insert statement manually or try the DataDirect DB2 driver.\n"
-                            + "http://www.datadirect.com/products/jdbc/";
-                } else if (t.getMessage().contains("Invalid operation: result set is closed.")) {
+                if (t.getMessage().contains("Invalid operation: result set is closed.")) {
                     int length = CustomAction.getColumnTypes().length;
                     for (int i = 0; i < length; i++) {
                         if (CustomAction.isLob(i)) {

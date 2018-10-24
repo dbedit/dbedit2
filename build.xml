@@ -17,6 +17,9 @@
                 <replaceregex flags="s" byline="false" pattern="(.*?)\s.*" replace="\1"/>
             </filterchain>
         </loadfile>
+        <condition property="longversion" value="${version}.0.0" else="${version}.0">
+            <matches pattern="2\.\d+$" string="${version}"/>
+        </condition>
     </target>
 
     <target name="compile">
@@ -40,17 +43,29 @@
         <unzip src="${lib}/launch4j-3.0.1-win32.zip" dest="${lib}"/>
         <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpathref="dist.classpath" />
         <launch4j>
-            <config jar="${dist}/dbedit.jar" outfile="${dist}/DBEdit.exe" icon="${lib}/launcher.ico" customProcName="true" errTitle="DBEdit 2">
+            <config jar="${dist}/dbedit.jar" outfile="${dist}/DBEdit.exe" icon="${lib}/launcher.ico"
+                    customProcName="true" errTitle="DBEdit 2">
                 <jre minVersion="1.6.0" maxHeapSize="512"/>
+                <versioninfo fileDescription="DBEdit 2"
+                             fileVersion="${longversion}"
+                             txtFileVersion="${version}"
+                             copyright="Copyright (c) 2006-2010 Jef Van Den Ouweland"
+                             companyName="Jef Van Den Ouweland"
+                             productName="DBEdit 2"
+                             productVersion="${longversion}"
+                             txtProductVersion="${version}"
+                             internalname="dbedit"
+                             originalfilename="DBEdit.exe"/>
             </config>
         </launch4j>
 
         <unzip src="${lib}/nsis-2.46.zip" dest="${lib}"/>
         <exec executable="${lib}/nsis-2.46/makensis.exe" failonerror="true">
             <arg line="${lib}/installer.nsi"/>
+            <env key="version" value="${version}"/>
+            <env key="longversion" value="${longversion}"/>
         </exec>
         <delete file="${dist}/DBEdit.exe"/>
-        <move file="${dist}/DBEdit_setup.exe" tofile="${dist}/DBEdit${version}_setup.exe"/>
     </target>
 
 	<target name="make-unix" depends="jar, get-version">

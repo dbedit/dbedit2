@@ -25,19 +25,24 @@ import java.awt.*;
 
 public class DefaultPlugin implements Plugin {
 
+    @Override
     public void audit(String sql) throws Exception {
     }
 
+    @Override
     public String analyzeException(String exception) {
         return null;
     }
 
+    @Override
     public void checkForUpdate(final ApplicationMenuBar menuBar) {
     }
 
+    @Override
     public void customizeAboutPanel(JPanel panel, GridBagConstraints c) {
     }
 
+    @Override
     public void customizeConnectionPanel(final JPanel panel, GridBagConstraints c, final ConnectionData connectionData)
             throws Exception {
     }

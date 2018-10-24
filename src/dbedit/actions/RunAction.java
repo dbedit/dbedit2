@@ -24,10 +24,7 @@ import dbedit.WaitingDialog;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
+import java.sql.*;
 import java.util.Vector;
 
 public class RunAction extends ActionChangeAbstractAction {
@@ -39,6 +36,9 @@ public class RunAction extends ActionChangeAbstractAction {
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         String text = ApplicationPanel.getInstance().getText();
+        if (text.trim().endsWith(";")) {
+            text = text.trim().substring(0, text.trim().length() - 1);
+        }
         String originalText = text;
         getHistory().add(text);
         handleTextActions();
@@ -55,25 +55,51 @@ public class RunAction extends ActionChangeAbstractAction {
                 // http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/resltset.htm#CIHEJHJI
                 text = "select x.* from (" + text + ") x where 1 = 1";
             }
-            if (getConnectionData().isIbm()) {
+            DatabaseMetaData metaData = getConnectionData().getConnection().getMetaData();
+            if (metaData.supportsResultSetConcurrency(
+                    ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE)) {
+                // Oracle, MySQL, DataDirect DB2
                 statement = getConnectionData().getConnection().createStatement(
-                        ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE, ResultSet.CLOSE_CURSORS_AT_COMMIT);
-            } else if (getConnectionData().isSQLite()) {
-                statement = getConnectionData().getConnection().createStatement(
-                        ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+                        ResultSet.TYPE_SCROLL_INSENSITIVE,
+                        ResultSet.CONCUR_UPDATABLE);
+            } else if (metaData.supportsResultSetConcurrency(
+                    ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE)) {
+                if (metaData.supportsResultSetHoldability(
+                        ResultSet.CLOSE_CURSORS_AT_COMMIT)) {
+                    // IBM DB2
+                    statement = getConnectionData().getConnection().createStatement(
+                            ResultSet.TYPE_SCROLL_SENSITIVE,
+                            ResultSet.CONCUR_UPDATABLE,
+                            ResultSet.CLOSE_CURSORS_AT_COMMIT);
+                } else {
+                    statement = getConnectionData().getConnection().createStatement(
+                            ResultSet.TYPE_SCROLL_SENSITIVE,
+                            ResultSet.CONCUR_UPDATABLE);
+                }
             } else {
+                // SQLite, HSQLDB
                 statement = getConnectionData().getConnection().createStatement(
-                        ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                        ResultSet.TYPE_FORWARD_ONLY,
+                        ResultSet.CONCUR_READ_ONLY);
             }
         } else {
             statement = getConnectionData().getConnection().createStatement();
         }
         statement.setMaxRows(getFetchLimit());
         final Statement[] statements = new Statement[] {statement};
+        final boolean[] executed = {false};
         Runnable onCancel = new Runnable() {
+            @Override
             public void run() {
                 try {
-                    statements[0].cancel();
+                    if (!executed[0]) {
+                        // Don't cancel when we're already going through the result set
+                        // There's a problem with the Oracle driver
+                        // Over some VPN's, the cancel closes the connection
+                        statements[0].cancel();
+                    }
                 } catch (Throwable t) {
                     ExceptionDialog.hideException(t);
                 }
@@ -92,6 +118,7 @@ public class RunAction extends ActionChangeAbstractAction {
                 statements[0] = statement;
                 hasResultSet = statement.execute(originalText);
             }
+            executed[0] = true;
             PLUGIN.audit(originalQuery);
             if (hasResultSet) {
 
@@ -120,7 +147,7 @@ public class RunAction extends ActionChangeAbstractAction {
                             row.add("###");
                             System.err.println("Unable to retrieve value for row "
                                     + (dataVector.size() + 1) + " col " + (i + 1));
-                            e1.printStackTrace();
+                            ExceptionDialog.hideException(e1);
                         }
                     }
                     dataVector.add(row);

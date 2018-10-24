@@ -25,7 +25,7 @@ import java.awt.event.ActionEvent;
 public class LobPasteAction extends LobAbstractAction {
 
     protected LobPasteAction() {
-        super("Paste", "paste.png", null);
+        super("Paste", "paste.png");
     }
 
     @Override

@@ -18,6 +18,7 @@
 package dbedit.actions;
 
 import dbedit.ApplicationPanel;
+import dbedit.Config;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -26,13 +27,15 @@ import java.io.FileInputStream;
 public class LobImportAction extends LobAbstractAction {
 
     protected LobImportAction() {
-        super("Import from file", "import.png", null);
+        super("Import", "import.png");
     }
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        if (JFileChooser.APPROVE_OPTION == getFileChooser().showOpenDialog(ApplicationPanel.getInstance())) {
-            FileInputStream in = new FileInputStream(getFileChooser().getSelectedFile());
+        JFileChooser fileChooser = getFileChooser();
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog(ApplicationPanel.getInstance())) {
+            Config.saveLastUsedDir(fileChooser.getCurrentDirectory().getCanonicalPath());
+            FileInputStream in = new FileInputStream(fileChooser.getSelectedFile());
             byte[] b = new byte[in.available()];
             in.read(b);
             in.close();

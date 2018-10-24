@@ -66,7 +66,8 @@ public class ExportInsertsAction extends CustomAction {
             if (column + 1 < columnCount) {
                 prefix.append(",");
             }
-            parseDate[column] = getConnectionData().isOracle() && getColumnTypes()[column] == Types.DATE;
+            parseDate[column] = getConnectionData().isOracle()
+                    && (getColumnTypes()[column] == Types.DATE || getColumnTypes()[column] == Types.TIMESTAMP);
             isLob[column] = isLob(column);
         }
         prefix.append(") values (");
@@ -97,6 +98,7 @@ public class ExportInsertsAction extends CustomAction {
                 inserts.append(");\n");
             }
         }
-        openFile("export", ".txt", inserts.toString().getBytes());
+        String text = inserts.toString();
+        showFile(text, null);
     }
 }

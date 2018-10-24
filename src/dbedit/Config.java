@@ -45,19 +45,21 @@ public final class Config {
     public static final String HOME_PAGE = "http://dbedit2.sourceforge.net/";
     private static String version;
     public static final boolean IS_OS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
-    public static final boolean IS_OS_MAC_OS = System.getProperty("os.name").startsWith("Mac OS");
 
 
     private Config() {
     }
 
     private static final Key KEY = new PrivateKey() {
+        @Override
         public byte[] getEncoded() {
             return "$GeHeiM^".getBytes();
         }
+        @Override
         public String getAlgorithm() {
             return "DES";
         }
+        @Override
         public String getFormat() {
             return "RAW";
         }
@@ -130,6 +132,34 @@ public final class Config {
             favorite.setAttribute("name", (String) entry.getKey());
             favorite.setAttribute("query", (String) entry.getValue());
             config.appendChild(favorite);
+        }
+        Config.saveConfig(config);
+    }
+
+    public static String getLastUsedDir() throws ParserConfigurationException, IOException, SAXException {
+        Element config = getConfig();
+        NodeList list = config.getElementsByTagName("settings");
+        if (list.getLength() > 0) {
+            Element settings = (Element) list.item(0);
+            return settings.getAttribute("dir");
+        }
+        return null;
+    }
+
+    public static void saveLastUsedDir(String dir) throws ParserConfigurationException, IOException,
+                                                           TransformerException, SAXException {
+        Element config = getConfig();
+        NodeList list = config.getElementsByTagName("settings");
+        if (list.getLength() > 0) {
+            Element settings = (Element) list.item(0);
+            if (dir.equals(settings.getAttribute("dir"))) {
+                return;
+            }
+            settings.setAttribute("dir", dir);
+        } else {
+            Element settings = config.getOwnerDocument().createElement("settings");
+            settings.setAttribute("dir", dir);
+            config.appendChild(settings);
         }
         Config.saveConfig(config);
     }

@@ -61,7 +61,7 @@ public class SchemaBrowser extends JTree {
             String s = treeNode.toString();
             if (treeNode.getLevel() == 3) {
                 TreeNode parent = treeNode.getParent().getParent();
-                if (!"SQLite".equals(parent.toString())) {
+                if (!"Schema".equals(parent.toString())) {
                     s = parent + "." + s;
                 }
             }
@@ -112,12 +112,12 @@ public class SchemaBrowser extends JTree {
         private void addChildren() throws SQLException {
             switch (getLevel()) {
                 case 0:
-                    if (connectionData.isMySql()) {
-                        addQuery("show databases", true);
-                    } else if (connectionData.isSQLite()) {
-                        add("SQLite", true);
-                    } else {
+                    if (connectionData.getConnection().getMetaData().supportsSchemasInTableDefinitions()) {
                         addQuery(connectionData.getConnection().getMetaData().getSchemas(), true, 1);
+                    } else if (connectionData.getConnection().getMetaData().supportsCatalogsInTableDefinitions()) {
+                        addQuery(connectionData.getConnection().getMetaData().getCatalogs(), true, 1);
+                    } else {
+                        add("Schema", true);
                     }
                     break;
                 case 1:
@@ -132,7 +132,7 @@ public class SchemaBrowser extends JTree {
                         if (connectionData.isDataDirect()) {
                             addQuery("select rtrim(tabname) from syscat.tables "
                                     + "where tabschema = '" + owner + "' and type = 'T' order by tabname", true);
-                        } else if (connectionData.isMySql()) {
+                        } else if (connectionData.getConnection().getMetaData().supportsCatalogsInTableDefinitions()) {
                             addQuery(connectionData.getConnection().getMetaData()
                                     .getTables(owner, null, null, new String[] {"TABLE", "SYSTEM TABLE"}), true, 3);
                         } else {
@@ -140,7 +140,7 @@ public class SchemaBrowser extends JTree {
                                     .getTables(null, owner, null, new String[] {"TABLE", "SYSTEM TABLE"}), true, 3);
                         }
                     } else if ("VIEWS".equals(type)) {
-                        if (connectionData.isMySql()) {
+                        if (connectionData.getConnection().getMetaData().supportsCatalogsInTableDefinitions()) {
                             addQuery(connectionData.getConnection().getMetaData()
                                     .getTables(owner, null, null, new String[] {"VIEW"}), true, 3);
                         } else {
@@ -148,7 +148,7 @@ public class SchemaBrowser extends JTree {
                                     .getTables(null, owner, null, new String[] {"VIEW"}), true, 3);
                         }
                     } else if ("PROCEDURES".equals(type)) {
-                        if (connectionData.isMySql()) {
+                        if (connectionData.getConnection().getMetaData().supportsCatalogsInTableDefinitions()) {
                             addQuery(connectionData.getConnection().getMetaData()
                                     .getProcedures(owner, null, null), true, 3);
                         } else {
@@ -159,7 +159,7 @@ public class SchemaBrowser extends JTree {
                     break;
                 case 3:
                     String table = toString();
-                    if (connectionData.isMySql()) {
+                    if (connectionData.getConnection().getMetaData().supportsCatalogsInTableDefinitions()) {
                         addQuery(connectionData.getConnection().getMetaData()
                                 .getColumns(getParent().getParent().toString(), null, table, null), false, 4);
                     } else {

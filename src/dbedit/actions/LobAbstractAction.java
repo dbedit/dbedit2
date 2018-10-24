@@ -19,7 +19,6 @@ package dbedit.actions;
 
 import dbedit.ApplicationPanel;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,25 +28,26 @@ import java.sql.SQLException;
 
 public abstract class LobAbstractAction extends CustomAction {
 
-    protected LobAbstractAction(String name, String icon, KeyStroke accelerator) {
-        super(name, icon, accelerator);
+    protected LobAbstractAction(String name, String icon) {
+        super(name, icon, null);
     }
 
-    protected void exportLob(File file) throws IOException, SQLException {
+    protected byte[] getLob() throws SQLException {
         Object lob = ApplicationPanel.getInstance().getTableValue();
-        byte[] bytes;
         if (lob instanceof Blob) {
-            bytes = ((Blob) lob).getBytes(1, (int) ((Blob) lob).length());
+            return ((Blob) lob).getBytes(1, (int) ((Blob) lob).length());
         } else if (lob instanceof Clob) {
-            bytes = ((Clob) lob).getSubString(1, (int) ((Clob) lob).length()).getBytes();
+            return ((Clob) lob).getSubString(1, (int) ((Clob) lob).length()).getBytes();
         } else if (lob instanceof byte[]) {
-            bytes = (byte[]) lob;
+            return (byte[]) lob;
         } else if (lob != null) {
             throw new UnsupportedOperationException("Unsupported type");
         } else {
-            return;
+            return null;
         }
-        getFileChooser().setSelectedFile(file);
+    }
+
+    protected void exportLob(File file, byte[] bytes) throws IOException {
         FileOutputStream out = new FileOutputStream(file);
         out.write(bytes);
         out.close();

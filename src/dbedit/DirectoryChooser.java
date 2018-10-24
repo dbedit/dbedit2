@@ -28,18 +28,21 @@ import java.util.Arrays;
 
 public class DirectoryChooser extends JTree {
 
-    private static DirectoryChooser directoryChooser;
     private static final FileSystemView FILE_SYSTEM_VIEW = FileSystemView.getFileSystemView();
 
-    public static File chooseDirectory() {
-        if (directoryChooser == null) {
-            directoryChooser = new DirectoryChooser();
+    public static File chooseDirectory() throws Exception {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        String lastUsedDir = Config.getLastUsedDir();
+        if (lastUsedDir != null) {
+            directoryChooser.setSelectedDirectory(new File(lastUsedDir));
         }
         JScrollPane scrollPane = new JScrollPane(directoryChooser);
         scrollPane.setPreferredSize(new Dimension(400, 400));
         if (Dialog.OK_OPTION == Dialog.show("Choose directory", scrollPane,
                 Dialog.PLAIN_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
-            return directoryChooser.getSelectedDirectory();
+            File selectedDir = directoryChooser.getSelectedDirectory();
+            Config.saveLastUsedDir(selectedDir.getCanonicalPath());
+            return selectedDir;
         } else {
             return null;
         }

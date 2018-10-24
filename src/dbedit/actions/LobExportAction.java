@@ -33,7 +33,7 @@ import java.util.List;
 public class LobExportAction extends LobAbstractAction {
 
     protected LobExportAction() {
-        super("Export to file", "export.png", null);
+        super("Export", "export.png");
     }
 
     @Override
@@ -63,37 +63,86 @@ public class LobExportAction extends LobAbstractAction {
                         }
                         for (int selectedRow : selectedRows) {
                             table.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
-                            exportLob(new File(dir, "" + table.getValueAt(selectedRow, selectedIndex)));
+                            exportLob(new File(dir, "" + table.getValueAt(selectedRow, selectedIndex)), getLob());
                         }
                     }
                 }
             }
-        } else if (JFileChooser.APPROVE_OPTION == getFileChooser().showSaveDialog(ApplicationPanel.getInstance())) {
-            File selectedFile = getFileChooser().getSelectedFile();
-            if (!selectedFile.exists() || Dialog.YES_OPTION == Dialog.show("File exists", "Overwrite existing file?",
-                    Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
-                exportLob(selectedFile);
+        } else {
+            byte[] lob = getLob();
+            if (lob != null) {
+                if (isAscii(lob)) {
+                    showFile(new String(lob), lob);
+                } else {
+                    String ext = guessType(lob);
+                    saveAndOpenFile("export" + ext, lob);
+                }
             }
         }
+    }
+
+    private String guessType(byte[] b) {
+        if (startsWith(b, '%', 'P', 'D', 'F')) {
+            return ".pdf";
+        } else if (startsWith(b, 'G', 'I', 'F', '8')) {
+            return ".gif";
+        } else if (startsWith(b, 0xFF, 0xD8, 0xFF)) {
+            return ".jpg";
+        } else if (startsWith(b, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)) {
+            return ".png";
+        } else if (startsWith(b, 'P', 'K', 3, 4)) {
+            return ".zip";
+        } else if (startsWith(b, 0x1b, '*')) {
+            return ".pcl";
+        } else if (startsWith(b, 0x1b, '%')) {
+            return ".pcl";
+        } else if (startsWith(b, 0x1b, '&')) {
+            return ".pcl";
+        } else {
+            return "";
+        }
+    }
+
+    private boolean startsWith(byte[] bytes, int... b) {
+        for (int i = 0; i < b.length && i < bytes.length; i++) {
+            if ((bytes[i] & 0xFF) != b[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isAscii(byte[] bytes) {
+        for (byte b : bytes) {
+            if (Character.isISOControl((char) b) && b != '\n' && b != '\r' && b != '\t') {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public void mouseClicked(final MouseEvent e) {
         if (e.getClickCount() == 2) {
-            Container container = (Container) e.getSource();
-            while (!(container instanceof JOptionPane)) {
-                container = container.getParent();
+            if (e.getSource() instanceof JTable
+                    && isLob(ApplicationPanel.getInstance().getTable().getSelectedColumn())) {
+                actionPerformed(null);
+            } else if (e.getSource() instanceof JList) {
+                Container container = (Container) e.getSource();
+                while (!(container instanceof JOptionPane)) {
+                    container = container.getParent();
+                }
+                JOptionPane optionPane = (JOptionPane) container;
+                Object value = optionPane.getInitialValue();
+                if (value == null) {
+                    value = JOptionPane.OK_OPTION;
+                }
+                optionPane.setValue(value);
+                while (!(container instanceof JDialog)) {
+                    container = container.getParent();
+                }
+                container.setVisible(false);
             }
-            JOptionPane optionPane = (JOptionPane) container;
-            Object value = optionPane.getInitialValue();
-            if (value == null) {
-                value = JOptionPane.OK_OPTION;
-            }
-            optionPane.setValue(value);
-            while (!(container instanceof JDialog)) {
-                container = container.getParent();
-            }
-            container.setVisible(false);
         }
     }
 

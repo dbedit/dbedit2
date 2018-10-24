@@ -17,13 +17,13 @@
  */
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
-import dbedit.Config;
-import dbedit.DBEdit;
-import dbedit.ExceptionDialog;
+import dbedit.*;
 
 import javax.swing.event.AncestorEvent;
 import java.awt.event.ActionEvent;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 
 public class DisconnectAction extends ActionChangeAbstractAction {
 
@@ -34,30 +34,50 @@ public class DisconnectAction extends ActionChangeAbstractAction {
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         if (getConnectionData() != null) {
-            String selectedOwner = ApplicationPanel.getInstance().destroyObjectChooser();
+            saveDefaultOwner();
+            ApplicationPanel.getInstance().destroyObjectChooser();
+            try {
+                if (!getConnectionData().getConnection().isClosed()) {
+                    getConnectionData().getConnection().rollback();
+                    getConnectionData().getConnection().close();
+                }
+            } catch (Throwable t) {
+                ExceptionDialog.hideException(t);
+            }
+            setConnectionData(null);
+            ApplicationPanel.getInstance().getFrame().setTitle(DBEdit.APPLICATION_NAME);
+            handleActions();
+        }
+    }
+
+    /**
+     * Remember last selected schema
+     */
+    public void saveDefaultOwner() throws Exception {
+        if (getConnectionData() != null && ApplicationPanel.getInstance().getObjectChooser() != null) {
+            String selectedOwner = ApplicationPanel.getInstance().getObjectChooser().getSelectedOwner();
             if (selectedOwner != null && !selectedOwner.equals(getConnectionData().getDefaultOwner())) {
                 getConnectionData().setDefaultOwner(selectedOwner);
-                Config.saveDatabases(getConnectionDatas());
-            }
-        }
-        try {
-            if (getConnectionData() != null && !getConnectionData().getConnection().isClosed()) {
-                getConnectionData().getConnection().rollback();
-                if (getConnectionData().isHSQLDB()) {
-                    getConnectionData().getConnection().createStatement().execute("shutdown");
+                Vector<ConnectionData> connectionDatas = Config.getDatabases();
+                for (ConnectionData connectionData : connectionDatas) {
+                    if (connectionData.getName().equals(getConnectionData().getName())) {
+                        connectionData.setDefaultOwner(selectedOwner);
+                    }
                 }
-                getConnectionData().getConnection().close();
+                Config.saveDatabases(connectionDatas);
             }
-        } catch (Throwable t) {
-            ExceptionDialog.hideException(t);
         }
-        setConnectionData(null);
-        ApplicationPanel.getInstance().getFrame().setTitle(DBEdit.APPLICATION_NAME);
-        handleActions();
     }
 
     @Override
     public void ancestorRemoved(AncestorEvent event) {
+        // Kills the application in 10 seconds in case disconnecting will hang
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.exit(0);
+            }
+        }, 10000);
         try {
             performThreaded(null);
         } catch (Throwable t) {

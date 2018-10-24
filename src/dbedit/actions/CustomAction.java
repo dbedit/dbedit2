@@ -18,22 +18,23 @@
 package dbedit.actions;
 
 import dbedit.*;
+import dbedit.Dialog;
 import dbedit.plugin.Plugin;
 import dbedit.plugin.PluginFactory;
+import org.xml.sax.SAXException;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.ResultSet;
-import java.sql.Types;
-import java.util.Vector;
+import java.net.URI;
+import java.sql.*;
 
 public abstract class CustomAction extends AbstractAction
                                    implements CellEditorListener, MouseListener, ListSelectionListener,
@@ -44,7 +45,6 @@ public abstract class CustomAction extends AbstractAction
     private static String query;
     private static int[] columnTypes;
     private static String[] columnTypeNames;
-    private static Vector<ConnectionData> connectionDatas;
     private static int fetchLimit = 0;
     private static byte[][] savedLobs;
     protected static final Plugin PLUGIN = PluginFactory.getPlugin();
@@ -57,6 +57,7 @@ public abstract class CustomAction extends AbstractAction
         setEnabled(false);
     }
 
+    @Override
     public void actionPerformed(final ActionEvent e) {
         new ThreadedAction() {
             @Override
@@ -80,54 +81,71 @@ public abstract class CustomAction extends AbstractAction
                 || 2007 /* oracle xmltype */ == columnType;
     }
 
-    public void openFile(String prefix, String suffix, byte[] bytes) throws Exception {
-        if (Config.IS_OS_WINDOWS) {
-            File file = File.createTempFile(prefix, suffix);
-            file.deleteOnExit();
-            FileOutputStream out = new FileOutputStream(file);
-            out.write(bytes);
-            out.close();
-            openURL(file.toString());
-        } else {
-            getFileChooser().setSelectedFile(new File(prefix + suffix));
-            if (JFileChooser.APPROVE_OPTION == getFileChooser().showSaveDialog(ApplicationPanel.getInstance())) {
-                File selectedFile = getFileChooser().getSelectedFile();
-                if (!selectedFile.exists() || Dialog.YES_OPTION == Dialog.show("File exists",
-                        "Overwrite existing file?", Dialog.QUESTION_MESSAGE, Dialog.YES_NO_OPTION)) {
-                    FileOutputStream out = new FileOutputStream(selectedFile);
-                    out.write(bytes);
-                    out.close();
-                }
+    public void showFile(String text, byte[] bytes) throws Exception {
+        JTextArea textArea = new JTextArea(text);
+        textArea.setEditable(false);
+        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(800, 500));
+        Object value = Dialog.show("Preview", scrollPane, Dialog.PLAIN_MESSAGE,
+                new Object[] {"Save to file", "Save to file and open", "Copy to clipboard", "Cancel"}, "Save to file");
+        if ("Save to file".equals(value)) {
+            String fileName = text.startsWith("<?xml") ? "export.xml" : "export.txt";
+            saveFile(fileName, bytes != null ? bytes : text.getBytes());
+        } else if ("Save to file and open".equals(value)) {
+            String fileName = text.startsWith("<?xml") ? "export.xml" : "export.txt";
+            File file = saveFile(fileName, bytes != null ? bytes : text.getBytes());
+            if (file != null) {
+                openFile(file);
             }
-        }
-    }
-
-    public void openURL(String file) throws Exception {
-        if (Config.IS_OS_WINDOWS) {
-            Runtime.getRuntime().exec(new String[] {"rundll32", "shell32,ShellExec_RunDLL", file});
-        } else if (Config.IS_OS_MAC_OS) {
-           Class fileMgr = Class.forName("com.apple.eio.FileManager");
-           Method openURL = fileMgr.getDeclaredMethod("openURL", String.class);
-           openURL.invoke(null, file);
-        } else {
-            // Assume Unix
-            String[] browsers = {"firefox", "opera", "konqueror", "epiphany", "mozilla", "netscape"};
+        } else if ("Copy to clipboard".equals(value)) {
             try {
-                for (String browser : browsers) {
-                    if (Runtime.getRuntime().exec(new String[]{"which", browser}).waitFor() == 0) {
-                        Runtime.getRuntime().exec(new String[]{browser, file});
-                        break;
-                    }
-                }
-            } catch (IOException e) {
-                Runtime.getRuntime().exec(new String[]{"netscape", file});
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
+            } catch (Throwable t2) {
+                ExceptionDialog.hideException(t2);
             }
         }
     }
 
+    public void saveAndOpenFile(String fileName, byte[] bytes) throws Exception {
+        File file = saveFile(fileName, bytes);
+        if (file != null && Dialog.YES_OPTION == Dialog.show(
+                "Open file", "Open the file with the associated application?",
+                Dialog.QUESTION_MESSAGE, Dialog.YES_NO_OPTION)) {
+            openFile(file);
+        }
+    }
+
+    public File saveFile(String fileName, byte[] bytes) throws Exception {
+        JFileChooser fileChooser = getFileChooser();
+        fileChooser.setSelectedFile(new File(fileName));
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showSaveDialog(ApplicationPanel.getInstance())) {
+            Config.saveLastUsedDir(fileChooser.getCurrentDirectory().getCanonicalPath());
+            File selectedFile = fileChooser.getSelectedFile();
+            if (!selectedFile.exists() || Dialog.YES_OPTION == Dialog.show("File exists",
+                    "Overwrite existing file?", Dialog.QUESTION_MESSAGE, Dialog.YES_NO_OPTION)) {
+                FileOutputStream out = new FileOutputStream(selectedFile);
+                out.write(bytes);
+                out.close();
+                return selectedFile;
+            }
+        }
+        return null;
+    }
+
+    private void openFile(File file) throws IOException {
+        Desktop.getDesktop().open(file);
+    }
+
+    public void openURL(String uri) throws Exception {
+        Desktop.getDesktop().browse(new URI(uri));
+    }
+
+    @Override
     public void editingCanceled(ChangeEvent e) {
     }
 
+    @Override
     public void editingStopped(ChangeEvent e) {
         ResultSet resultSet = connectionData.getResultSet();
         int column = ApplicationPanel.getInstance().getTable().getSelectedColumn();
@@ -165,39 +183,25 @@ public abstract class CustomAction extends AbstractAction
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream((byte[]) o);
             resultSet.updateBinaryStream(column, byteArrayInputStream, byteArrayInputStream.available());
         } else if (Types.BLOB == columnType) {
-            String sql;
-            if (connectionData.isOracle()) {
-                sql = "select empty_blob() from dual";
-            } else if (connectionData.isDb2()) {
-                sql = "select blob('') from sysibm.sysdummy1";
-            } else {
-                throw new Exception("Not supported");
-            }
-            ResultSet set = resultSet.getStatement().getConnection().createStatement().executeQuery(sql);
-            set.next();
-            Blob blob = set.getBlob(1);
+            Blob blob = getConnectionData().getConnection().createBlob();
             resultSet.updateBlob(column, blob);
             resultSet.updateRow();
             blob = resultSet.getBlob(column);
             blob.setBytes(1, (byte[]) o);
         } else if (Types.CLOB == columnType) {
-            String sql;
-            if (connectionData.isOracle()) {
-                sql = "select empty_clob() from dual";
-            } else if (connectionData.isDb2()) {
-                sql = "select clob('') from sysibm.sysdummy1";
-            } else {
-                throw new Exception("Not supported");
-            }
-            ResultSet set = resultSet.getStatement().getConnection().createStatement().executeQuery(sql);
-            set.next();
-            Clob clob = set.getClob(1);
+            Clob clob = getConnectionData().getConnection().createClob();
             resultSet.updateClob(column, clob);
             resultSet.updateRow();
             clob = resultSet.getClob(column);
             clob.setString(1, new String((byte[]) o));
+        } else if (Types.NCLOB == columnType) {
+            NClob nclob = getConnectionData().getConnection().createNClob();
+            resultSet.updateNClob(column, nclob);
+            resultSet.updateRow();
+            nclob = resultSet.getNClob(column);
+            nclob.setString(1, new String((byte[]) o));
         } else {
-            if (o != null && "".equals(o.toString().trim())) {
+            if (o != null && "".equals(o.toString())) {
                 o = null;
             }
             resultSet.updateObject(column, o);
@@ -236,14 +240,6 @@ public abstract class CustomAction extends AbstractAction
         columnTypeNames = newColumnTypeNames;
     }
 
-    protected static Vector<ConnectionData> getConnectionDatas() {
-        return connectionDatas;
-    }
-
-    protected static void setConnectionDatas(Vector<ConnectionData> newConnectionDatas) {
-        connectionDatas = newConnectionDatas;
-    }
-
     protected static int getFetchLimit() {
         return fetchLimit;
     }
@@ -260,70 +256,94 @@ public abstract class CustomAction extends AbstractAction
         savedLobs = newSavedLobs;
     }
 
-    protected static JFileChooser getFileChooser() {
+    protected static JFileChooser getFileChooser() throws IOException, SAXException, ParserConfigurationException {
         if (fileChooser == null) {
             fileChooser = new JFileChooser();
+        }
+        String dir = Config.getLastUsedDir();
+        if (dir != null) {
+            fileChooser.setCurrentDirectory(new File(dir));
         }
         return fileChooser;
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
     }
 
+    @Override
     public void mouseEntered(MouseEvent e) {
     }
 
+    @Override
     public void mouseExited(MouseEvent e) {
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {
     }
 
+    @Override
     public void mouseReleased(MouseEvent e) {
     }
 
+    @Override
     public void valueChanged(ListSelectionEvent e) {
     }
 
+    @Override
     public void columnMarginChanged(ChangeEvent e) {
     }
 
+    @Override
     public void columnSelectionChanged(ListSelectionEvent e) {
     }
 
+    @Override
     public void columnAdded(TableColumnModelEvent e) {
     }
 
+    @Override
     public void columnMoved(TableColumnModelEvent e) {
     }
 
+    @Override
     public void columnRemoved(TableColumnModelEvent e) {
     }
 
+    @Override
     public void ancestorAdded(AncestorEvent event) {
     }
 
+    @Override
     public void ancestorMoved(AncestorEvent event) {
     }
 
+    @Override
     public void ancestorRemoved(AncestorEvent event) {
     }
 
+    @Override
     public void changedUpdate(DocumentEvent e) {
     }
 
+    @Override
     public void insertUpdate(DocumentEvent e) {
     }
 
+    @Override
     public void removeUpdate(DocumentEvent e) {
     }
 
+    @Override
     public void keyPressed(KeyEvent e) {
     }
 
+    @Override
     public void keyReleased(KeyEvent e) {
     }
 
+    @Override
     public void keyTyped(KeyEvent e) {
     }
 }

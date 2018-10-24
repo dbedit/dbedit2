@@ -123,37 +123,48 @@ public class ConnectionData implements Comparable, Cloneable {
     public void connect() throws Exception {
         ClassLoader classLoader = new URLClassLoader(retrieveAllJars());
         Driver driverInstance = (Driver) Class.forName(this.driver, true, classLoader).newInstance();
-        Properties properties = new Properties();
-        properties.setProperty("user", user);
-        properties.setProperty("password", password);
+        Properties originalProperties = new Properties();
+        originalProperties.setProperty("user", user);
+        originalProperties.setProperty("password", password);
+        Properties properties = new Properties(originalProperties);
+        addExtraProperties(properties);
 
+        try {
+            connection = driverInstance.connect(url, properties);
+        } catch (Exception e) {
+            ExceptionDialog.hideException(e);
+            connection = driverInstance.connect(url, originalProperties);
+        }
+        if (connection == null) {
+            throw new Exception("Unable to connect.\nURL = " + url + "\nDriver = " + driver);
+        }
+        connection.setAutoCommit(false);
+    }
+
+    private void addExtraProperties(Properties properties) {
         if (isOracle()) {
-            // set application name
-            properties.setProperty("v$session.program", DBEdit.APPLICATION_NAME);
+            addProperty(properties, "v$session.program", DBEdit.APPLICATION_NAME);
         } else if (isIbm()) {
-            // set application name
-            properties.setProperty("clientProgramName", DBEdit.APPLICATION_NAME);
-            if (!url.contains("retrieveMessagesFromServerOnGetMessage")) {
-                properties.setProperty("retrieveMessagesFromServerOnGetMessage", "true");
-            }
+            addProperty(properties, "clientProgramName", DBEdit.APPLICATION_NAME);
+            addProperty(properties, "retrieveMessagesFromServerOnGetMessage", "true");
         } else if (isDataDirect()) {
-            // Workaround for a bug in datadirect driver where default connectionRetryCount = 5
-            properties.setProperty("connectionRetryCount", "0");
+            addProperty(properties, "applicationName", DBEdit.APPLICATION_NAME);
+            addProperty(properties, "connectionRetryCount", "0");
+        } else if (isHSQLDB()) {
+            addProperty(properties, "shutdown", "true");
         }
 
-        connection = driverInstance.connect(url, properties);
-//        if (isDataDirect()) {
-            // set application name
-            // http://media.datadirect.com/download/docs/jdbc/jdbcref/extensions.html
-            // it doesn't work: "JDBC4DB2" is sent hard coded
-//            connection.getClass().getMethod("setClientApplicationName", new Class[] {String.class})
-//                    .invoke(connection, new Object[] {DBEdit.APPLICATION_NAME});
-//        }
-        connection.setAutoCommit(false);
+    }
+
+    private void addProperty(Properties properties, String name, String value) {
+        if (!url.toLowerCase().contains(name.toLowerCase())) {
+            properties.setProperty(name, value);
+        }
     }
 
     private static URL[] retrieveAllJars() throws MalformedURLException {
         File[] files = new File(".").listFiles(new FilenameFilter() {
+            @Override
             public boolean accept(File dir, String fileName) {
                 return fileName.toLowerCase().endsWith(".jar") || fileName.toLowerCase().endsWith(".zip");
             }
@@ -169,24 +180,12 @@ public class ConnectionData implements Comparable, Cloneable {
         return ORACLE_DRIVER.equals(driver);
     }
 
-    public boolean isDb2() {
-        return isIbm() || isDataDirect();
-    }
-
     public boolean isIbm() {
         return IBM_DRIVER.equals(driver);
     }
 
     public boolean isDataDirect() {
         return DATADIRECT_DRIVER.equals(driver);
-    }
-
-    public boolean isMySql() {
-        return MYSQL_DRIVER.equals(driver);
-    }
-
-    public boolean isSQLite() {
-        return SQLITE_DRIVER.equals(driver);
     }
 
     public boolean isHSQLDB() {
@@ -198,6 +197,7 @@ public class ConnectionData implements Comparable, Cloneable {
         return name;
     }
 
+    @Override
     public int compareTo(Object o) {
         ConnectionData connectionData = (ConnectionData) o;
         return name.compareTo(connectionData.name);

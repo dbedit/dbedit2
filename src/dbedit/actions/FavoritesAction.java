@@ -56,7 +56,8 @@ public class FavoritesAction extends CustomAction {
                 new Object[] {"OK", "Cancel", "Add", "Delete"}, "OK");
         if ("OK".equals(value)) {
             if (!list.isSelectionEmpty()) {
-                String s = favorites.get(list.getSelectedValue());
+                String name = (String) list.getSelectedValue();
+                String s = favorites.get(name);
                 ApplicationPanel.getInstance().getTextComponent().setText(s);
                 ApplicationPanel.getInstance().getTextComponent().setCaretPosition(s.length());
             }
@@ -64,7 +65,8 @@ public class FavoritesAction extends CustomAction {
             if (!list.isSelectionEmpty()) {
                 if (Dialog.YES_OPTION == Dialog.show("Delete favorite", "Are you sure?",
                         Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
-                    favorites.remove(list.getSelectedValue());
+                    String name = (String) list.getSelectedValue();
+                    favorites.remove(name);
                     Config.saveFavorites(favorites);
                 }
             }

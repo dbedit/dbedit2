@@ -19,26 +19,30 @@ package dbedit.actions;
 
 import dbedit.ApplicationPanel;
 
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
 
-public class LobOpenWithAction extends LobOpenAction {
+public class CopyCellValueAction extends AbstractAction {
 
-    protected LobOpenWithAction() {
-        super("Open in program of choice (Double Right Click)", "unknown.png", null);
+    private Action defaultAction;
+
+    public CopyCellValueAction(Action defaultAction) {
+        this.defaultAction = defaultAction;
     }
 
     @Override
-    protected File getTempFile() throws IOException {
-        return File.createTempFile("lob", "");
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (MouseEvent.BUTTON1 != e.getButton() && e.getClickCount() == 2
-                && isLob(ApplicationPanel.getInstance().getTable().getSelectedColumn())) {
-            actionPerformed(null);
+    public void actionPerformed(ActionEvent e) {
+        JTable table = (JTable) e.getSource();
+        if (table.getSelectedRowCount() == 1) {
+            Object value = ApplicationPanel.getInstance().getTableValue();
+            if (value != null) {
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+                        new StringSelection(value.toString()), null);
+            }
+        } else {
+            defaultAction.actionPerformed(e);
         }
     }
 }

@@ -26,6 +26,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.sql.SQLWarning;
+import java.util.Vector;
 
 public class ConnectAction extends ActionChangeAbstractAction {
 
@@ -36,8 +37,9 @@ public class ConnectAction extends ActionChangeAbstractAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        setConnectionDatas(Config.getDatabases());
-        final JList list = new JList(getConnectionDatas());
+        ((DisconnectAction) Actions.DISCONNECT).saveDefaultOwner();
+        Vector<ConnectionData> connectionDatas = Config.getDatabases();
+        final JList list = new JList(connectionDatas);
         list.setVisibleRowCount(15);
         list.addMouseListener(this);
         list.addListSelectionListener(this);
@@ -68,7 +70,7 @@ public class ConnectAction extends ActionChangeAbstractAction {
                     } catch (Throwable t) {
                         ExceptionDialog.showException(t);
                         if (editConnection(connectionData, false)) {
-                            Config.saveDatabases(getConnectionDatas());
+                            Config.saveDatabases(connectionDatas);
                         } else {
                             performThreaded(e);
                             return;
@@ -79,15 +81,15 @@ public class ConnectAction extends ActionChangeAbstractAction {
         } else if ("Add".equals(value)) {
             ConnectionData connectionData = new ConnectionData();
             if (editConnection(connectionData, true)) {
-                getConnectionDatas().add(connectionData);
-                Config.saveDatabases(getConnectionDatas());
+                connectionDatas.add(connectionData);
+                Config.saveDatabases(connectionDatas);
             }
             performThreaded(e);
         } else if ("Edit".equals(value)) {
             if (!list.isSelectionEmpty()) {
                 ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
                 if (editConnection(connectionData, false)) {
-                    Config.saveDatabases(getConnectionDatas());
+                    Config.saveDatabases(connectionDatas);
                 }
             }
             performThreaded(e);
@@ -96,8 +98,8 @@ public class ConnectAction extends ActionChangeAbstractAction {
                 ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
                 connectionData = (ConnectionData) connectionData.clone();
                 if (editConnection(connectionData, false)) {
-                    getConnectionDatas().add(connectionData);
-                    Config.saveDatabases(getConnectionDatas());
+                    connectionDatas.add(connectionData);
+                    Config.saveDatabases(connectionDatas);
                 }
             }
             performThreaded(e);
@@ -106,8 +108,8 @@ public class ConnectAction extends ActionChangeAbstractAction {
                 if (Dialog.YES_OPTION == Dialog.show(
                         "Delete connection", "Are you sure?", Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
                     ConnectionData connectionData = (ConnectionData) list.getSelectedValue();
-                    getConnectionDatas().remove(connectionData);
-                    Config.saveDatabases(getConnectionDatas());
+                    connectionDatas.remove(connectionData);
+                    Config.saveDatabases(connectionDatas);
                 }
             }
             performThreaded(e);
@@ -122,23 +124,28 @@ public class ConnectAction extends ActionChangeAbstractAction {
         c.insets = new Insets(2, 2, 2, 2);
         c.gridy++;
         panel.add(new JLabel("Name"), c);
-        final JTextField name = new JTextField(connectionData.getName(), 50);
+        JTextField name = new JTextField(connectionData.getName(), 50);
         panel.add(name, c);
         c.gridy++;
         panel.add(new JLabel("URL"), c);
         final JTextField url = new JTextField(connectionData.getUrl());
         panel.add(url, c);
+        JLabel link = new JLabel("<html><b>?</b></html>");
+        link.setForeground(Color.BLUE);
+        link.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        link.addMouseListener(this);
+        panel.add(link, c);
         c.gridy++;
         panel.add(new JLabel("User"), c);
-        final JTextField user = new JTextField(connectionData.getUser());
+        JTextField user = new JTextField(connectionData.getUser());
         panel.add(user, c);
         c.gridy++;
         panel.add(new JLabel("Password"), c);
-        final JTextField password = new JPasswordField(connectionData.getPassword());
+        JTextField password = new JPasswordField(connectionData.getPassword());
         panel.add(password, c);
         c.gridy++;
         panel.add(new JLabel("Driver"), c);
-        final JComboBox driver = new JComboBox(new Object[] {
+        JComboBox driver = new JComboBox(new Object[] {
                 ConnectionData.ORACLE_DRIVER, ConnectionData.IBM_DRIVER, ConnectionData.DATADIRECT_DRIVER,
                 ConnectionData.MYSQL_DRIVER, ConnectionData.HSQLDB_DRIVER, ConnectionData.SQLITE_DRIVER});
         driver.setEditable(true);
@@ -158,7 +165,13 @@ public class ConnectAction extends ActionChangeAbstractAction {
 
     @Override
     public void mouseClicked(final MouseEvent e) {
-        if (e.getClickCount() == 2) {
+        if (e.getSource() instanceof JLabel) {
+            try {
+                openURL(Config.HOME_PAGE + "manual.html#connect");
+            } catch (Exception e1) {
+                ExceptionDialog.showException(e1);
+            }
+        } else if (e.getClickCount() == 2) {
             Container container = (Container) e.getSource();
             while (!(container instanceof JOptionPane)) {
                 container = container.getParent();

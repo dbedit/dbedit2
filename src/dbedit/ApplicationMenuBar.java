@@ -67,12 +67,8 @@ public class ApplicationMenuBar extends JMenuBar {
         menu.add(new JSeparator());
         subMenu = new JMenu("Lob");
         menu.add(subMenu);
-        if (Config.IS_OS_WINDOWS) {
-            subMenu.add(Actions.LOB_OPEN);
-            subMenu.add(Actions.LOB_OPEN_WITH);
-        }
-        subMenu.add(Actions.LOB_IMPORT);
         subMenu.add(Actions.LOB_EXPORT);
+        subMenu.add(Actions.LOB_IMPORT);
         subMenu.add(Actions.LOB_COPY);
         subMenu.add(Actions.LOB_PASTE);
         menu.add(new JSeparator());

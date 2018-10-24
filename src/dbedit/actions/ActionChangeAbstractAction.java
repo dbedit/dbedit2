@@ -26,6 +26,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.event.MouseEvent;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -54,28 +56,39 @@ public abstract class ActionChangeAbstractAction extends CustomAction {
         Actions.RUN_SCRIPT.setEnabled(isConnected);
 
         boolean hasResultSet = isConnected && getConnectionData().getResultSet() != null;
-        Actions.INSERT.setEnabled(hasResultSet);
         Actions.EXPORT_EXCEL.setEnabled(hasResultSet);
         Actions.EXPORT_PDF.setEnabled(hasResultSet);
         Actions.EXPORT_FLAT_FILE.setEnabled(hasResultSet);
         Actions.EXPORT_INSERTS.setEnabled(hasResultSet);
         Actions.EXPORT_GROUP.setEnabled(hasResultSet);
 
+        boolean hasUpdatableResultSet;
+        try {
+            hasUpdatableResultSet = hasResultSet
+                    && getConnectionData().getResultSet().getConcurrency() == ResultSet.CONCUR_UPDATABLE;
+        } catch (SQLException e) {
+            hasUpdatableResultSet = false;
+        }
+        Actions.INSERT.setEnabled(hasUpdatableResultSet);
+
         boolean isRowSelected = hasResultSet
                 && !ApplicationPanel.getInstance().getTable().getSelectionModel().isSelectionEmpty();
         Actions.EDIT.setEnabled(isRowSelected);
-        Actions.DUPLICATE.setEnabled(isRowSelected);
-        Actions.DELETE.setEnabled(isRowSelected);
+
+        boolean isUpdatableRowSelected = hasUpdatableResultSet && isRowSelected;
+        Actions.DUPLICATE.setEnabled(isUpdatableRowSelected);
+        Actions.DELETE.setEnabled(isUpdatableRowSelected);
 
         boolean isLobSelected = hasResultSet && isLob(ApplicationPanel.getInstance().getTable().getSelectedColumn());
-        Actions.LOB_IMPORT.setEnabled(isLobSelected);
         Actions.LOB_EXPORT.setEnabled(isLobSelected);
-        Actions.LOB_OPEN.setEnabled(isLobSelected);
-        Actions.LOB_OPEN_WITH.setEnabled(isLobSelected);
         Actions.LOB_COPY.setEnabled(isLobSelected);
         Actions.LOB_GROUP.setEnabled(isLobSelected);
 
-        boolean canImportFromMemory = getSavedLobs() != null && isLobSelected
+        boolean isUpdatableLobSelected = hasUpdatableResultSet
+                && isLob(ApplicationPanel.getInstance().getTable().getSelectedColumn());
+        Actions.LOB_IMPORT.setEnabled(isUpdatableLobSelected);
+
+        boolean canImportFromMemory = getSavedLobs() != null && isUpdatableLobSelected
                 && ApplicationPanel.getInstance().getTable().getSelectedRowCount() == getSavedLobs().length;
         Actions.LOB_PASTE.setEnabled(canImportFromMemory);
     }
@@ -119,6 +132,7 @@ public abstract class ActionChangeAbstractAction extends CustomAction {
         @SuppressWarnings("unchecked")
         List<List> list = ((DefaultTableModel) tableHeader.getTable().getModel()).getDataVector();
         Collections.sort(list, new Comparator<List>() {
+            @Override
             public int compare(List l1, List l2) {
                 Object o1 = (l1).get(col);
                 Object o2 = (l2).get(col);

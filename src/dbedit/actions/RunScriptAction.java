@@ -56,6 +56,7 @@ public class RunScriptAction extends ActionChangeAbstractAction {
         final Statement statement = getConnectionData().getConnection()
                 .createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         Runnable onCancel = new Runnable() {
+            @Override
             public void run() {
                 try {
                     statement.cancel();

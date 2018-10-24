@@ -20,7 +20,6 @@ package dbedit;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public abstract class ThreadedAction implements Runnable {
 
@@ -28,21 +27,18 @@ public abstract class ThreadedAction implements Runnable {
         new Thread(this).start();
     }
 
+    @Override
     public final void run() {
         final Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
         final Component glassPane = ApplicationPanel.getInstance().getRootPane().getGlassPane();
         try {
             if (!glassPane.isVisible()) {
                 SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
                     public void run() {
                         if (glassPane.getMouseListeners().length == 0) {
                             glassPane.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-                            glassPane.addMouseListener(new MouseAdapter() {
-                                @Override
-                                public void mouseClicked(MouseEvent e) {
-                                    super.mouseClicked(e);
-                                }
-                            });
+                            glassPane.addMouseListener(new MouseAdapter() { });
                         }
                         glassPane.setVisible(true);
                         glassPane.requestFocus();
@@ -56,6 +52,7 @@ public abstract class ThreadedAction implements Runnable {
             if (glassPane.isVisible()) {
                 try {
                     SwingUtilities.invokeAndWait(new Runnable() {
+                        @Override
                         public void run() {
                             glassPane.setVisible(false);
                             if (focusOwner != null) {

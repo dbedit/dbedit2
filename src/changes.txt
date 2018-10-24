@@ -1,3 +1,22 @@
+2.3 (12/04/2010)
+- Added extended generic database support
+- Added extended generic platform support
+- Added last used file location retainment
+- Added graceful catch for connection URL syntax errors
+- Added a link with URL syntax help in the connection setup dialog
+- Added possibility to run sql's ending with semicolon
+- Added cell copy on Ctrl-C instead of row copy
+- Added 10 sec timeout for background disconnect after application exit
+- Added NClob support
+- Added updatable result set detection
+- Added workaround for Oracle driver 11 bug which closes the
+  connection through some VPN's when cancelling a statement
+- Improved export and open behaviour of result sets and lobs
+- Fixed Oracle timestamp format when exporting to insert statements
+- Fixed last selected schema in the browser not being remembered in some cases
+- Fixed monospaced font on some Linux systems
+- Downgraded Oracle driver 11.1.0.7 -> 11.1.0.6 due to too many bugs
+
 2.2.1 (16/03/2010)
 - Downgraded Oracle driver 11.2.0.1 -> 11.1.0.7
   Due to Oracle timezone bug (ID 9413359)

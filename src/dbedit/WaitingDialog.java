@@ -37,6 +37,7 @@ public class WaitingDialog extends TimerTask {
                 new Object[] {"Cancel"}, "Cancel");
         dialog = pane.createDialog(ApplicationPanel.getInstance(), null);
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 dialog.setVisible(true);
                 if (onCancel != null && "Cancel".equals(pane.getValue())) {

@@ -25,11 +25,16 @@ import java.util.List;
 public class InsertAction extends EditAction {
 
     protected InsertAction() {
-        super("Insert", "add.png", null);
+        super("Insert", "add.png");
     }
 
     @Override
     protected void fillTextArea(JTextArea textArea, List selectedRow, int column) {
+    }
+
+    @Override
+    protected boolean change(String text, String originalText) {
+        return text != null && !"".equals(text);
     }
 
     @Override

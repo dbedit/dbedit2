@@ -19,6 +19,7 @@
 package dbedit;
 
 import dbedit.actions.Actions;
+import dbedit.actions.CopyCellValueAction;
 import dbedit.actions.CustomAction;
 
 import javax.swing.*;
@@ -29,6 +30,8 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoManager;
 import java.awt.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -130,7 +133,7 @@ public final class ApplicationPanel extends JPanel {
 //        Scanner scanner = new JavaScanner();
 //        text = new SyntaxHighlighter(24, 80, scanner);
 
-        text.setFont(new Font("Courier New", Font.PLAIN, 12));
+        text.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         text.setMargin(new Insets(2, 2, 2, 2));
         undoManager = new UndoManager();
         text.getDocument().addUndoableEditListener(undoManager);
@@ -149,19 +152,22 @@ public final class ApplicationPanel extends JPanel {
         table.getTableHeader().setToolTipText("<html>Left click: sort asc<br>Right click: sort desc</html>");
         table.getTableHeader().addMouseListener(Actions.RUN);
         table.getTableHeader().setFont(table.getTableHeader().getFont().deriveFont(Font.BOLD));
-        if (Config.IS_OS_WINDOWS) {
-            table.addMouseListener(Actions.LOB_OPEN);
-            table.addMouseListener(Actions.LOB_OPEN_WITH);
-        }
+        table.addMouseListener(Actions.LOB_EXPORT);
         table.getSelectionModel().addListSelectionListener(Actions.RUN);
         table.getColumnModel().addColumnModelListener(Actions.RUN);
         table.getDefaultEditor(Object.class).addCellEditorListener(Actions.EDIT);
         table.setModel(new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return CustomAction.getConnectionData() != null
-                        && CustomAction.getConnectionData().getResultSet() != null
-                        && !CustomAction.isLob(column);
+                try {
+                    return CustomAction.getConnectionData() != null
+                            && CustomAction.getConnectionData().getResultSet() != null
+                            && CustomAction.getConnectionData().getResultSet().getConcurrency()
+                                 == ResultSet.CONCUR_UPDATABLE
+                            && !CustomAction.isLob(column);
+                } catch (SQLException e) {
+                    return false;
+                }
             }
         });
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
@@ -178,11 +184,13 @@ public final class ApplicationPanel extends JPanel {
                 return tableCellRendererComponent;
             }
         });
+        table.getActionMap().put("copy", new CopyCellValueAction(table.getActionMap().get("copy")));
         return new JScrollPane(table);
     }
 
     public void initializeObjectChooser(final ConnectionData connectionData) {
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 try {
                     final SchemaBrowser schemaBrowser = new SchemaBrowser(connectionData);
@@ -200,17 +208,13 @@ public final class ApplicationPanel extends JPanel {
         }).start();
     }
 
-    public String destroyObjectChooser() {
+    public void destroyObjectChooser() {
         if (rightComponent != null) {
-            String selectedOwner = getObjectChooser().getSelectedOwner();
             rightComponent = null;
             splitPane.setRightComponent(rightComponent);
             splitPane.setDividerSize(0);
             schemaBrowserToggleButton.setSelected(false);
             Actions.SCHEMA_BROWSER.setEnabled(false);
-            return selectedOwner;
-        } else {
-            return null;
         }
     }
 
@@ -229,8 +233,8 @@ public final class ApplicationPanel extends JPanel {
         }
     }
 
-    private SchemaBrowser getObjectChooser() {
-        return (SchemaBrowser) rightComponent.getViewport().getComponent(0);
+    public SchemaBrowser getObjectChooser() {
+        return rightComponent == null ? null : (SchemaBrowser) rightComponent.getViewport().getComponent(0);
     }
 
     public String getText() {
@@ -261,12 +265,11 @@ public final class ApplicationPanel extends JPanel {
         table.setValueAt(o, row, column);
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> getSelectedRow() {
         int row = table.getSelectedRow();
         if (row != -1) {
-            @SuppressWarnings("unchecked")
-            List<String> strings = (List<String>) ((DefaultTableModel) table.getModel()).getDataVector().get(row);
-            return strings;
+            return (List<String>) ((DefaultTableModel) table.getModel()).getDataVector().get(row);
         } else {
             return null;
         }
@@ -278,7 +281,8 @@ public final class ApplicationPanel extends JPanel {
     }
 
     public int getOriginalSelectedRow(int selectedRow) {
-        return originalOrder.indexOf(((DefaultTableModel) table.getModel()).getDataVector().get(selectedRow));
+        Vector row = (Vector) ((DefaultTableModel) table.getModel()).getDataVector().get(selectedRow);
+        return originalOrder.indexOf(row);
     }
 
     public void removeRow(int row) {
@@ -304,6 +308,7 @@ public final class ApplicationPanel extends JPanel {
             scrollPane.setToolTipText(null);
         }
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 resizeColumns(table);
             }

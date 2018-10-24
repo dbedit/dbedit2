@@ -34,8 +34,8 @@ public class EditAction extends CustomAction {
         super("Edit", "edit.png", null);
     }
 
-    protected EditAction(String name, String icon, KeyStroke accelerator) {
-        super(name, icon, accelerator);
+    protected EditAction(String name, String icon) {
+        super(name, icon, null);
     }
 
     @Override
@@ -59,6 +59,9 @@ public class EditAction extends CustomAction {
             if (isLob(column)) {
                 textAreas[column].setEnabled(false);
             }
+            if (resultSet.getConcurrency() == ResultSet.CONCUR_READ_ONLY) {
+                textAreas[column].setEditable(false);
+            }
             textAreas[column].setBorder(BorderFactory.createLoweredBevelBorder());
             constraints.gridy++;
         }
@@ -67,17 +70,21 @@ public class EditAction extends CustomAction {
         while (true) {
             try {
                 if (Dialog.OK_OPTION == Dialog.show((String) getValue(Action.NAME), scrollPane,
-                        Dialog.PLAIN_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
+                        Dialog.PLAIN_MESSAGE, Dialog.OK_CANCEL_OPTION)
+                        && resultSet.getConcurrency() == ResultSet.CONCUR_UPDATABLE) {
                     position(resultSet);
+                    boolean changed = false;
                     for (int i = 0; i < textAreas.length; i++) {
                         String text = textAreas[i].getText();
-                        if (!textAreas[i].isEnabled()) {
-                            continue;
+                        if (textAreas[i].isEnabled() && change(text, getOriginalValue(selectedRow, i))) {
+                            update(i + 1, text);
+                            updateSelectedRow(selectedRow, i, text);
+                            changed = true;
                         }
-                        update(i + 1, text);
-                        updateSelectedRow(selectedRow, i, text);
                     }
-                    store(resultSet);
+                    if (changed) {
+                        store(resultSet);
+                    }
                 }
                 break;
             } catch (Throwable t) {
@@ -87,7 +94,15 @@ public class EditAction extends CustomAction {
     }
 
     protected void fillTextArea(JTextArea textArea, List selectedRow, int column) {
-        textArea.setText(selectedRow.get(column) == null ? "" : selectedRow.get(column).toString());
+        textArea.setText(getOriginalValue(selectedRow, column));
+    }
+
+    private String getOriginalValue(List selectedRow, int column) {
+        return selectedRow == null || selectedRow.get(column) == null ? "" : selectedRow.get(column).toString();
+    }
+
+    protected boolean change(String text, String originalText) {
+        return !text.equals(originalText);
     }
 
     protected void position(ResultSet resultSet) throws SQLException {

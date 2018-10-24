@@ -44,14 +44,17 @@ public abstract class GroupAction extends CustomAction {
     public void actionPerformed(final ActionEvent e) {
         popupMenu.show((Component) e.getSource(), 0, ((Component) e.getSource()).getHeight());
         popupMenu.addPopupMenuListener(new PopupMenuListener() {
+            @Override
             public void popupMenuCanceled(PopupMenuEvent e) {
             }
 
+            @Override
             public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
                 JToggleButton toggleButton = (JToggleButton) popupMenu.getInvoker();
                 toggleButton.setSelected(false);
             }
 
+            @Override
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
             }
         });

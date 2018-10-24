@@ -27,7 +27,7 @@ import java.sql.Clob;
 public class LobCopyAction extends LobAbstractAction {
 
     protected LobCopyAction() {
-        super("Copy", "copy.png", null);
+        super("Copy", "copy.png");
     }
 
     @Override

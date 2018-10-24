@@ -115,7 +115,7 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
         writer.setPageEvent(this);
         document.add(pdfPTable);
         document.close();
-        openFile("export", ".pdf", byteArrayOutputStream.toByteArray());
+        saveAndOpenFile("export.pdf", byteArrayOutputStream.toByteArray());
     }
 
     /**
@@ -123,6 +123,7 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
      * @param writer
      * @param document
      */
+    @Override
     public void onEndPage(PdfWriter writer, Document document) {
         PdfContentByte cb = writer.getDirectContent();
         String text = "Page " + writer.getPageNumber() + " of ";
@@ -142,6 +143,7 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
      * @param writer
      * @param document
      */
+    @Override
     public void onCloseDocument(PdfWriter writer, Document document) {
        pdfTemplate.beginText();
        pdfTemplate.setFontAndSize(BASE_FONT, 12);
@@ -150,30 +152,39 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
     }
 
 
+    @Override
     public void onOpenDocument(PdfWriter pdfWriter, Document document) {
     }
 
+    @Override
     public void onStartPage(PdfWriter pdfWriter, Document document) {
     }
 
+    @Override
     public void onParagraph(PdfWriter pdfWriter, Document document, float v) {
     }
 
+    @Override
     public void onParagraphEnd(PdfWriter pdfWriter, Document document, float v) {
     }
 
+    @Override
     public void onChapter(PdfWriter pdfWriter, Document document, float v, Paragraph paragraph) {
     }
 
+    @Override
     public void onChapterEnd(PdfWriter pdfWriter, Document document, float v) {
     }
 
+    @Override
     public void onSection(PdfWriter pdfWriter, Document document, float v, int i, Paragraph paragraph) {
     }
 
+    @Override
     public void onSectionEnd(PdfWriter pdfWriter, Document document, float v) {
     }
 
+    @Override
     public void onGenericTag(PdfWriter pdfWriter, Document document, Rectangle rectangle,
                              String string) {
     }

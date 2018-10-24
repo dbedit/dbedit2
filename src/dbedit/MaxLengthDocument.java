@@ -25,13 +25,13 @@ public class MaxLengthDocument extends PlainDocument  {
     private int max;
     private boolean numeric;
 
-    public MaxLengthDocument(int newMax) {
-        this(newMax, false);
+    public MaxLengthDocument(int max) {
+        this(max, false);
     }
 
-    public MaxLengthDocument(int newMax, boolean newNumeric) {
+    public MaxLengthDocument(int newMax, boolean numeric) {
         this.max = newMax;
-        this.numeric = newNumeric;
+        this.numeric = numeric;
     }
 
     @Override

@@ -1,6 +1,16 @@
 Name "DBEdit 2"
 
-OutFile "..\dist\DBEdit_setup.exe"
+VIAddVersionKey ProductName "DBEdit 2"
+VIAddVersionKey CompanyName "Jef Van Den Ouweland"
+VIAddVersionKey LegalCopyright "Copyright (c) 2006-2010 Jef Van Den Ouweland"
+VIAddVersionKey FileDescription  "DBEdit 2"
+VIAddVersionKey FileVersion "$%version%"
+VIAddVersionKey ProductVersion "$%version%"
+VIAddVersionKey InternalName "dbedit"
+VIAddVersionKey OriginalFilename "DBEdit$%version%_setup.exe"
+VIProductVersion "$%longversion%"
+
+OutFile "..\dist\DBEdit$%version%_setup.exe"
 
 InstallDir "$PROGRAMFILES\DBEdit 2"
 

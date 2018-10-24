@@ -38,8 +38,6 @@ public interface Actions {
     CustomAction EDIT = new EditAction();
     CustomAction DUPLICATE = new DuplicateAction();
     CustomAction DELETE = new DeleteAction();
-    CustomAction LOB_OPEN = new LobOpenAction();
-    CustomAction LOB_OPEN_WITH = new LobOpenWithAction();
     CustomAction LOB_IMPORT = new LobImportAction();
     CustomAction LOB_EXPORT = new LobExportAction();
     CustomAction LOB_COPY = new LobCopyAction();

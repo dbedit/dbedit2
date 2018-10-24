@@ -86,6 +86,6 @@ public class ExportExcelAction extends CustomAction {
         sheet.createFreezePane(0, 1);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         workbook.write(byteArrayOutputStream);
-        openFile("export", ".xls", byteArrayOutputStream.toByteArray());
+        saveAndOpenFile("export.xls", byteArrayOutputStream.toByteArray());
     }
 }

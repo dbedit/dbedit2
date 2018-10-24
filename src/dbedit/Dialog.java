@@ -33,7 +33,11 @@ public class Dialog extends JOptionPane {
 
     public static Object show(String title, Object message, int messageType, Object[] options, Object initialValue) {
         Dialog dialog = new Dialog(message, messageType, DEFAULT_OPTION, options, initialValue);
-        dialog.createDialog(ApplicationPanel.getInstance(), title).setVisible(true);
+        try {
+            dialog.createDialog(ApplicationPanel.getInstance(), title).setVisible(true);
+        } catch (NoClassDefFoundError e) {
+            dialog.createDialog(null, title).setVisible(true);
+        }
         return dialog.getValue();
     }
 

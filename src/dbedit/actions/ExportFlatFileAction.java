@@ -72,6 +72,7 @@ public class ExportFlatFileAction extends CustomAction {
         }
         grid.addSeparator();
         grid.set(0, grid.getHeight(), "Total: " + (grid.getHeight() - 3));
-        openFile("export", ".txt", grid.toString(rightAlignedColumns).getBytes());
+        String text = grid.toString(rightAlignedColumns);
+        showFile(text, null);
     }
 }
