@@ -25,6 +25,8 @@ import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLWarning;
 import java.util.Vector;
 
@@ -78,7 +80,7 @@ public class ConnectAction extends ActionChangeAbstractAction {
                 }
             }
         } else if ("Add".equals(value)) {
-            ConnectionData connectionData = new ConnectionData();
+            ConnectionData connectionData = newConnectionWizard();
             if (editConnection(connectionData, true)) {
                 connectionDatas.add(connectionData);
                 Config.saveDatabases(connectionDatas);
@@ -113,6 +115,36 @@ public class ConnectAction extends ActionChangeAbstractAction {
             }
             performThreaded(e);
         }
+    }
+
+    private ConnectionData newConnectionWizard() throws IOException {
+        ConnectionData connectionData = new ConnectionData();
+        Object db = Dialog.show("New Connection", "Choose database", Dialog.PLAIN_MESSAGE,
+                new Object[] {"Oracle", "DB2", "MySQL", "SQLite", "HSQLDB", "Other"}, null);
+        if ("Oracle".equals(db)) {
+            connectionData.setDriver(ConnectionData.ORACLE_DRIVER);
+            connectionData.setUrl(String.format("jdbc:oracle:thin:@%s:1521:%s",
+                    JOptionPane.showInputDialog("Server name"), JOptionPane.showInputDialog("Database name")));
+        } else if ("DB2".equals(db)) {
+            connectionData.setDriver(ConnectionData.IBM_DRIVER);
+            connectionData.setUrl(String.format("jdbc:db2://%s:%s/%s",
+                    JOptionPane.showInputDialog("Server name"), JOptionPane.showInputDialog("Port number", "50000"),
+                    JOptionPane.showInputDialog("Database name")));
+        } else if ("MySQL".equals(db)) {
+            connectionData.setDriver(ConnectionData.MYSQL_DRIVER);
+            connectionData.setUrl(String.format("jdbc:mysql://%s/%s",
+                    JOptionPane.showInputDialog("Server name"), JOptionPane.showInputDialog("Database name")));
+        } else if ("SQLite".equals(db)) {
+            connectionData.setDriver(ConnectionData.SQLITE_DRIVER);
+            connectionData.setUrl(String.format("jdbc:sqlite:%s",
+                    JOptionPane.showInputDialog("File name", new File("/sqlite.db").getCanonicalPath())));
+        } else if ("HSQLDB".equals(db)) {
+            connectionData.setUser("sa");
+            connectionData.setDriver(ConnectionData.HSQLDB_DRIVER);
+            connectionData.setUrl(String.format("jdbc:hsqldb:%s",
+                    JOptionPane.showInputDialog("File name", new File("/hsqldb").getCanonicalPath())));
+        }
+        return connectionData;
     }
 
     private boolean editConnection(final ConnectionData connectionData, boolean add) throws Exception {

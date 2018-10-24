@@ -125,18 +125,12 @@ public class ConnectionData implements Comparable, Cloneable {
     public void connect() throws Exception {
         ClassLoader classLoader = new URLClassLoader(retrieveAllJars());
         Driver driverInstance = (Driver) Class.forName(this.driver, true, classLoader).newInstance();
-        Properties originalProperties = new Properties();
-        originalProperties.setProperty("user", user);
-        originalProperties.setProperty("password", password);
-        Properties properties = new Properties(originalProperties);
+        Properties properties = new Properties();
+        properties.setProperty("user", user);
+        properties.setProperty("password", password);
         addExtraProperties(properties);
 
-        try {
-            connection = driverInstance.connect(url, properties);
-        } catch (Exception e) {
-            ExceptionDialog.hideException(e);
-            connection = driverInstance.connect(url, originalProperties);
-        }
+        connection = driverInstance.connect(url, properties);
         if (connection == null) {
             throw new Exception(String.format("Unable to connect.\nURL = %s\nDriver = %s", url, driver));
         }
@@ -156,7 +150,6 @@ public class ConnectionData implements Comparable, Cloneable {
         } else if (isHSQLDB()) {
             addProperty(properties, "shutdown", "true");
         }
-
     }
 
     private void addProperty(Properties properties, String name, String value) {
