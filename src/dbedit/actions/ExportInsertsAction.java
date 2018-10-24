@@ -44,7 +44,7 @@ public class ExportInsertsAction extends CustomAction {
             selection = "Selection".equals(option);
         }
         String tableName = "?";
-        StringTokenizer tokenizer = new StringTokenizer(ApplicationPanel.getInstance().getText());
+        StringTokenizer tokenizer = new StringTokenizer(getQuery());
         while (tokenizer.hasMoreTokens()) {
             if ("from".equals(tokenizer.nextToken().toLowerCase())) {
                 if (tokenizer.hasMoreTokens()) {

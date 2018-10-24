@@ -41,6 +41,7 @@ public abstract class CustomAction extends AbstractAction
                                               KeyListener {
 
     private static ConnectionData connectionData;
+    private static String query;
     private static int[] columnTypes;
     private static String[] columnTypeNames;
     private static Vector<ConnectionData> connectionDatas;
@@ -209,6 +210,14 @@ public abstract class CustomAction extends AbstractAction
 
     protected static void setConnectionData(ConnectionData newConnectionData) {
         connectionData = newConnectionData;
+    }
+
+    public static String getQuery() {
+        return query;
+    }
+
+    public static void setQuery(String query) {
+        CustomAction.query = query;
     }
 
     public static int[] getColumnTypes() {

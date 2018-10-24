@@ -105,13 +105,19 @@ public class RunAction extends ActionChangeAbstractAction {
                 while (waitingDialog.isVisible() && resultSet.next()) {
                     Vector<Object> row = new Vector<Object>(columnCount + 1);
                     for (int i = 0; i < columnCount; i++) {
-                        Object object = resultSet.getObject(i + 1);
+                        try {
+                            Object object = resultSet.getObject(i + 1);
 //                        System.out.println((i + 1) + " "
 //                                + resultSet.getMetaData().getColumnName(i+1) + " - "
 //                                + resultSet.getMetaData().getColumnType(i+1) + " - "
 //                                + resultSet.getMetaData().getColumnTypeName(i+1) + " - "
 //                                + resultSet.getMetaData().getColumnClassName(i+1) + " - \"" + object + "\"");
-                        row.add(object);
+                            row.add(object);
+                        } catch (Exception e1) {
+                            row.add("###");
+                            System.err.println("Unable to retrieve value for row " + (dataVector.size() + 1) + " col " + (i + 1));
+                            e1.printStackTrace();
+                        }
                     }
                     dataVector.add(row);
                     waitingDialog.setText(dataVector.size() + " rows retrieved");
@@ -136,6 +142,7 @@ public class RunAction extends ActionChangeAbstractAction {
         } finally {
             waitingDialog.hide();
         }
+        setQuery(originalQuery);
         setColumnTypes(columnTypes);
         setColumnTypeNames(columnTypeNames);
         ApplicationPanel.getInstance().setDataVector(dataVector, columnIdentifiers, waitingDialog.getExecutionTime());

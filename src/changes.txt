@@ -1,3 +1,8 @@
+2.1.7 (27/11/2009)
+- Invalid database content while retrieving resultset is now catched
+  (SourceForge Bug ID 2870148)
+- "Export to insert statements" didn't always export the correct tablename
+
 2.1.6 (25/03/2009)
 - Changed IBM driver result set holdability to
   "Close cursors at commit" to avoid unwanted locks

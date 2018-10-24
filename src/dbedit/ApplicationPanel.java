@@ -123,6 +123,13 @@ public final class ApplicationPanel extends JPanel {
 
 //        text.setDocument(new CodeDocument());
 
+//      7 SyntaxHighlighter
+//        http://www.cs.bris.ac.uk/Teaching/Resources/COMS30122/tools/
+//        stops recolouring after a while
+        
+//        Scanner scanner = new JavaScanner();
+//        text = new SyntaxHighlighter(24, 80, scanner);
+
         text.setFont(new Font("Courier New", Font.PLAIN, 12));
         text.setMargin(new Insets(2, 2, 2, 2));
         undoManager = new UndoManager();
