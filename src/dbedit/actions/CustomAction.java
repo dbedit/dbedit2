@@ -1,18 +1,17 @@
 package dbedit.actions;
 
-import dbedit.ApplicationPanel;
-import dbedit.ConnectionData;
-import dbedit.ExceptionDialog;
-import dbedit.ThreadedAction;
+import dbedit.*;
 import dbedit.plugin.Plugin;
 import dbedit.plugin.PluginFactory;
-import icons.EmptyIcon;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.event.*;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.ResultSet;
@@ -22,18 +21,17 @@ import java.util.Vector;
 public abstract class CustomAction extends AbstractAction implements CellEditorListener, MouseListener, ListSelectionListener, TableColumnModelListener, AncestorListener, DocumentListener, KeyListener {
 
     public static ConnectionData connectionData;
-    protected static Vector connectionDatas;
+    public static int[] columnTypes;
+    public static String[] columnTypeNames;
+    protected static Vector<ConnectionData> connectionDatas;
     protected static int fetchLimit = -1;
     protected static byte[][] savedLobs;
     protected static final Plugin PLUGIN = PluginFactory.getPlugin();
+    protected static final JFileChooser FILE_CHOOSER = new JFileChooser();
 
     protected CustomAction(String name, String icon, KeyStroke accelerator) {
         super(name);
-        if (icon != null) {
-            putValue(SMALL_ICON, new ImageIcon(CustomAction.class.getResource("/icons/" + icon)));
-        } else {
-            putValue(SMALL_ICON, EmptyIcon.getInstance());
-        }
+        putValue(SMALL_ICON, new ImageIcon(CustomAction.class.getResource("/icons/" + icon)));
         putValue(ACCELERATOR_KEY, accelerator);
         setEnabled(false);
     }
@@ -48,21 +46,56 @@ public abstract class CustomAction extends AbstractAction implements CellEditorL
 
     protected abstract void performThreaded(ActionEvent e) throws Exception;
 
-    public static boolean isLobSelected(int column) {
-        try {
-            ResultSet resultSet = connectionData.getResultSet();
-            if (resultSet != null) {
-                int columnType = resultSet.getMetaData().getColumnType(column + 1);
-                return Types.LONGVARBINARY == columnType || Types.VARBINARY == columnType || Types.BLOB == columnType || Types.CLOB == columnType;
-            }
-        } catch (Throwable t) {
-            // ignore
+    public static boolean isLob(int column) {
+        if (column == -1 || column > columnTypes.length) {
+            return false;
         }
-        return false;
+        int columnType = columnTypes[column];
+        return Types.LONGVARBINARY == columnType || Types.VARBINARY == columnType || Types.BLOB == columnType || Types.CLOB == columnType || 2007 /* oracle xmltype */ == columnType;
     }
 
-    public void openFile(String file) throws IOException {
-        Runtime.getRuntime().exec(new String[] {"rundll32", "shell32,ShellExec_RunDLL", file});
+    public void openFile(String prefix, String suffix, byte[] bytes) throws Exception {
+        if (Config.IS_OS_WINDOWS) {
+            File file = File.createTempFile(prefix, suffix);
+            file.deleteOnExit();
+            FileOutputStream out = new FileOutputStream(file);
+            out.write(bytes);
+            out.close();
+            openURL(file.toString());
+        } else {
+            FILE_CHOOSER.setSelectedFile(new File(prefix + suffix));
+            if (JFileChooser.APPROVE_OPTION == FILE_CHOOSER.showSaveDialog(ApplicationPanel.getInstance())) {
+                File selectedFile = FILE_CHOOSER.getSelectedFile();
+                if (!selectedFile.exists() || Dialog.YES_OPTION == Dialog.show("File exists", "Overwrite existing file?", Dialog.QUESTION_MESSAGE, Dialog.YES_NO_OPTION)) {
+                    FileOutputStream out = new FileOutputStream(selectedFile);
+                    out.write(bytes);
+                    out.close();
+                }
+            }
+        }
+    }
+
+    public void openURL(String file) throws Exception {
+        if (Config.IS_OS_WINDOWS) {
+            Runtime.getRuntime().exec(new String[] {"rundll32", "shell32,ShellExec_RunDLL", file});
+        } else if (Config.IS_OS_MAC_OS) {
+           Class fileMgr = Class.forName("com.apple.eio.FileManager");
+           Method openURL = fileMgr.getDeclaredMethod("openURL", String.class);
+           openURL.invoke(null, file);
+        } else {
+            // Assume Unix
+            String[] browsers = {"firefox", "opera", "konqueror", "epiphany", "mozilla", "netscape"};
+            try {
+                for (String browser : browsers) {
+                    if (Runtime.getRuntime().exec(new String[]{"which", browser}).waitFor() == 0) {
+                        Runtime.getRuntime().exec(new String[]{browser, file});
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                Runtime.getRuntime().exec(new String[]{"netscape", file});
+            }
+        }
     }
 
     public void editingCanceled(ChangeEvent e) {

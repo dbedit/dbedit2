@@ -5,8 +5,6 @@ import dbedit.Dialog;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.sql.Types;
 import java.util.StringTokenizer;
 
@@ -49,9 +47,8 @@ public class ExportInsertsAction extends CustomAction {
             if (column + 1 < columnCount) {
                 prefix.append(",");
             }
-            int columnType = connectionData.getResultSet().getMetaData().getColumnType(column + 1);
-            parseDate[column] = connectionData.isOracle() && columnType == Types.DATE;
-            isLob[column] = isLobSelected(column);
+            parseDate[column] = connectionData.isOracle() && columnTypes[column] == Types.DATE;
+            isLob[column] = isLob(column);
         }
         prefix.append(") values (");
         StringBuffer inserts = new StringBuffer();
@@ -81,11 +78,6 @@ public class ExportInsertsAction extends CustomAction {
                 inserts.append(");\n");
             }
         }
-        File file = File.createTempFile("export", ".txt");
-        file.deleteOnExit();
-        FileOutputStream out = new FileOutputStream(file);
-        out.write(inserts.toString().getBytes());
-        out.close();
-        openFile(file.toString());
+        openFile("export", ".txt", inserts.toString().getBytes());
     }
 }

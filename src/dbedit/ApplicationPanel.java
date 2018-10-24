@@ -10,18 +10,10 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.undo.UndoManager;
 import java.awt.*;
-import java.sql.Blob;
-import java.sql.Clob;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-/**
- * Created by IntelliJ IDEA.
- * User: ouwenlj
- * Date: 26-apr-2005
- * Time: 13:44:29
- */
 public class ApplicationPanel extends JPanel {
 
     private static ApplicationPanel applicationPanel = new ApplicationPanel();
@@ -29,7 +21,7 @@ public class ApplicationPanel extends JPanel {
     private JTextArea text;
     public UndoManager undoManager;
     private JTable table;
-    private List originalOrder;
+    private List<Vector> originalOrder;
     private JSplitPane splitPane;
     private JScrollPane rightComponent;
     protected JToggleButton schemaBrowserToggleButton = new JToggleButton();
@@ -87,24 +79,22 @@ public class ApplicationPanel extends JPanel {
         table.getTableHeader().setToolTipText("<html>Left click: sort asc<br>Right click: sort desc</html>");
         table.getTableHeader().addMouseListener(Actions.RUN);
         table.getTableHeader().setFont(table.getTableHeader().getFont().deriveFont(Font.BOLD));
-        table.addMouseListener(Actions.LOB_OPEN);
-        table.addMouseListener(Actions.LOB_OPEN_WITH);
+        if (Config.IS_OS_WINDOWS) {
+            table.addMouseListener(Actions.LOB_OPEN);
+            table.addMouseListener(Actions.LOB_OPEN_WITH);
+        }
         table.getSelectionModel().addListSelectionListener(Actions.RUN);
         table.getColumnModel().addColumnModelListener(Actions.RUN);
         table.getDefaultEditor(Object.class).addCellEditorListener(Actions.EDIT);
         table.setModel(new DefaultTableModel() {
             public boolean isCellEditable(int row, int column) {
-                return !CustomAction.isLobSelected(column);
+                return CustomAction.connectionData != null && CustomAction.connectionData.getResultSet() != null && !CustomAction.isLob(column);
             }
         });
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                if (value instanceof Blob) {
-                    value = "BLOB";
-                } else if (value instanceof Clob) {
-                    value = "CLOB";
-                } else if (value instanceof byte[]) {
-                    value = "BINARY";
+                if (value != null && CustomAction.isLob(column)) {
+                    value = CustomAction.columnTypeNames[column];
                 }
                 JLabel tableCellRendererComponent = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 tableCellRendererComponent.setHorizontalAlignment(value instanceof Number ? SwingConstants.TRAILING : SwingConstants.LEADING);
@@ -136,6 +126,7 @@ public class ApplicationPanel extends JPanel {
             String selectedOwner = getObjectChooser().getSelectedOwner();
             splitPane.setRightComponent(rightComponent = null);
             splitPane.setDividerSize(0);
+            schemaBrowserToggleButton.setSelected(false);
             Actions.SCHEMA_BROWSER.setEnabled(false);
             return selectedOwner;
         } else {
@@ -186,10 +177,12 @@ public class ApplicationPanel extends JPanel {
         table.setValueAt(o, row, column);
     }
 
-    public List getSelectedRow() {
+    public List<String> getSelectedRow() {
         int row = table.getSelectedRow();
         if (row != -1) {
-            return (List) ((DefaultTableModel) table.getModel()).getDataVector().get(row);
+            @SuppressWarnings("unchecked")
+            List<String> strings = (List<String>) ((DefaultTableModel) table.getModel()).getDataVector().get(row);
+            return strings;
         } else {
             return null;
         }
@@ -201,7 +194,7 @@ public class ApplicationPanel extends JPanel {
     }
 
     public int getOriginalSelectedRow(int selectedRow) {
-        return originalOrder.indexOf(((DefaultTableModel) table.getModel()).getDataVector().get(selectedRow));
+        return originalOrder.indexOf((Vector) ((DefaultTableModel) table.getModel()).getDataVector().get(selectedRow));
     }
 
     public void removeRow(int row) {
@@ -214,8 +207,8 @@ public class ApplicationPanel extends JPanel {
         return table;
     }
 
-    public void setDataVector(Vector dataVector, Vector columnIdentifiers) {
-        originalOrder = new ArrayList(dataVector);
+    public void setDataVector(Vector<Vector> dataVector, Vector columnIdentifiers) {
+        originalOrder = new ArrayList<Vector>(dataVector);
         ((DefaultTableModel) table.getModel()).setDataVector(dataVector, columnIdentifiers);
         table.setToolTipText(dataVector.size() + " row" + (dataVector.size() != 1 ? "s" : ""));
         SwingUtilities.invokeLater(new Runnable() {

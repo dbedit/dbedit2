@@ -4,12 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 
-/**
- * Created by IntelliJ IDEA.
- * User: ouwenlj
- * Date: 11-aug-2005
- * Time: 13:25:18
- */
 public abstract class ThreadedAction implements Runnable {
 
     public ThreadedAction() {
@@ -45,6 +39,7 @@ public abstract class ThreadedAction implements Runnable {
                         }
                     });
                 } catch (Throwable t) {
+                    // ignore
                 }
             }
         }

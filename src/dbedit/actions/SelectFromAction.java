@@ -9,7 +9,7 @@ import java.awt.event.KeyEvent;
 public class SelectFromAction extends CustomAction {
 
     protected SelectFromAction() {
-        super("Insert \"select * from \"", null, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
+        super("Insert \"select * from \"", "empty.png", KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
         setEnabled(true);
     }
 

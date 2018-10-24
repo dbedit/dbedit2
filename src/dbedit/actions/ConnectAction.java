@@ -108,7 +108,7 @@ public class ConnectAction extends ActionChangeAbstractAction {
         panel.add(password, c);
         c.gridy++;
         panel.add(new JLabel("Driver"), c);
-        final JComboBox driver = new JComboBox(new Object[] {ConnectionData.ORACLE_DRIVER, ConnectionData.IBM_DRIVER, ConnectionData.DATADIRECT_DRIVER, ConnectionData.MYSQL_DRIVER});
+        final JComboBox driver = new JComboBox(new Object[] {ConnectionData.ORACLE_DRIVER, ConnectionData.IBM_DRIVER, ConnectionData.DATADIRECT_DRIVER, ConnectionData.MYSQL_DRIVER, ConnectionData.HSQLDB_DRIVER});
         driver.setEditable(true);
         driver.setSelectedItem(connectionData.getDriver());
         panel.add(driver, c);
@@ -133,7 +133,7 @@ public class ConnectAction extends ActionChangeAbstractAction {
             JOptionPane optionPane = (JOptionPane) container;
             Object value = optionPane.getInitialValue();
             if (value == null) {
-                value = new Integer(JOptionPane.OK_OPTION);
+                value = JOptionPane.OK_OPTION;
             }
             optionPane.setValue(value);
             while (!(container instanceof JDialog)) {

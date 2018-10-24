@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 public class FetchLimitAction extends CustomAction {
 
     protected FetchLimitAction() {
-        super("Fetch limit = unlimited", null, null);
+        super("Fetch limit = unlimited", "empty.png", null);
         setEnabled(true);
     }
 

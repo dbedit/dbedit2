@@ -10,13 +10,13 @@ public class Dialog extends JOptionPane {
 
     public static int show(String title, Object message, int messageType, int optionType) {
         Dialog dialog = new Dialog(message, messageType, optionType, null, null);
-        dialog.createDialog(ApplicationPanel.getInstance(), title).show();
+        dialog.createDialog(ApplicationPanel.getInstance(), title).setVisible(true);
         return dialog.getValue() == null ? CLOSED_OPTION : ((Number) dialog.getValue()).intValue();
     }
 
     public static Object show(String title, Object message, int messageType, Object[] options, Object initialValue) {
         Dialog dialog = new Dialog(message, messageType, DEFAULT_OPTION, options, initialValue);
-        dialog.createDialog(ApplicationPanel.getInstance(), title).show();
+        dialog.createDialog(ApplicationPanel.getInstance(), title).setVisible(true);
         return dialog.getValue();
     }
 

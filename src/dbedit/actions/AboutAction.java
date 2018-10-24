@@ -10,13 +10,12 @@ import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.sql.DatabaseMetaData;
 
 public class AboutAction extends CustomAction {
 
     protected AboutAction() {
-        super("About", null, null);
+        super("About", "empty.png", null);
         setEnabled(true);
     }
 
@@ -71,7 +70,7 @@ public class AboutAction extends CustomAction {
                 panel.add(new JLabel(""), c);
                 panel.add(new JLabel(metaData.getDriverVersion()), c);
             } catch (Throwable t) {
-                t.printStackTrace();
+                // ignore
             }
         }
         PLUGIN.customizeAboutPanel(panel, c);
@@ -87,19 +86,19 @@ public class AboutAction extends CustomAction {
         dialog.getContentPane().add(panel);
         dialog.setSize(panel.getPreferredSize());
         dialog.setLocationRelativeTo(dialog.getOwner());
-        dialog.show();
+        dialog.setVisible(true);
     }
 
     public void mouseClicked(MouseEvent e) {
         if (e.getSource() instanceof JLabel) {
             JLabel label = (JLabel) e.getSource();
             try {
-                openFile(label.getText());
-            } catch (IOException e1) {
+                openURL(label.getText());
+            } catch (Exception e1) {
                 ExceptionDialog.showException(e1);
             }
         } else {
-            ((JDialog) e.getSource()).hide();
+            ((JDialog) e.getSource()).setVisible(false);
         }
     }
 }

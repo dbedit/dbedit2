@@ -12,7 +12,7 @@ import java.util.*;
 
 public abstract class ActionChangeAbstractAction extends CustomAction {
 
-    static ListIterator history = new ArrayList().listIterator();
+    static ListIterator<String> history = new ArrayList<String>().listIterator();
 
     protected ActionChangeAbstractAction(String name, String icon, KeyStroke accelerator) {
         super(name, icon, accelerator);
@@ -45,7 +45,7 @@ public abstract class ActionChangeAbstractAction extends CustomAction {
         Actions.DUPLICATE.setEnabled(isRowSelected);
         Actions.DELETE.setEnabled(isRowSelected);
 
-        boolean isLobSelected = hasResultSet && isLobSelected(ApplicationPanel.getInstance().getTable().getSelectedColumn());
+        boolean isLobSelected = hasResultSet && isLob(ApplicationPanel.getInstance().getTable().getSelectedColumn());
         Actions.LOB_IMPORT.setEnabled(isLobSelected);
         Actions.LOB_EXPORT.setEnabled(isLobSelected);
         Actions.LOB_OPEN.setEnabled(isLobSelected);
@@ -82,11 +82,12 @@ public abstract class ActionChangeAbstractAction extends CustomAction {
     public void mouseClicked(final MouseEvent e) {
         JTableHeader tableHeader = (JTableHeader) e.getSource();
         final int col = tableHeader.columnAtPoint(e.getPoint());
-        List list = ((DefaultTableModel) tableHeader.getTable().getModel()).getDataVector();
-        Collections.sort(list, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                o1 = ((List) o1).get(col);
-                o2 = ((List) o2).get(col);
+        @SuppressWarnings("unchecked")
+        List<List> list = ((DefaultTableModel) tableHeader.getTable().getModel()).getDataVector();
+        Collections.sort(list, new Comparator<List>() {
+            public int compare(List l1, List l2) {
+                Object o1 = (l1).get(col);
+                Object o2 = (l2).get(col);
                 int i =
                         o1 == null && o2 == null ? 0 :
                         o1 == null ? -1 :

@@ -8,23 +8,15 @@ import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.ResultSet;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
 
-/**
- * Created by IntelliJ IDEA.
- * User: ouwenlj
- * Date: 15-dec-2005
- * Time: 10:31:30
- */
 public class ConnectionData implements Comparable, Cloneable {
 
     public static final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";
     public static final String IBM_DRIVER = "com.ibm.db2.jcc.DB2Driver";
     public static final String DATADIRECT_DRIVER = "com.ddtek.jdbc.db2.DB2Driver";
     public static final String MYSQL_DRIVER = "com.mysql.jdbc.Driver";
+    public static final String HSQLDB_DRIVER = "org.hsqldb.jdbcDriver";
 
     private String name;
     private String url;
@@ -35,9 +27,6 @@ public class ConnectionData implements Comparable, Cloneable {
     private Connection connection;
     private ResultSet resultSet;
 
-    // cache
-    private Vector tableNames = new Vector();
-    private Map columnNames = new HashMap();
     private String defaultOwner;
 
     public ConnectionData() {
@@ -112,14 +101,6 @@ public class ConnectionData implements Comparable, Cloneable {
         this.defaultOwner = defaultOwner;
     }
 
-    public Vector getTableNames() {
-        return tableNames;
-    }
-
-    public Map getColumnNames() {
-        return columnNames;
-    }
-
     public void connect() throws Exception {
         ClassLoader classLoader = new URLClassLoader(retrieveAllJars());
         Driver driver = (Driver) Class.forName(this.driver, true, classLoader).newInstance();
@@ -180,6 +161,10 @@ public class ConnectionData implements Comparable, Cloneable {
 
     public boolean isMySql() {
         return MYSQL_DRIVER.equals(driver);
+    }
+
+    public boolean isHSQLDB() {
+        return HSQLDB_DRIVER.equals(driver);
     }
 
     public String toString() {

@@ -4,30 +4,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by IntelliJ IDEA.
- * User: ouwenlj
- * Date: 21-feb-2005
- * Time: 13:53:55
- */
 public class Grid {
 
-    private List rows;
+    private List<List<Object>> rows;
     private String columnSeparator = "  ";
 
     public Grid() {
-        this(new ArrayList());
+        this(new ArrayList<List<Object>>());
     }
 
-    public Grid(List rows) {
+    public Grid(List<List<Object>> rows) {
         this.rows = rows;
     }
 
-    public Grid set(int x, int y, Object text) {
+    public Grid set(int x, int y, String text) {
         while (rows.size() < y + 1) {
-            rows.add(new ArrayList());
+            rows.add(new ArrayList<Object>());
         }
-        List row = (List) rows.get(y);
+        List<Object> row = rows.get(y);
         while (row.size() < x + 1) {
             row.add(null);
         }
@@ -45,7 +39,7 @@ public class Grid {
 
     public Object get(int x, int y) {
         try {
-            List row = (List) rows.get(y);
+            List<Object> row = rows.get(y);
             return row.get(x);
         } catch (Exception e) {
             return null;
@@ -63,8 +57,7 @@ public class Grid {
     public int[] calculateWidths() {
         int cols = 0;
         int[] widths = new int[1024];
-        for (int i = 0; i < rows.size(); i++) {
-            List row = (List) rows.get(i);
+        for (List<Object> row : rows) {
             for (int j = 0; j < row.size(); j++) {
                 widths[j] = Math.max(widths[j], row.get(j) == null || row.get(j) == getClass() ? 0 : row.get(j).toString().length());
             }
@@ -84,8 +77,7 @@ public class Grid {
         int[] widths = calculateWidths();
         Arrays.sort(rightAlignedColumns);
         StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < rows.size(); i++) {
-            List row = (List) rows.get(i);
+        for (List<Object> row : rows) {
             for (int j = 0; j < row.size(); j++) {
                 Object text = row.get(j);
                 if (text == getClass()) {

@@ -26,6 +26,8 @@ public class LobCopyAction extends LobAbstractAction {
                 savedLobs[i] = ((Clob) lob).getSubString(1, (int) ((Clob) lob).length()).getBytes();
             } else if (lob instanceof byte[]) {
                 savedLobs[i] = (byte[]) lob;
+            } else if (lob != null) {
+                throw new UnsupportedOperationException("Unsupported type");
             }
         }
     }

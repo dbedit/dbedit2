@@ -12,8 +12,6 @@ import java.sql.SQLException;
 
 public abstract class LobAbstractAction extends CustomAction {
 
-    protected static final JFileChooser FILE_CHOOSER = new JFileChooser();
-
     protected LobAbstractAction(String name, String icon, KeyStroke accelerator) {
         super(name, icon, accelerator);
     }
@@ -27,6 +25,8 @@ public abstract class LobAbstractAction extends CustomAction {
             bytes = ((Clob) lob).getSubString(1, (int) ((Clob) lob).length()).getBytes();
         } else if (lob instanceof byte[]) {
             bytes = (byte[]) lob;
+        } else if (lob != null) {
+            throw new UnsupportedOperationException("Unsupported type");
         } else {
             return;
         }

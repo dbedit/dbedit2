@@ -38,17 +38,6 @@ public class ApplicationToolBar extends JToolBar {
         add(Actions.LOB_GROUP);
         addSeparator();
         add(Actions.EXPORT_GROUP);
-        /*addSeparator();
-        add(new JLabel("Export "));
-        add(Actions.EXPORT_EXCEL);
-        add(Actions.EXPORT_FLAT_FILE);
-        add(Actions.EXPORT_INSERTS);
-        addSeparator();
-        add(new JLabel("Lob "));
-        add(Actions.LOB_IMPORT);
-        add(Actions.LOB_EXPORT);
-        add(Actions.LOB_COPY);
-        add(Actions.LOB_PASTE);*/
         addSeparator();
         add(Box.createHorizontalGlue());
         schemaBrowserToggleButton.setAction(Actions.SCHEMA_BROWSER);
@@ -78,6 +67,7 @@ public class ApplicationToolBar extends JToolBar {
 
     public JToggleButton add(GroupAction action) {
         JToggleButton toggleButton = (JToggleButton) add(new JToggleButton(action));
+        toggleButton.setMargin(new Insets(1, 1, 1, 1));
         toggleButton.setHorizontalTextPosition(JButton.LEFT);
         toggleButton.setVerticalTextPosition(JButton.BOTTOM);
         toggleButton.setFocusable(false);

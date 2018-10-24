@@ -18,21 +18,17 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.PrivateKey;
-import java.text.ParseException;
 import java.util.*;
 
-/**
- * Created by IntelliJ IDEA.
- * User: ouwenlj
- * Date: 11-aug-2005
- * Time: 14:50:17
- */
 public class Config {
 
     public static final String HOME_PAGE = "http://dbedit2.sourceforge.net/";
     private static String version;
+    public static final boolean IS_OS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
+    public static final boolean IS_OS_MAC_OS = System.getProperty("os.name").startsWith("Mac OS");
 
     private static final Key KEY = new PrivateKey() {
         public byte[] getEncoded() {
@@ -46,13 +42,13 @@ public class Config {
         }
     };
 
-    public static Vector getDatabases() throws Exception {
+    public static Vector<ConnectionData> getDatabases() throws Exception {
         Element config = getConfig();
         return getDatabases(config);
     }
 
-    public static Vector getDatabases(Element config) throws Exception {
-        Vector connectionDatas = new Vector();
+    public static Vector<ConnectionData> getDatabases(Element config) throws Exception {
+        Vector<ConnectionData> connectionDatas = new Vector<ConnectionData>();
         NodeList nodeList = config.getElementsByTagName("database");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Element element = (Element) nodeList.item(i);
@@ -68,16 +64,16 @@ public class Config {
         return connectionDatas;
     }
 
-    public static void saveDatabases(List connectionDatas) throws Exception {
+    @SuppressWarnings("unchecked")
+    public static void saveDatabases(List<ConnectionData> connectionDatas) throws Exception {
         Collections.sort(connectionDatas);
         Element config = getConfig();
         NodeList nodeList = config.getElementsByTagName("database");
         for (int i = nodeList.getLength() - 1; i > -1; i--) {
             config.removeChild(nodeList.item(i));
         }
-        for (int i = 0; i < connectionDatas.size(); i++) {
+        for (ConnectionData connectionData : connectionDatas) {
             Element element = config.getOwnerDocument().createElement("database");
-            ConnectionData connectionData = (ConnectionData) connectionDatas.get(i);
             element.setAttribute("name", connectionData.getName());
             element.setAttribute("user", connectionData.getUser());
             element.setAttribute("password", Config.encrypt(connectionData.getPassword()));
@@ -89,10 +85,10 @@ public class Config {
         Config.saveConfig(config);
     }
 
-    public static Map getFavorites() throws ParserConfigurationException, IOException, SAXException {
+    public static Map<String, String> getFavorites() throws ParserConfigurationException, IOException, SAXException {
         Element config = getConfig();
         NodeList favorites = config.getElementsByTagName("favorite");
-        Map map = new TreeMap();
+        Map<String, String> map = new TreeMap<String, String>();
         for (int i = 0; i < favorites.getLength(); i++) {
             Element favorite = (Element) favorites.item(i);
             map.put(favorite.getAttribute("name"), favorite.getAttribute("query"));
@@ -106,9 +102,8 @@ public class Config {
         for (int i = nodeList.getLength() - 1; i > -1; i--) {
             config.removeChild(nodeList.item(i));
         }
-        Iterator iterator = favorites.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry entry = (Map.Entry) iterator.next();
+        for (Object o : favorites.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             Element favorite = config.getOwnerDocument().createElement("favorite");
             favorite.setAttribute("name", (String) entry.getKey());
             favorite.setAttribute("query", (String) entry.getValue());
@@ -146,7 +141,7 @@ public class Config {
         new File(System.getProperty("user.home"), "query.xml").delete();
     }
 
-    protected static String decrypt(String encrypted) throws Exception {
+    protected static String decrypt(String encrypted) throws GeneralSecurityException, IOException {
         if (encrypted == null || "".equals(encrypted)) return encrypted;
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, KEY);
@@ -154,14 +149,14 @@ public class Config {
 
     }
 
-    protected static String encrypt(String decrypted) throws Exception {
+    protected static String encrypt(String decrypted) throws GeneralSecurityException {
         if (decrypted == null || "".equals(decrypted)) return decrypted;
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, KEY);
         return new BASE64Encoder().encode(cipher.doFinal(decrypted.getBytes()));
     }
 
-    public static String getVersion() throws IOException, ParseException {
+    public static String getVersion() throws IOException {
         if (version == null) {
             version = new BufferedReader(new InputStreamReader(Config.class.getResourceAsStream("/changes"))).readLine();
         }

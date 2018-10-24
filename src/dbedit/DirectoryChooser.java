@@ -12,6 +12,7 @@ import java.util.Arrays;
 public class DirectoryChooser extends JTree {
 
     private static DirectoryChooser DIRECTORY_CHOOSER;
+    private static final FileSystemView fileSystemView = FileSystemView.getFileSystemView();
 
     public static File chooseDirectory() {
         if (DIRECTORY_CHOOSER == null) {
@@ -37,7 +38,7 @@ public class DirectoryChooser extends JTree {
     }
 
     private DirNode expand(File dir) {
-        File parentFile = FileSystemView.getFileSystemView().getParentDirectory(dir);
+        File parentFile = fileSystemView.getParentDirectory(dir);
         DirNode parentNode;
         if (parentFile != null) {
             parentNode = expand(parentFile);
@@ -66,7 +67,7 @@ public class DirectoryChooser extends JTree {
 
     private static class DirNode extends DynamicUtilTreeNode {
         public DirNode() {
-            this(FileSystemView.getFileSystemView().getRoots()[0], new Object[0]);
+            this(fileSystemView.getRoots()[0], new Object[0]);
         }
 
         public DirNode(Object value, Object children) {
@@ -75,11 +76,10 @@ public class DirectoryChooser extends JTree {
 
         protected void loadChildren() {
             loadedChildren = true;
-            File[] files = FileSystemView.getFileSystemView().getFiles((File) userObject, true);
+            File[] files = fileSystemView.getFiles((File) userObject, true);
             Arrays.sort(files);
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
-                if (FileSystemView.getFileSystemView().isTraversable(file).booleanValue()) {
+            for (File file : files) {
+                if (fileSystemView.isTraversable(file)) {
                     add(new DirNode(file, new Object[0]));
                 }
             }
@@ -89,10 +89,11 @@ public class DirectoryChooser extends JTree {
     private static class DirRenderer extends DefaultTreeCellRenderer {
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             File file = (File) ((DefaultMutableTreeNode) value).getUserObject();
-            setOpenIcon(FileSystemView.getFileSystemView().getSystemIcon(file));
-            setClosedIcon(FileSystemView.getFileSystemView().getSystemIcon(file));
-            setLeafIcon(FileSystemView.getFileSystemView().getSystemIcon(file));
-            return super.getTreeCellRendererComponent(tree, FileSystemView.getFileSystemView().getSystemDisplayName(file), sel, expanded, leaf, row, hasFocus);
+            Icon systemIcon = fileSystemView.getSystemIcon(file);
+            setOpenIcon(systemIcon);
+            setClosedIcon(systemIcon);
+            setLeafIcon(systemIcon);
+            return super.getTreeCellRendererComponent(tree, fileSystemView.getSystemDisplayName(file), sel, expanded, leaf, row, hasFocus);
         }
     }
 }

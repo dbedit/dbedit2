@@ -14,7 +14,7 @@ public class HistoryPreviousAction extends ActionChangeAbstractAction {
 
     public void actionPerformed(final ActionEvent e) {
         if (history.hasPrevious()) {
-            ApplicationPanel.getInstance().getTextArea().setText((String) history.previous());
+            ApplicationPanel.getInstance().getTextArea().setText(history.previous());
         }
         handleTextActions();
     }

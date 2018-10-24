@@ -6,6 +6,7 @@ import dbedit.WaitingDialog;
 import java.awt.event.ActionEvent;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +30,7 @@ public class RunScriptAction extends ActionChangeAbstractAction {
         int total = 0;
         while (matcher.find()) total++;
         matcher.reset();
-        final Vector dataVector = new Vector();
+        final Vector<Vector> dataVector = new Vector<Vector>();
         int count = 0;
         final Statement statement = connectionData.getConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         Runnable onCancel = new Runnable() {
@@ -46,7 +47,7 @@ public class RunScriptAction extends ActionChangeAbstractAction {
         try {
             while (waitingDialog.isVisible() && matcher.find()) {
                 String sql = text.substring(matcher.start(1), matcher.end(1));
-                Vector row = new Vector(1);
+                Vector<String> row = new Vector<String>(1);
                 PLUGIN.audit(sql);
                 int i = statement.executeUpdate(sql);
                 PLUGIN.audit("[" + i + " rows updated]");
@@ -62,8 +63,10 @@ public class RunScriptAction extends ActionChangeAbstractAction {
         } finally {
             waitingDialog.hide();
             connectionData.setResultSet(null);
-            final Vector columnIdentifiers = new Vector();
+            final Vector<String> columnIdentifiers = new Vector<String>(1);
             columnIdentifiers.add("Rows updated");
+            columnTypes = new int[] {Types.INTEGER};
+            columnTypeNames = new String[1];
             ApplicationPanel.getInstance().setDataVector(dataVector, columnIdentifiers);
             handleActions();
         }

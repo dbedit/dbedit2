@@ -10,8 +10,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 public class ExportExcelAction extends CustomAction {
@@ -51,7 +50,7 @@ public class ExportExcelAction extends CustomAction {
         dialog.setLocationRelativeTo(dialog.getOwner());
         new Thread(new Runnable() {
             public void run() {
-                dialog.show();
+                dialog.setVisible(true);
             }
         }).start();
         while (!dialog.isVisible()) {/* wait until dialog becoms visible */}
@@ -83,7 +82,11 @@ public class ExportExcelAction extends CustomAction {
                         if (o instanceof Number) {
                             cell.setCellValue(((Number) o).doubleValue());
                         } else if (o != null) {
-                            cell.setCellValue(o.toString());
+                            if (CustomAction.isLob(j)) {
+                                cell.setCellValue(CustomAction.columnTypeNames[j]);
+                            } else {
+                                cell.setCellValue(o.toString());
+                            }
                         }
                     }
                 }
@@ -91,14 +94,11 @@ public class ExportExcelAction extends CustomAction {
             }
             sheet.createFreezePane(0, 1);
             progressBar.setString("Saving xls");
-            File file = File.createTempFile("export", ".xls");
-            file.deleteOnExit();
-            FileOutputStream out = new FileOutputStream(file);
-            workbook.write(out);
-            out.close();
-            openFile(file.toString());
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            workbook.write(byteArrayOutputStream);
+            openFile("export", ".xls", byteArrayOutputStream.toByteArray());
         } finally {
-            dialog.hide();
+            dialog.setVisible(false);
         }
     }
 }

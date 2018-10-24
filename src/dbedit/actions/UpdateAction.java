@@ -7,11 +7,11 @@ import java.awt.event.ActionEvent;
 public class UpdateAction extends CustomAction {
 
     protected UpdateAction() {
-        super("Download latest version", null, null);
+        super("Download latest version", "empty.png", null);
         setEnabled(true);
     }
 
     protected void performThreaded(ActionEvent e) throws Exception {
-        openFile(Config.HOME_PAGE + "download.html");
+        openURL(Config.HOME_PAGE + "download.html");
     }
 }

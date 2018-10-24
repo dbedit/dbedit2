@@ -6,25 +6,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-/**
- * Created by IntelliJ IDEA.
- * User: ouwenlj
- * Date: 26-apr-2005
- * Time: 13:44:29
- */
 public class DBEdit extends JFrame {
 
     public static final String APPLICATION_NAME = "DBEdit 2";
 
-    static {
-        try {
+    public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException, InstantiationException, ClassNotFoundException {
+        // Don't set the system look and feel for OS'es other than Windows
+        // Xfce on Xubuntu looked OK (GTK)
+        // GNOME on Red Hat Ent. Linux and Oracle Ent. Linux and Solaris didn't look too good (GTK)
+        // CDE on Solaris also didn't look good (Motif)
+        // Others not yet tested
+        // So use default look and feel (Metal)
+        if (Config.IS_OS_WINDOWS) {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-    }
 
-    public static void main(String[] args) throws Exception {
         new DBEdit();
     }
 

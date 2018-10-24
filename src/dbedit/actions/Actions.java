@@ -1,11 +1,5 @@
 package dbedit.actions;
 
-/**
- * Created by IntelliJ IDEA.
- * User: ouwenlj
- * Date: 14-dec-2005
- * Time: 16:56:40
- */
 public interface Actions {
 
     CustomAction CONNECT = new ConnectAction();

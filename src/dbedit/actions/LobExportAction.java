@@ -25,7 +25,7 @@ public class LobExportAction extends LobAbstractAction {
         if (selectedRows.length > 1) {
             File dir = DirectoryChooser.chooseDirectory();
             if (dir != null) {
-                List columnNames = new ArrayList();
+                List<String> columnNames = new ArrayList<String>();
                 for (int i = 0; i < table.getColumnCount(); i++) {
                     if (table.getSelectedColumn() != i) {
                         columnNames.add(table.getColumnName(i));
@@ -40,8 +40,7 @@ public class LobExportAction extends LobAbstractAction {
                     int selectedIndex = list.getSelectedIndex();
                     if (selectedIndex != -1) {
                         if (selectedIndex >= table.getSelectedColumn()) selectedIndex++;
-                        for (int i = 0; i < selectedRows.length; i++) {
-                            int selectedRow = selectedRows[i];
+                        for (int selectedRow : selectedRows) {
                             table.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
                             exportLob(new File(dir, "" + table.getValueAt(selectedRow, selectedIndex)));
                         }
@@ -49,7 +48,10 @@ public class LobExportAction extends LobAbstractAction {
                 }
             }
         } else if (JFileChooser.APPROVE_OPTION == FILE_CHOOSER.showSaveDialog(ApplicationPanel.getInstance())) {
-            exportLob(FILE_CHOOSER.getSelectedFile());
+            File selectedFile = FILE_CHOOSER.getSelectedFile();
+            if (!selectedFile.exists() || Dialog.YES_OPTION == Dialog.show("File exists", "Overwrite existing file?", Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
+                exportLob(selectedFile);
+            }
         }
     }
 
@@ -62,7 +64,7 @@ public class LobExportAction extends LobAbstractAction {
             JOptionPane optionPane = (JOptionPane) container;
             Object value = optionPane.getInitialValue();
             if (value == null) {
-                value = new Integer(JOptionPane.OK_OPTION);
+                value = JOptionPane.OK_OPTION;
             }
             optionPane.setValue(value);
             while (!(container instanceof JDialog)) {

@@ -28,7 +28,7 @@ public class FavoritesAction extends CustomAction {
     }
 
     public void favorites() throws ParserConfigurationException, IOException, TransformerException, SAXException {
-        Map favorites = Config.getFavorites();
+        Map<String,String> favorites = Config.getFavorites();
         final JList list = new JList(favorites.keySet().toArray());
         list.setVisibleRowCount(15);
         list.addMouseListener(this);
@@ -37,14 +37,14 @@ public class FavoritesAction extends CustomAction {
         Object value = Dialog.show("Favorites", new JScrollPane(list), Dialog.PLAIN_MESSAGE, new Object[] {"OK", "Cancel", "Add", "Delete"}, "OK");
         if ("OK".equals(value)) {
             if (!list.isSelectionEmpty()) {
-                String s = (String) favorites.get(list.getSelectedValue());
+                String s = favorites.get((String) list.getSelectedValue());
                 ApplicationPanel.getInstance().getTextArea().setText(s);
                 ApplicationPanel.getInstance().getTextArea().setCaretPosition(s.length());
             }
         } else if ("Delete".equals(value)) {
             if (!list.isSelectionEmpty()) {
                 if (Dialog.YES_OPTION == Dialog.show("Delete favorite", "Are you sure?", Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
-                    favorites.remove(list.getSelectedValue());
+                    favorites.remove((String) list.getSelectedValue());
                     Config.saveFavorites(favorites);
                 }
             }
@@ -73,7 +73,7 @@ public class FavoritesAction extends CustomAction {
             JOptionPane optionPane = (JOptionPane) container;
             Object value = optionPane.getInitialValue();
             if (value == null) {
-                value = new Integer(JOptionPane.OK_OPTION);
+                value = JOptionPane.OK_OPTION;
             }
             optionPane.setValue(value);
             while (!(container instanceof JDialog)) {

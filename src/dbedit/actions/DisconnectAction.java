@@ -24,6 +24,9 @@ public class DisconnectAction extends ActionChangeAbstractAction {
         try {
             if (connectionData != null && !connectionData.getConnection().isClosed()) {
                 connectionData.getConnection().rollback();
+                if (connectionData.isHSQLDB()) {
+                    connectionData.getConnection().createStatement().execute("shutdown");
+                }
                 connectionData.getConnection().close();
             }
         } catch (Throwable t) {

@@ -1,18 +1,25 @@
-<project name="dbedit" default="make-installer" basedir=".">
+<project name="dbedit" default="jar" basedir=".">
 	<property name="src" location="src"/>
 	<property name="lib"  location="lib"/>
 	<property name="build" location="classes"/>
 	<property name="dist" location="dist"/>
-	<property name="launch4j.dir" location="../.." />
 
-	<path id="dist.classpath">
-	       	<pathelement path="${build}"/>
-		<fileset dir="${lib}">
-		       	<include name="**/*.jar"/>
-	      	</fileset>
-	</path>
+    <path id="dist.classpath">
+        <pathelement path="${build}"/>
+        <fileset dir="${lib}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
 
-	<target name="compile">
+    <target name="get-version">
+        <loadfile property="version" srcfile="src/changes">
+            <filterchain>
+                <replaceregex flags="s" byline="false" pattern="(.*?)\s.*" replace="\1"/>
+            </filterchain>
+        </loadfile>
+    </target>
+
+    <target name="compile">
         <mkdir dir="${build}"/>
 		<javac srcdir="${src}"  destdir="${build}" classpathref="dist.classpath"  debug="on"/>
         <copy todir="${build}"><fileset dir="${src}" includes="changes **/*.png **/*.gif"/></copy>
@@ -29,25 +36,49 @@
 		</jar>
     </target>
 
-	<target name="make-application" depends="jar">
+	<target name="make-win" depends="jar, get-version">
         <unzip src="${lib}/launch4j-2.1.5-win32.zip" dest="${lib}"/>
         <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpathref="dist.classpath" />
         <launch4j>
             <config jar="${dist}/dbedit.jar" outfile="${dist}/DBEdit.exe" icon="${lib}/launcher.ico" customProcName="true" errTitle="DBEdit 2">
-                <jre minVersion="1.4.2" maxHeapSize="512"/>
+                <jre minVersion="1.5.0" maxHeapSize="512"/>
             </config>
         </launch4j>
-        <delete file="${dist}/dbedit.jar"/>
-        <copy todir="${dist}"><fileset dir="${lib}" includes="*.jar"/></copy>
-    </target>
 
-	<target name="make-installer" depends="make-application">
         <unzip src="${lib}/nsis-2.23.zip" dest="${lib}"/>
         <exec executable="${lib}/nsis-2.23/makensis.exe" failonerror="true"><arg line="${lib}/installer.nsi"/></exec>
+        <delete file="${dist}/DBEdit.exe"/>
+        <move file="${dist}/DBEdit_setup.exe" tofile="${dist}/DBEdit${version}_setup.exe"/>
     </target>
+
+	<target name="make-unix" depends="jar, get-version">
+        <tar compression="gzip" tarfile="${dist}/DBEdit${version}.tar.gz">
+            <tarfileset prefix="DBEdit/" dir="${lib}" includes="dbedit" mode="755"/>
+            <tarfileset prefix="DBEdit/" dir="${dist}" includes="dbedit.jar"/>
+            <tarfileset prefix="DBEdit/" dir="${lib}" includes="*.jar dbedit.png"/>
+        </tar>
+    </target>
+
+	<target name="make-src" depends="get-version">
+        <mkdir dir="${dist}"/>
+        <zip file="${dist}/DBEdit${version}_src.zip">
+            <fileset dir="." includes="src/**/* build.xml"/>
+            <fileset dir="." includes="lib/*">
+                <type type="file"/>
+            </fileset>
+        </zip>
+    </target>
+
+    <target name="make-all" depends="make-src, make-unix, make-win"/>
 
     <target name="clean">
         <delete dir="${dist}"/>
 		<delete dir="${build}"/>
 	</target>
+
+    <target name="test">
+        <path id="b"><fileset dir="dist" includes="DBEdit*_dupont.zip"/></path>
+        <property name="a" refid="b"></property>
+        <echo message="${a}"/>
+    </target>
 </project>

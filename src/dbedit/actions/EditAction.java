@@ -26,7 +26,7 @@ public class EditAction extends CustomAction {
         JPanel panel = new JPanel(new GridBagLayout());
         JTextArea[] textAreas = new JTextArea[resultSet.getMetaData().getColumnCount()];
         GridBagConstraints constraints = new GridBagConstraints(-1, 0, 1, 1, 0, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0);
-        java.util.List selectedRow = ApplicationPanel.getInstance().getSelectedRow();
+        List<String> selectedRow = ApplicationPanel.getInstance().getSelectedRow();
         for (int column = 0; column < resultSet.getMetaData().getColumnCount(); column++) {
             String columnName = resultSet.getMetaData().getColumnName(column + 1);
             panel.add(new JLabel(columnName), constraints);
@@ -36,7 +36,7 @@ public class EditAction extends CustomAction {
             }
             panel.add(textAreas[column] = new JTextArea(), constraints);
             fillTextArea(textAreas[column], selectedRow, column);
-            if (isLobSelected(column)) {
+            if (isLob(column)) {
                 textAreas[column].setEnabled(false);
             }
             textAreas[column].setBorder(BorderFactory.createLoweredBevelBorder());
@@ -75,7 +75,7 @@ public class EditAction extends CustomAction {
         resultSet.relative(origRow);
     }
 
-    protected void updateSelectedRow(List selectedRow, int column, String text) {
+    protected void updateSelectedRow(List<String> selectedRow, int column, String text) {
         selectedRow.set(column, text);
     }
 

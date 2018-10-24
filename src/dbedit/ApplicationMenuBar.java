@@ -2,7 +2,6 @@ package dbedit;
 
 import dbedit.actions.Actions;
 import dbedit.plugin.PluginFactory;
-import icons.EmptyIcon;
 
 import javax.swing.*;
 import java.util.HashSet;
@@ -47,8 +46,10 @@ public class ApplicationMenuBar extends JMenuBar {
         menu.add(Actions.DUPLICATE);
         menu.add(new JSeparator());
         menu.add(subMenu = new JMenu("Lob"));
-        subMenu.add(Actions.LOB_OPEN);
-        subMenu.add(Actions.LOB_OPEN_WITH);
+        if (Config.IS_OS_WINDOWS) {
+            subMenu.add(Actions.LOB_OPEN);
+            subMenu.add(Actions.LOB_OPEN_WITH);
+        }
         subMenu.add(Actions.LOB_IMPORT);
         subMenu.add(Actions.LOB_EXPORT);
         subMenu.add(Actions.LOB_COPY);
@@ -77,14 +78,13 @@ public class ApplicationMenuBar extends JMenuBar {
     }
 
     private void setMnemonicsAndIcons(MenuElement menuElement) {
-        Set used = new HashSet();
+        Set<Character> used = new HashSet<Character>();
         MenuElement[] subElements = menuElement.getSubElements();
-        for (int i = 0; i < subElements.length; i++) {
-            AbstractButton item = (AbstractButton) subElements[i];
+        for (MenuElement subElement : subElements) {
+            AbstractButton item = (AbstractButton) subElement;
             char[] chars = item.getText().toCharArray();
-            for (int j = 0; j < chars.length; j++) {
-                char aChar = chars[j];
-                if (used.add("" + aChar)) {
+            for (char aChar : chars) {
+                if (used.add(aChar)) {
                     item.setMnemonic(aChar);
                     break;
                 }
@@ -93,7 +93,7 @@ public class ApplicationMenuBar extends JMenuBar {
                 setMnemonicsAndIcons(((JMenu) item).getPopupMenu());
                 if (menuElement != this) {
                     // dummy icons for sub menus 
-                    item.setIcon(EmptyIcon.getInstance());
+                    item.setIcon(new ImageIcon(ApplicationMenuBar.class.getResource("/icons/empty.png")));
                 }
             }
         }
