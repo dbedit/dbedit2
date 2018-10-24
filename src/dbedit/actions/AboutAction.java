@@ -19,7 +19,6 @@ package dbedit.actions;
 
 import dbedit.ApplicationPanel;
 import dbedit.Config;
-import dbedit.DBEdit;
 import dbedit.ExceptionDialog;
 
 import javax.swing.*;
@@ -40,20 +39,14 @@ public class AboutAction extends CustomAction {
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
-        final Font logoFont = new Font("Dialog", Font.BOLD, 28);
         JPanel panel = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                int x = 10;
-                int y = 32;
-                g.setFont(logoFont);
-                g.setColor(getBackground().brighter());
-                g.drawString(DBEdit.APPLICATION_NAME, x + 1, y + 1);
-                g.setColor(getBackground().darker());
-                g.drawString(DBEdit.APPLICATION_NAME, x - 1, y - 1);
+                Image background = new ImageIcon(AboutAction.class.getResource("/icons/logo.png")).getImage();
+                g.drawImage(background, 5, 17, null);
                 g.setColor(getBackground());
-                g.drawString(DBEdit.APPLICATION_NAME, x, y);
+                g.fillRect(getWidth() - 5, 0, 5, background.getHeight(null) + 17);
             }
         };
         GridBagConstraints c = new GridBagConstraints();
@@ -61,10 +54,10 @@ public class AboutAction extends CustomAction {
         c.gridy++;
         c.anchor = GridBagConstraints.SOUTHWEST;
         panel.add(new JLabel(), c);
-        panel.add(new JLabel(Config.getVersion()), c);
+        panel.add(new JLabel("<html><font style=\"font-weight:bold\">" + Config.getVersion() + "</font></html>"), c);
         c.gridy++;
         panel.add(new JLabel(), c);
-        panel.add(new JLabel("Copyright (C) 2006-2010"), c);
+        panel.add(new JLabel("<html><font style=\"color:gray\">Copyright (C) 2006-2010</div></html>"), c);
         c.gridy++;
         panel.add(new JLabel("Author: "), c);
         panel.add(new JLabel("Jef Van Den Ouweland"), c);
@@ -107,7 +100,7 @@ public class AboutAction extends CustomAction {
         }
         PLUGIN.customizeAboutPanel(panel, c);
         panel.setBorder(new BevelBorder(BevelBorder.RAISED) {
-            private Insets insets = new Insets(42, 10, 10, 10);
+            private Insets insets = new Insets(65, 10, 10, 10);
             @Override
             public Insets getBorderInsets(Component c) {
                 return insets;
@@ -118,6 +111,7 @@ public class AboutAction extends CustomAction {
         dialog.addMouseListener(this);
         dialog.getContentPane().add(panel);
         dialog.setSize(panel.getPreferredSize());
+        dialog.setMinimumSize(new Dimension(395, 0));
         dialog.setLocationRelativeTo(dialog.getOwner());
         dialog.setVisible(true);
     }

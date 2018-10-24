@@ -126,7 +126,7 @@ public final class ApplicationPanel extends JPanel {
 //      7 SyntaxHighlighter
 //        http://www.cs.bris.ac.uk/Teaching/Resources/COMS30122/tools/
 //        stops recolouring after a while
-        
+
 //        Scanner scanner = new JavaScanner();
 //        text = new SyntaxHighlighter(24, 80, scanner);
 

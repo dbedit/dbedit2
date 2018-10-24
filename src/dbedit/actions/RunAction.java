@@ -118,7 +118,8 @@ public class RunAction extends ActionChangeAbstractAction {
                             row.add(object);
                         } catch (Exception e1) {
                             row.add("###");
-                            System.err.println("Unable to retrieve value for row " + (dataVector.size() + 1) + " col " + (i + 1));
+                            System.err.println("Unable to retrieve value for row "
+                                    + (dataVector.size() + 1) + " col " + (i + 1));
                             e1.printStackTrace();
                         }
                     }

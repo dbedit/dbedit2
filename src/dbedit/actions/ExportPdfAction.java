@@ -17,8 +17,8 @@
  */
 package dbedit.actions;
 
-import com.lowagie.text.*;
-import com.lowagie.text.pdf.*;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.*;
 import dbedit.ApplicationPanel;
 import dbedit.Dialog;
 
@@ -31,8 +31,8 @@ import java.util.List;
 public class ExportPdfAction extends CustomAction implements PdfPageEvent {
 
     private PdfTemplate pdfTemplate;
-    private static final Font ROW_HEADER_FONT = new Font(Font.UNDEFINED, 12, Font.BOLD);
     private static final Font FONT = new Font();
+    private static final Font ROW_HEADER_FONT = new Font(FONT.getFamily(), 12, Font.BOLD);
     private static final BaseFont ROW_HEADER_BASE_FONT = ROW_HEADER_FONT.getCalculatedBaseFont(false);
     private static final BaseFont BASE_FONT = FONT.getCalculatedBaseFont(false);
 
@@ -87,7 +87,7 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
                     PdfPCell cell = new PdfPCell(new Phrase(o.toString()));
                     cell.setPaddingBottom(4);
                     if (o instanceof Number) {
-                        cell.setHorizontalAlignment(Cell.ALIGN_RIGHT);
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                     }
                     pdfPTable.addCell(cell);
                     widths[j] = Math.min(50000, Math.max(widths[j], BASE_FONT.getWidth(o.toString())));
@@ -101,7 +101,7 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
         for (int width : widths) {
             totalWidth += width;
         }
-        com.lowagie.text.Rectangle pageSize = PageSize.A4.rotate();
+        Rectangle pageSize = PageSize.A4.rotate();
         pageSize.setRight(pageSize.getRight() * Math.max(1f, totalWidth / 53000f));
         pageSize.setTop(pageSize.getTop() * Math.max(1f, totalWidth / 53000f));
 
@@ -111,7 +111,7 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
         PdfWriter writer = PdfWriter.getInstance(document, byteArrayOutputStream);
         document.open();
         pdfTemplate = writer.getDirectContent().createTemplate(100, 100);
-        pdfTemplate.setBoundingBox(new com.lowagie.text.Rectangle(-20, -20, 100, 100));
+        pdfTemplate.setBoundingBox(new Rectangle(-20, -20, 100, 100));
         writer.setPageEvent(this);
         document.add(pdfPTable);
         document.close();
@@ -174,7 +174,7 @@ public class ExportPdfAction extends CustomAction implements PdfPageEvent {
     public void onSectionEnd(PdfWriter pdfWriter, Document document, float v) {
     }
 
-    public void onGenericTag(PdfWriter pdfWriter, Document document, com.lowagie.text.Rectangle rectangle,
+    public void onGenericTag(PdfWriter pdfWriter, Document document, Rectangle rectangle,
                              String string) {
     }
 }

@@ -58,10 +58,10 @@ public class ExportExcelAction extends CustomAction {
         font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
         style.setFont(font);
         for (int i = 0; i < table.getColumnCount(); i++) {
-            HSSFCell cell = row.createCell((short) i);
+            HSSFCell cell = row.createCell(i);
             cell.setCellValue(new HSSFRichTextString(table.getColumnName(i)));
             cell.setCellStyle(style);
-            sheet.setColumnWidth((short) i, (short) (table.getColumnModel().getColumn(i).getPreferredWidth() * 45));
+            sheet.setColumnWidth(i, (table.getColumnModel().getColumn(i).getPreferredWidth() * 45));
         }
         int count = 1;
         for (int i = 0; i < list.size(); i++) {
@@ -70,7 +70,7 @@ public class ExportExcelAction extends CustomAction {
                 row = sheet.createRow(count++);
                 for (int j = 0; j < data.size(); j++) {
                     Object o = data.get(j);
-                    HSSFCell cell = row.createCell((short) j);
+                    HSSFCell cell = row.createCell(j);
                     if (o instanceof Number) {
                         cell.setCellValue(((Number) o).doubleValue());
                     } else if (o != null) {

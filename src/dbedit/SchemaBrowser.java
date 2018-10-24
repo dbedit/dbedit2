@@ -112,11 +112,7 @@ public class SchemaBrowser extends JTree {
         private void addChildren() throws SQLException {
             switch (getLevel()) {
                 case 0:
-                    if (connectionData.isOracle()) {
-                        addQuery("select username from all_users order by username", true);
-                    } else if (connectionData.isDb2()) {
-                        addQuery("select distinct rtrim(tabschema) from syscat.tables", true);
-                    } else if (connectionData.isMySql()) {
+                    if (connectionData.isMySql()) {
                         addQuery("show databases", true);
                     } else if (connectionData.isSQLite()) {
                         add("SQLite", true);
@@ -133,44 +129,28 @@ public class SchemaBrowser extends JTree {
                     String owner = getParent().toString();
                     String type = toString();
                     if ("TABLES".equals(type)) {
-                        if (connectionData.isOracle()) {
-                            addQuery("select table_name from all_tables "
-                                    + "where owner = '" + owner + "' order by table_name", true);
-                        } else if (connectionData.isDb2()) {
+                        if (connectionData.isDataDirect()) {
                             addQuery("select rtrim(tabname) from syscat.tables "
-                                    + "where tabschema = '" + owner + "' order by tabname", true);
+                                    + "where tabschema = '" + owner + "' and type = 'T' order by tabname", true);
                         } else if (connectionData.isMySql()) {
-                            addQuery("show tables from " + owner, true);
+                            addQuery(connectionData.getConnection().getMetaData()
+                                    .getTables(owner, null, null, new String[] {"TABLE", "SYSTEM TABLE"}), true, 3);
                         } else {
                             addQuery(connectionData.getConnection().getMetaData()
                                     .getTables(null, owner, null, new String[] {"TABLE", "SYSTEM TABLE"}), true, 3);
                         }
                     } else if ("VIEWS".equals(type)) {
-                        if (connectionData.isOracle()) {
-                            addQuery("select view_name from all_views "
-                                    + "where owner = '" + owner + "' order by view_name", true);
-                        } else if (connectionData.isDb2()) {
-                            addQuery("select rtrim(viewname) from syscat.views "
-                                    + "where viewschema = '" + owner + "' order by viewname", true);
-                        } else if (connectionData.isMySql()) {
-                            addQuery("select rtrim(table_name) from information_schema.views "
-                                    + "where table_schema = '" + owner + "' order by table_name", true);
+                        if (connectionData.isMySql()) {
+                            addQuery(connectionData.getConnection().getMetaData()
+                                    .getTables(owner, null, null, new String[] {"VIEW"}), true, 3);
                         } else {
                             addQuery(connectionData.getConnection().getMetaData()
                                     .getTables(null, owner, null, new String[] {"VIEW"}), true, 3);
                         }
                     } else if ("PROCEDURES".equals(type)) {
-                        if (connectionData.isOracle()) {
-                            addQuery("select distinct(object_name) from all_procedures "
-                                    + "where owner = '" + owner + "'", false);
-                        } else if (connectionData.isDb2()) {
-                            addQuery("select distinct(rtrim(procname)) as name from syscat.procedures "
-                                    + "where procschema = '" + owner + "' union "
-                                    + "select rtrim(funcname) as name from syscat.functions "
-                                    + "where funcschema = '" + owner + "'", false);
-                        } else if (connectionData.isMySql()) {
-                            addQuery("select distinct(rtrim(routine_name)) from information_schema.routines "
-                                    + "where routine_schema = '" + owner + "'", true);
+                        if (connectionData.isMySql()) {
+                            addQuery(connectionData.getConnection().getMetaData()
+                                    .getProcedures(owner, null, null), true, 3);
                         } else {
                             addQuery(connectionData.getConnection().getMetaData()
                                     .getProcedures(null, owner, null), true, 3);
@@ -179,19 +159,14 @@ public class SchemaBrowser extends JTree {
                     break;
                 case 3:
                     String table = toString();
-                    if (connectionData.isOracle()) {
-                        addQuery("select column_name from all_tab_cols "
-                                + "where table_name = '" + table + "' order by column_id", false);
-                    } else if (connectionData.isDb2()) {
-                        addQuery("select rtrim(colname) from syscat.columns "
-                                + "where tabname = '" + table + "' order by colno", false);
-                    } else if (connectionData.isMySql()) {
-                        addQuery("show columns from " + getParent().getParent() + "." + table, false);
+                    if (connectionData.isMySql()) {
+                        addQuery(connectionData.getConnection().getMetaData()
+                                .getColumns(getParent().getParent().toString(), null, table, null), false, 4);
                     } else {
                         addQuery(connectionData.getConnection().getMetaData()
                                 .getColumns(null, getParent().getParent().toString(), table, null), false, 4);
-                    break;
                     }
+                    break;
                 default:
             }
         }
@@ -212,4 +187,3 @@ public class SchemaBrowser extends JTree {
         }
     }
 }
-

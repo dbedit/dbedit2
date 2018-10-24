@@ -24,6 +24,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
 
@@ -46,6 +47,12 @@ public final class ExceptionDialog {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             t.printStackTrace(new PrintStream(out));
             JTextArea textArea = new JTextArea(new String(out.toByteArray()));
+            textArea.append("\n");
+            textArea.append("DBEdit ");
+            try {
+                textArea.append(Config.getVersion());
+            } catch (IOException ignore) {
+            }
             textArea.append("\n");
             textArea.append(System.getProperty("os.name"));
             textArea.append(" ");
