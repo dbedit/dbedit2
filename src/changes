@@ -1,3 +1,6 @@
+2.1.2 (28/08/2007)
+- Added "Grid - Export - PDF"
+
 2.1.1 (28/03/2007)
 - Fixed queries starting with WITH not executing
 - Fixed history not working smoothly all the time

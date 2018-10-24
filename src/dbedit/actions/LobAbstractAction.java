@@ -30,7 +30,7 @@ public abstract class LobAbstractAction extends CustomAction {
         } else {
             return;
         }
-        FILE_CHOOSER.setSelectedFile(file);
+        getFileChooser().setSelectedFile(file);
         FileOutputStream out = new FileOutputStream(file);
         out.write(bytes);
         out.close();

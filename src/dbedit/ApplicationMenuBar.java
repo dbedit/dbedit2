@@ -62,6 +62,7 @@ public class ApplicationMenuBar extends JMenuBar {
         subMenu = new JMenu("Export");
         menu.add(subMenu);
         subMenu.add(Actions.EXPORT_EXCEL);
+        subMenu.add(Actions.EXPORT_PDF);
         subMenu.add(Actions.EXPORT_FLAT_FILE);
         subMenu.add(Actions.EXPORT_INSERTS);
 

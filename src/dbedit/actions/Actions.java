@@ -29,6 +29,7 @@ public interface Actions {
     CustomAction LOB_PASTE = new LobPasteAction();
     GroupAction LOB_GROUP = new LobGroupAction();
     CustomAction EXPORT_EXCEL = new ExportExcelAction();
+    CustomAction EXPORT_PDF = new ExportPdfAction();
     CustomAction EXPORT_FLAT_FILE = new ExportFlatFileAction();
     CustomAction EXPORT_INSERTS = new ExportInsertsAction();
     GroupAction EXPORT_GROUP = new ExportGroupAction();

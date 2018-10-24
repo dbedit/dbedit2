@@ -9,7 +9,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public abstract class ActionChangeAbstractAction extends CustomAction {
 
@@ -37,6 +39,7 @@ public abstract class ActionChangeAbstractAction extends CustomAction {
         boolean hasResultSet = isConnected && getConnectionData().getResultSet() != null;
         Actions.INSERT.setEnabled(hasResultSet);
         Actions.EXPORT_EXCEL.setEnabled(hasResultSet);
+        Actions.EXPORT_PDF.setEnabled(hasResultSet);
         Actions.EXPORT_FLAT_FILE.setEnabled(hasResultSet);
         Actions.EXPORT_INSERTS.setEnabled(hasResultSet);
         Actions.EXPORT_GROUP.setEnabled(hasResultSet);

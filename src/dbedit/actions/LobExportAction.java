@@ -50,8 +50,8 @@ public class LobExportAction extends LobAbstractAction {
                     }
                 }
             }
-        } else if (JFileChooser.APPROVE_OPTION == FILE_CHOOSER.showSaveDialog(ApplicationPanel.getInstance())) {
-            File selectedFile = FILE_CHOOSER.getSelectedFile();
+        } else if (JFileChooser.APPROVE_OPTION == getFileChooser().showSaveDialog(ApplicationPanel.getInstance())) {
+            File selectedFile = getFileChooser().getSelectedFile();
             if (!selectedFile.exists() || Dialog.YES_OPTION == Dialog.show("File exists", "Overwrite existing file?",
                     Dialog.WARNING_MESSAGE, Dialog.YES_NO_OPTION)) {
                 exportLob(selectedFile);

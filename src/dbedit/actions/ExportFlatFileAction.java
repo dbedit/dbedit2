@@ -38,9 +38,7 @@ public class ExportFlatFileAction extends CustomAction {
             if (!selection || table.isRowSelected(i)) {
                 List row = (List) list.get(i);
                 for (int j = 0; j < row.size(); j++) {
-                    if (i == 0) {
-                        rightAlignedColumns[j] = row.get(j) instanceof Number ? j : -1;
-                    }
+                    rightAlignedColumns[j] = (rightAlignedColumns[j] > 0 || row.get(j) instanceof Number) ? j : -1;
                     String s = row.get(j) == null ? "" : row.get(j).toString();
                     if (!"".equals(s) && CustomAction.isLob(j)) {
                         s = CustomAction.getColumnTypeNames()[j];

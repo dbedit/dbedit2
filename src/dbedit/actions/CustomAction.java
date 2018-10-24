@@ -30,7 +30,7 @@ public abstract class CustomAction extends AbstractAction
     private static int fetchLimit = -1;
     private static byte[][] savedLobs;
     protected static final Plugin PLUGIN = PluginFactory.getPlugin();
-    protected static final JFileChooser FILE_CHOOSER = new JFileChooser();
+    private static JFileChooser fileChooser;
 
     protected CustomAction(String name, String icon, KeyStroke accelerator) {
         super(name);
@@ -70,9 +70,9 @@ public abstract class CustomAction extends AbstractAction
             out.close();
             openURL(file.toString());
         } else {
-            FILE_CHOOSER.setSelectedFile(new File(prefix + suffix));
-            if (JFileChooser.APPROVE_OPTION == FILE_CHOOSER.showSaveDialog(ApplicationPanel.getInstance())) {
-                File selectedFile = FILE_CHOOSER.getSelectedFile();
+            getFileChooser().setSelectedFile(new File(prefix + suffix));
+            if (JFileChooser.APPROVE_OPTION == getFileChooser().showSaveDialog(ApplicationPanel.getInstance())) {
+                File selectedFile = getFileChooser().getSelectedFile();
                 if (!selectedFile.exists() || Dialog.YES_OPTION == Dialog.show("File exists",
                         "Overwrite existing file?", Dialog.QUESTION_MESSAGE, Dialog.YES_NO_OPTION)) {
                     FileOutputStream out = new FileOutputStream(selectedFile);
@@ -231,6 +231,13 @@ public abstract class CustomAction extends AbstractAction
 
     protected static void setSavedLobs(byte[][] newSavedLobs) {
         savedLobs = newSavedLobs;
+    }
+
+    protected static JFileChooser getFileChooser() {
+        if (fileChooser == null) {
+            fileChooser = new JFileChooser();
+        }
+        return fileChooser;
     }
 
     public void mouseClicked(MouseEvent e) {

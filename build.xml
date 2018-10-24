@@ -31,7 +31,7 @@
             <fileset dir="${build}" includes="**/*"/>
 			<manifest>
                 <attribute name="Main-Class" value="dbedit.DBEdit"/>
-                <attribute name="Class-Path" value="poi-2.5.1-final-20040804.jar"/>
+                <attribute name="Class-Path" value="poi-3.0.1-FINAL-20070705.jar itext-2.0.4.jar"/>
 			</manifest>
 		</jar>
     </target>
@@ -45,8 +45,8 @@
             </config>
         </launch4j>
 
-        <unzip src="${lib}/nsis-2.24.zip" dest="${lib}"/>
-        <exec executable="${lib}/nsis-2.24/makensis.exe" failonerror="true">
+        <unzip src="${lib}/nsis-2.30.zip" dest="${lib}"/>
+        <exec executable="${lib}/nsis-2.30/makensis.exe" failonerror="true">
             <arg line="${lib}/installer.nsi"/>
         </exec>
         <delete file="${dist}/DBEdit.exe"/>

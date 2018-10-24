@@ -13,8 +13,8 @@ public class LobImportAction extends LobAbstractAction {
     }
 
     protected void performThreaded(ActionEvent e) throws Exception {
-        if (JFileChooser.APPROVE_OPTION == FILE_CHOOSER.showOpenDialog(ApplicationPanel.getInstance())) {
-            FileInputStream in = new FileInputStream(FILE_CHOOSER.getSelectedFile());
+        if (JFileChooser.APPROVE_OPTION == getFileChooser().showOpenDialog(ApplicationPanel.getInstance())) {
+            FileInputStream in = new FileInputStream(getFileChooser().getSelectedFile());
             byte[] b = new byte[in.available()];
             in.read(b);
             in.close();
