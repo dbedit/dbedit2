@@ -67,6 +67,7 @@ public final class ApplicationPanel extends JPanel {
     private JSplitPane createQueryArea() {
         JSplitPane queryArea = new JSplitPane(JSplitPane.VERTICAL_SPLIT, createQueryEditor(), createQueryTable());
         queryArea.setOneTouchExpandable(true);
+        queryArea.setDividerLocation(120);
         return queryArea;
     }
 
@@ -79,7 +80,6 @@ public final class ApplicationPanel extends JPanel {
         text.getDocument().addDocumentListener(Actions.getInstance());
         JScrollPane scrollPane = new JScrollPane(text);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.getViewport().setPreferredSize(new Dimension(0, 100));
         addsyntaxHighlighting();
         return scrollPane;
     }

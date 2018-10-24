@@ -45,7 +45,7 @@ public class DBEdit extends JFrame {
             setJMenuBar(new ApplicationMenuBar());
             double screenWidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
             double screenHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-            setSize((int) (screenWidth * .8), (int) (screenHeight * .8));
+            setSize(Math.min(1150, (int) (screenWidth * .8)), Math.min(720, (int) (screenHeight * .8)));
             setLocationRelativeTo(null);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setVisible(true);
