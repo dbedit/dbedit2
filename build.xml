@@ -45,8 +45,8 @@
             </config>
         </launch4j>
 
-        <unzip src="${lib}/nsis-2.30.zip" dest="${lib}"/>
-        <exec executable="${lib}/nsis-2.30/makensis.exe" failonerror="true">
+        <unzip src="${lib}/nsis-2.31.zip" dest="${lib}"/>
+        <exec executable="${lib}/nsis-2.31/makensis.exe" failonerror="true">
             <arg line="${lib}/installer.nsi"/>
         </exec>
         <delete file="${dist}/DBEdit.exe"/>

@@ -50,7 +50,7 @@ public abstract class CustomAction extends AbstractAction
     protected abstract void performThreaded(ActionEvent e) throws Exception;
 
     public static boolean isLob(int column) {
-        if (column == -1 || column > columnTypes.length) {
+        if (column == -1 || column >= columnTypes.length) {
             return false;
         }
         int columnType = columnTypes[column];
