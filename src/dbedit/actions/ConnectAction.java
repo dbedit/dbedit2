@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2009 Jef Van Den Ouweland
+ * Copyright (C) 2006-2010 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -140,7 +140,7 @@ public class ConnectAction extends ActionChangeAbstractAction {
         panel.add(new JLabel("Driver"), c);
         final JComboBox driver = new JComboBox(new Object[] {
                 ConnectionData.ORACLE_DRIVER, ConnectionData.IBM_DRIVER, ConnectionData.DATADIRECT_DRIVER,
-                ConnectionData.MYSQL_DRIVER, ConnectionData.HSQLDB_DRIVER});
+                ConnectionData.MYSQL_DRIVER, ConnectionData.HSQLDB_DRIVER, ConnectionData.SQLITE_DRIVER});
         driver.setEditable(true);
         driver.setSelectedItem(connectionData.getDriver());
         panel.add(driver, c);

@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2009 Jef Van Den Ouweland
+ * Copyright (C) 2006-2010 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,10 @@ public class SchemaBrowser extends JTree {
             DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
             String s = treeNode.toString();
             if (treeNode.getLevel() == 3) {
-                s = treeNode.getParent().getParent() + "." + s;
+                TreeNode parent = treeNode.getParent().getParent();
+                if (!"SQLite".equals(parent.toString())) {
+                    s = parent + "." + s;
+                }
             }
             selectedItems[i] = s;
         }
@@ -115,6 +118,8 @@ public class SchemaBrowser extends JTree {
                         addQuery("select distinct rtrim(tabschema) from syscat.tables", true);
                     } else if (connectionData.isMySql()) {
                         addQuery("show databases", true);
+                    } else if (connectionData.isSQLite()) {
+                        add("SQLite", true);
                     } else {
                         addQuery(connectionData.getConnection().getMetaData().getSchemas(), true, 1);
                     }

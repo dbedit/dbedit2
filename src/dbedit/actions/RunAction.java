@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2009 Jef Van Den Ouweland
+ * Copyright (C) 2006-2010 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,6 +58,9 @@ public class RunAction extends ActionChangeAbstractAction {
             if (getConnectionData().isIbm()) {
                 statement = getConnectionData().getConnection().createStatement(
                         ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+            } else if (getConnectionData().isSQLite()) {
+                statement = getConnectionData().getConnection().createStatement(
+                        ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             } else {
                 statement = getConnectionData().getConnection().createStatement(
                         ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -89,11 +92,11 @@ public class RunAction extends ActionChangeAbstractAction {
                 statements[0] = statement;
                 hasResultSet = statement.execute(originalText);
             }
-            ResultSet resultSet = statement.getResultSet();
-            getConnectionData().setResultSet(resultSet);
             PLUGIN.audit(originalQuery);
             if (hasResultSet) {
 
+                ResultSet resultSet = statement.getResultSet();
+                getConnectionData().setResultSet(resultSet);
                 int columnCount = resultSet.getMetaData().getColumnCount();
                 columnTypes = new int[columnCount];
                 columnTypeNames = new String[columnCount];
@@ -124,6 +127,7 @@ public class RunAction extends ActionChangeAbstractAction {
                 }
                 PLUGIN.audit("[" + dataVector.size() + " rows retrieved]");
             } else {
+                getConnectionData().setResultSet(null);
                 int updateCount = statement.getUpdateCount();
                 if (updateCount != -1) {
                     Vector<Object> row = new Vector<Object>(1);

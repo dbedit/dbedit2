@@ -1,3 +1,7 @@
+2.1.8 (28/01/2010)
+- Added SQLite support
+- Added HSQLDB support
+
 2.1.7 (27/11/2009)
 - Invalid database content while retrieving resultset is now catched
   (SourceForge Bug ID 2870148)

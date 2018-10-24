@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2009 Jef Van Den Ouweland
+ * Copyright (C) 2006-2010 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ public class AboutAction extends CustomAction {
         panel.add(new JLabel(Config.getVersion()), c);
         c.gridy++;
         panel.add(new JLabel(), c);
-        panel.add(new JLabel("Copyright (C) 2006-2009"), c);
+        panel.add(new JLabel("Copyright (C) 2006-2010"), c);
         c.gridy++;
         panel.add(new JLabel("Author: "), c);
         panel.add(new JLabel("Jef Van Den Ouweland"), c);

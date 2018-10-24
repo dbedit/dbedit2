@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2009 Jef Van Den Ouweland
+ * Copyright (C) 2006-2010 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ public class ConnectionData implements Comparable, Cloneable {
     public static final String DATADIRECT_DRIVER = "com.ddtek.jdbc.db2.DB2Driver";
     public static final String MYSQL_DRIVER = "com.mysql.jdbc.Driver";
     public static final String HSQLDB_DRIVER = "org.hsqldb.jdbcDriver";
+    public static final String SQLITE_DRIVER = "org.sqlite.JDBC";
 
     private String name;
     private String url;
@@ -182,6 +183,10 @@ public class ConnectionData implements Comparable, Cloneable {
 
     public boolean isMySql() {
         return MYSQL_DRIVER.equals(driver);
+    }
+
+    public boolean isSQLite() {
+        return SQLITE_DRIVER.equals(driver);
     }
 
     public boolean isHSQLDB() {
