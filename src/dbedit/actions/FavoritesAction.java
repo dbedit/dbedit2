@@ -57,8 +57,7 @@ public class FavoritesAction extends CustomAction {
             if (!list.isSelectionEmpty()) {
                 String name = (String) list.getSelectedValue();
                 String s = favorites.get(name);
-                ApplicationPanel.getInstance().getTextComponent().setText(s);
-                ApplicationPanel.getInstance().getTextComponent().setCaretPosition(s.length());
+                ApplicationPanel.getInstance().setText(s);
             }
         } else if ("Delete".equals(value)) {
             if (!list.isSelectionEmpty()) {

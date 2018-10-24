@@ -39,6 +39,8 @@ public class DBEdit extends JFrame {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
         UIManager.put("TextArea.font", new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        UIManager.put("Menu.checkIcon", "No icon");
+        UIManager.put("MenuItem.checkIcon", "No icon");
 
         new DBEdit();
     }

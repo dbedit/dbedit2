@@ -32,7 +32,7 @@ public class HistoryPreviousAction extends ActionChangeAbstractAction {
     @Override
     public void actionPerformed(final ActionEvent e) {
         if (getHistory().hasPrevious()) {
-            ApplicationPanel.getInstance().getTextComponent().setText(getHistory().previous());
+            ApplicationPanel.getInstance().setText(getHistory().previous());
         }
         handleTextActions();
     }

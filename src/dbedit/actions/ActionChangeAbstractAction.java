@@ -41,8 +41,10 @@ public abstract class ActionChangeAbstractAction extends CustomAction {
     }
 
     protected void handleTextActions() {
-        Actions.UNDO.setEnabled(ApplicationPanel.getInstance().getUndoManager().canUndo());
-        Actions.REDO.setEnabled(ApplicationPanel.getInstance().getUndoManager().canRedo());
+        if (Actions.UNDU_REDO_ENABLED) {
+            Actions.UNDO.setEnabled(ApplicationPanel.getInstance().getUndoManager().canUndo());
+            Actions.REDO.setEnabled(ApplicationPanel.getInstance().getUndoManager().canRedo());
+        }
         Actions.HISTORY_PREVIOUS.setEnabled(history.hasPrevious());
         Actions.HISTORY_NEXT.setEnabled(history.hasNext());
     }

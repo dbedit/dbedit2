@@ -1,3 +1,12 @@
+2.4 (18/03/2011)
+- Added syntax highlighting, line numbers, find and replace, ...
+  Right click the editor to see all the features
+  Cut-Copy-Paste-Undo-Redo are also moved to this pop-up menu
+  Thanks to JSyntaxPane -- http://code.google.com/p/jsyntaxpane/
+- Added SQL formatter for basic SQL statements (DML + query)
+  Thanks to Hibernate -- http://www.hibernate.org/
+- Changed some icons
+
 2.3.5 (25/02/2011)
 - Added automatic driver detection
 - Added H2 support

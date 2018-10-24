@@ -122,40 +122,48 @@ public class ConnectAction extends ActionChangeAbstractAction {
         Object db = Dialog.show("New Connection", "Choose database", Dialog.PLAIN_MESSAGE,
                 new Object[] {"Oracle", "DB2", "MySQL", "SQLite", "HSQLDB", "H2", "Derby", "Other"}, null);
         if ("Oracle".equals(db)) {
-            String serverName = JOptionPane.showInputDialog("Server name");
-            String databaseName = JOptionPane.showInputDialog("Database name");
+            String serverName = checkString(JOptionPane.showInputDialog("Server name"));
+            String databaseName = checkString(JOptionPane.showInputDialog("Database name"));
             connectionData.setName(databaseName);
             connectionData.setUrl(String.format("jdbc:oracle:thin:@%s:1521:%s", serverName, databaseName));
         } else if ("DB2".equals(db)) {
-            String serverName = JOptionPane.showInputDialog("Server name");
-            String databaseName = JOptionPane.showInputDialog("Database name");
-            String portNumber = JOptionPane.showInputDialog("Port number", "50000");
+            String serverName = checkString(JOptionPane.showInputDialog("Server name"));
+            String databaseName = checkString(JOptionPane.showInputDialog("Database name"));
+            String portNumber = checkString(JOptionPane.showInputDialog("Port number", "50000"));
             connectionData.setName(databaseName);
             connectionData.setUrl(String.format("jdbc:db2://%s:%s/%s", serverName, portNumber, databaseName));
         } else if ("MySQL".equals(db)) {
-            String serverName = JOptionPane.showInputDialog("Server name");
-            String databaseName = JOptionPane.showInputDialog("Database name");
+            String serverName = checkString(JOptionPane.showInputDialog("Server name"));
+            String databaseName = checkString(JOptionPane.showInputDialog("Database name"));
             connectionData.setName(databaseName);
             connectionData.setUrl(String.format("jdbc:mysql://%s/%s", serverName, databaseName));
         } else if ("SQLite".equals(db)) {
-            String fileName = JOptionPane.showInputDialog("File name", new File("/sqlite.db").getCanonicalPath());
+            String fileName = checkString(JOptionPane.showInputDialog("File name",
+                    new File("/sqlite.db").getCanonicalPath()));
             connectionData.setName(new File(fileName).getName());
             connectionData.setUrl(String.format("jdbc:sqlite:%s", fileName));
         } else if ("HSQLDB".equals(db)) {
-            String fileName = JOptionPane.showInputDialog("File name", new File("/hsqldb").getCanonicalPath());
+            String fileName = checkString(JOptionPane.showInputDialog("File name",
+                    new File("/hsqldb").getCanonicalPath()));
             connectionData.setName(new File(fileName).getName());
             connectionData.setUrl(String.format("jdbc:hsqldb:%s", fileName));
             connectionData.setUser("sa");
         } else if ("H2".equals(db)) {
-            String fileName = JOptionPane.showInputDialog("File name", new File("/h2db").getCanonicalPath());
+            String fileName = checkString(JOptionPane.showInputDialog("File name",
+                    new File("/h2db").getCanonicalPath()));
             connectionData.setName(new File(fileName).getName());
             connectionData.setUrl(String.format("jdbc:h2:%s", fileName));
         } else if ("Derby".equals(db)) {
-            String fileName = JOptionPane.showInputDialog("File name", new File("/derbydb").getCanonicalPath());
+            String fileName = checkString(JOptionPane.showInputDialog("File name",
+                    new File("/derbydb").getCanonicalPath()));
             connectionData.setName(new File(fileName).getName());
             connectionData.setUrl(String.format("jdbc:derby:%s", fileName));
         }
         return connectionData;
+    }
+
+    private String checkString(String s) {
+        return s == null ? "" : s;
     }
 
     private boolean editConnection(ConnectionData connectionData, boolean add) throws Exception {

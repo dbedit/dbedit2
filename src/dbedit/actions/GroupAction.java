@@ -33,7 +33,7 @@ public abstract class GroupAction extends CustomAction {
     }
 
     protected void addAction(Action action) {
-        popupMenu.add(action).setMargin(new Insets(2, -14, 2, 2));
+        popupMenu.add(action);
     }
 
     @Override

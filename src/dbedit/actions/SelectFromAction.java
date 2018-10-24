@@ -32,7 +32,7 @@ public class SelectFromAction extends CustomAction {
 
     @Override
     public void actionPerformed(final ActionEvent e) {
-        ApplicationPanel.getInstance().setText("select * from ");
+        ApplicationPanel.getInstance().replaceText("select * from ");
     }
 
     @Override

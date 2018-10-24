@@ -43,9 +43,7 @@ public class FileOpenAction extends CustomAction {
             byte[] b = new byte[in.available()];
             in.read(b);
             in.close();
-            String s = new String(b);
-            ApplicationPanel.getInstance().getTextComponent().setText(s);
-            ApplicationPanel.getInstance().getTextComponent().setCaretPosition(s.length());
+            ApplicationPanel.getInstance().setText(new String(b));
         }
     }
 }

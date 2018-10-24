@@ -64,6 +64,6 @@ public class SchemaBrowserAction extends CustomAction {
     private void selectFromObjectChooser(SchemaBrowser schemaBrowser) {
         String s = Arrays.asList(schemaBrowser.getSelectedItems()).toString();
         s = s.substring(1, s.length() - 1);
-        ApplicationPanel.getInstance().setText(s);
+        ApplicationPanel.getInstance().replaceText(s);
     }
 }

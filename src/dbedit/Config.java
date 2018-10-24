@@ -17,12 +17,11 @@
  */
 package dbedit;
 
+import com.itextpdf.text.pdf.codec.Base64;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import javax.crypto.Cipher;
 import javax.xml.parsers.DocumentBuilder;
@@ -213,13 +212,13 @@ public final class Config {
                               new StreamResult(new File(System.getProperty("user.home"), "dbedit.xml")));
     }
 
-    protected static String decrypt(String encrypted) throws GeneralSecurityException, IOException {
+    protected static String decrypt(String encrypted) throws GeneralSecurityException {
         if (encrypted == null || "".equals(encrypted)) {
             return encrypted;
         }
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, KEY);
-        return new String(cipher.doFinal(new BASE64Decoder().decodeBuffer(encrypted)));
+        return new String(cipher.doFinal(Base64.decode(encrypted)));
 
     }
 
@@ -229,7 +228,7 @@ public final class Config {
         }
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, KEY);
-        return new BASE64Encoder().encode(cipher.doFinal(decrypted.getBytes()));
+        return Base64.encodeBytes(cipher.doFinal(decrypted.getBytes()));
     }
 
     public static String getVersion() throws IOException {

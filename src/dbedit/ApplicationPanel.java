@@ -21,13 +21,13 @@ package dbedit;
 import dbedit.actions.Actions;
 import dbedit.actions.CopyCellValueAction;
 import dbedit.actions.CustomAction;
+import jsyntaxpane.DefaultSyntaxKit;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoManager;
 import java.awt.*;
 import java.sql.ResultSet;
@@ -40,7 +40,7 @@ public final class ApplicationPanel extends JPanel {
 
     private static ApplicationPanel applicationPanel = new ApplicationPanel();
 
-    private JTextComponent text;
+    private JEditorPane text;
     private UndoManager undoManager;
     private JTable table;
     private List<Vector> originalOrder;
@@ -82,8 +82,20 @@ public final class ApplicationPanel extends JPanel {
     }
 
     private JScrollPane createQueryEditor() {
-        text = new JTextArea();
+        text = new JEditorPane();
+        if (Actions.UNDU_REDO_ENABLED) {
+            undoManager = new UndoManager();
+            text.getDocument().addUndoableEditListener(undoManager);
+        }
+        text.getDocument().addDocumentListener(Actions.RUN);
+        JScrollPane scrollPane = new JScrollPane(text);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.getViewport().setPreferredSize(new Dimension(0, 100));
+        addsyntaxHighlighting();
+        return scrollPane;
+    }
 
+    private void addsyntaxHighlighting() {
 //      Syntax highlighting solutions tried so far:
 
 //      1 jEdit Syntax Package
@@ -133,15 +145,26 @@ public final class ApplicationPanel extends JPanel {
 //        Scanner scanner = new JavaScanner();
 //        text = new SyntaxHighlighter(24, 80, scanner);
 
-        text.setMargin(new Insets(2, 2, 2, 2));
-        undoManager = new UndoManager();
-        text.getDocument().addUndoableEditListener(undoManager);
-        text.getDocument().addDocumentListener(Actions.RUN);
-        JScrollPane scrollPane = new JScrollPane(text);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.getViewport().setPreferredSize(new Dimension(0, 70));
-        scrollPane.getViewport().setMinimumSize(new Dimension(0, 70));
-        return scrollPane;
+//      8 jsyntaxpane
+//        http://code.google.com/p/jsyntaxpane/
+//        Looks great, let's use it!
+
+        DefaultSyntaxKit.initKit();
+        text.setContentType("text/sql");
+
+        // Rearrange the menu a bit
+        JPopupMenu menu = text.getComponentPopupMenu();
+        menu.remove(17); // "Goto line" defined twice
+        menu.remove(15); // "Show abbreviations", not implemented for text/sql
+        menu.remove(12); // "Jump to Pair", not implemented for text/sql
+        menu.add(text.getActionMap().get("toggle-lines"));
+
+        // Set proper menu texts
+        DefaultSyntaxKit kit = (DefaultSyntaxKit) text.getEditorKit();
+        for (Object key : text.getActionMap().keys()) {
+            Action action = text.getActionMap().get(key);
+            action.putValue(Action.NAME, kit.getProperty("Action." + action.getValue(Action.NAME) + ".MenuText"));
+        }
     }
 
     private JScrollPane createQueryTable() {
@@ -240,11 +263,20 @@ public final class ApplicationPanel extends JPanel {
         return text.getSelectedText() != null ? text.getSelectedText() : text.getText();
     }
 
-    public void setText(String t) {
+    public void replaceText(String t) {
         text.replaceSelection(t);
     }
 
-    public JTextComponent getTextComponent() {
+    public void setText(final String t) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                text.setText(t);
+            }
+        });
+    }
+
+    public JEditorPane getTextComponent() {
         return text;
     }
 

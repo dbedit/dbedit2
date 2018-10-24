@@ -25,7 +25,7 @@ import java.awt.event.ActionEvent;
 public class FetchLimitAction extends CustomAction {
 
     protected FetchLimitAction() {
-        super("Fetch Limit = Unlimited", "empty.png", null);
+        super("Fetch Limit = Unlimited", "fetchlimit.png", null);
         setEnabled(true);
     }
 

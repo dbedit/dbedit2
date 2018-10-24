@@ -27,8 +27,6 @@ import java.util.Set;
 public class ApplicationMenuBar extends JMenuBar {
 
     public ApplicationMenuBar() {
-        UIManager.put("Menu.checkIcon", "No icon");
-        UIManager.put("MenuItem.checkIcon", "No icon");
 
         JMenu menu;
         JMenu subMenu;
@@ -37,28 +35,34 @@ public class ApplicationMenuBar extends JMenuBar {
         add(menu);
         menu.add(Actions.CONNECT);
         menu.add(Actions.DISCONNECT);
-        menu.add(new JSeparator());
+        menu.addSeparator();
         menu.add(Actions.COMMIT);
         menu.add(Actions.ROLLBACK);
 
         menu = new JMenu("Editor");
         add(menu);
-        menu.add(Actions.UNDO);
-        menu.add(Actions.REDO);
-        menu.add(new JSeparator());
-        menu.add(Actions.CUT);
-        menu.add(Actions.COPY);
-        menu.add(Actions.PASTE);
-        menu.add(new JSeparator());
-        menu.add(Actions.RUN);
-        menu.add(Actions.RUN_SCRIPT);
-        menu.add(Actions.SCHEMA_BROWSER);
-        menu.add(new JSeparator());
+        if (Actions.UNDU_REDO_ENABLED) {
+            menu.add(Actions.UNDO);
+            menu.add(Actions.REDO);
+            menu.addSeparator();
+        }
+        if (Actions.CUT_COPY_PASTE_ENABLED) {
+            menu.add(Actions.CUT);
+            menu.add(Actions.COPY);
+            menu.add(Actions.PASTE);
+            menu.addSeparator();
+        }
         menu.add(Actions.FILE_OPEN);
         menu.add(Actions.FILE_SAVE);
         menu.add(Actions.FAVORITES);
         menu.add(Actions.HISTORY_PREVIOUS);
         menu.add(Actions.HISTORY_NEXT);
+        menu.addSeparator();
+        menu.add(Actions.FORMAT_SQL);
+        menu.addSeparator();
+        menu.add(Actions.RUN);
+        menu.add(Actions.RUN_SCRIPT);
+        menu.add(Actions.SCHEMA_BROWSER);
 
         menu = new JMenu("Grid");
         add(menu);
@@ -66,14 +70,14 @@ public class ApplicationMenuBar extends JMenuBar {
         menu.add(Actions.DELETE);
         menu.add(Actions.EDIT);
         menu.add(Actions.DUPLICATE);
-        menu.add(new JSeparator());
+        menu.addSeparator();
         subMenu = new JMenu("Lob");
         menu.add(subMenu);
         subMenu.add(Actions.LOB_EXPORT);
         subMenu.add(Actions.LOB_IMPORT);
         subMenu.add(Actions.LOB_COPY);
         subMenu.add(Actions.LOB_PASTE);
-        menu.add(new JSeparator());
+        menu.addSeparator();
         subMenu = new JMenu("Export");
         menu.add(subMenu);
         subMenu.add(Actions.EXPORT_EXCEL);
@@ -89,18 +93,15 @@ public class ApplicationMenuBar extends JMenuBar {
         add(menu);
         menu.add(Actions.MANUAL);
         menu.add(Actions.SELECT_FROM);
-        menu.add(new JSeparator());
+        menu.addSeparator();
         menu.add(Actions.ABOUT);
 
         PluginFactory.getPlugin().checkForUpdate(this);
 
-        // Restrict menubar from collapsing when sizing down the frame too much
-        setMinimumSize(getPreferredSize());
-
-        setMnemonicsAndIcons(this);
+        setMnemonics(this);
     }
 
-    private void setMnemonicsAndIcons(MenuElement menuElement) {
+    private void setMnemonics(MenuElement menuElement) {
         Set<Character> used = new HashSet<Character>();
         MenuElement[] subElements = menuElement.getSubElements();
         for (MenuElement subElement : subElements) {
@@ -113,11 +114,7 @@ public class ApplicationMenuBar extends JMenuBar {
                 }
             }
             if (item instanceof JMenu) {
-                setMnemonicsAndIcons(((JMenu) item).getPopupMenu());
-                if (menuElement != this) {
-                    // dummy icons for sub menus
-                    item.setIcon(new ImageIcon(ApplicationMenuBar.class.getResource("/icons/empty.png")));
-                }
+                setMnemonics(((JMenu) item).getPopupMenu());
             }
         }
     }

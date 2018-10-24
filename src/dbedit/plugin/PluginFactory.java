@@ -17,7 +17,7 @@
  */
 package dbedit.plugin;
 
-import dbedit.ExceptionDialog;
+import java.util.Properties;
 
 public final class PluginFactory {
 
@@ -30,13 +30,11 @@ public final class PluginFactory {
     public static Plugin getPlugin() {
         if (plugin == null) {
             try {
-                plugin = (Plugin) Class.forName("dbedit.plugin.DuPontPlugin").newInstance();
-            } catch (ClassNotFoundException e) {
+                Properties plugins = new Properties();
+                plugins.load(PluginFactory.class.getResourceAsStream("plugins.properties"));
+                plugin = (Plugin) Class.forName(plugins.getProperty("plugin")).newInstance();
+            } catch (Exception e) {
                 plugin = new DefaultPlugin();
-            } catch (IllegalAccessException e) {
-                ExceptionDialog.hideException(e);
-            } catch (InstantiationException e) {
-                ExceptionDialog.hideException(e);
             }
         }
         return plugin;

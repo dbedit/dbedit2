@@ -19,6 +19,10 @@ package dbedit.actions;
 
 public interface Actions {
 
+    //  Included in jsyntaxpane
+    Boolean UNDU_REDO_ENABLED = false;
+    Boolean CUT_COPY_PASTE_ENABLED = false;
+
     CustomAction CONNECT = new ConnectAction();
     CustomAction DISCONNECT = new DisconnectAction();
     CustomAction COMMIT = new CommitAction();
@@ -36,6 +40,7 @@ public interface Actions {
     CustomAction FAVORITES = new FavoritesAction();
     CustomAction HISTORY_PREVIOUS = new HistoryPreviousAction();
     CustomAction HISTORY_NEXT = new HistoryNextAction();
+    CustomAction FORMAT_SQL = new FormatSQLAction();
     CustomAction INSERT = new InsertAction();
     CustomAction EDIT = new EditAction();
     CustomAction DUPLICATE = new DuplicateAction();

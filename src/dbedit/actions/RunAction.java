@@ -178,7 +178,7 @@ public class RunAction extends ActionChangeAbstractAction {
             if (metaData.supportsResultSetConcurrency(
                     ResultSet.TYPE_SCROLL_INSENSITIVE,
                     ResultSet.CONCUR_UPDATABLE)) {
-                // Oracle, MySQL, DataDirect DB2
+                // Oracle, MySQL, DataDirect DB2, HSQLDB, H2, Apache Derby
                 statement = connection.prepareStatement(sql,
                         ResultSet.TYPE_SCROLL_INSENSITIVE,
                         ResultSet.CONCUR_UPDATABLE);
@@ -198,7 +198,7 @@ public class RunAction extends ActionChangeAbstractAction {
                             ResultSet.CONCUR_UPDATABLE);
                 }
             } else {
-                // SQLite, HSQLDB
+                // SQLite
                 statement = connection.prepareStatement(sql);
             }
         } else if (call) {
