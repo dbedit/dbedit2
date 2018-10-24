@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2010 Jef Van Den Ouweland
+ * Copyright (C) 2006-2011 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,17 +25,17 @@ import java.awt.event.ActionEvent;
 public class FetchLimitAction extends CustomAction {
 
     protected FetchLimitAction() {
-        super("Fetch limit = unlimited", "empty.png", null);
+        super("Fetch Limit = Unlimited", "empty.png", null);
         setEnabled(true);
     }
 
     @Override
     protected void performThreaded(ActionEvent e) throws Exception {
         JSpinner spinner = new JSpinner(new SpinnerNumberModel(getFetchLimit(), 0, 999999, 1));
-        if (Dialog.OK_OPTION == Dialog.show("Fetch limit", spinner, Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
+        if (Dialog.OK_OPTION == Dialog.show("Fetch Limit", spinner, Dialog.QUESTION_MESSAGE, Dialog.OK_CANCEL_OPTION)) {
             setFetchLimit(((Number) spinner.getValue()).intValue());
         }
-        putValue(NAME, String.format("Fetch limit = %s",
-                getFetchLimit() == 0 ? "unlimited" : String.valueOf(getFetchLimit())));
+        putValue(NAME, String.format("Fetch Limit = %s",
+                getFetchLimit() == 0 ? "Unlimited" : String.valueOf(getFetchLimit())));
     }
 }

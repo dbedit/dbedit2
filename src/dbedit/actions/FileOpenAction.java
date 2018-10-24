@@ -18,24 +18,34 @@
 package dbedit.actions;
 
 import dbedit.ApplicationPanel;
+import dbedit.Config;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileInputStream;
 
-public class CopyAction extends CustomAction {
+public class FileOpenAction extends CustomAction {
 
-    protected CopyAction() {
-        super("Copy", "copy.png", KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
+    protected FileOpenAction() {
+        super("Open File", "fileopen.png", null);
         setEnabled(true);
     }
 
     @Override
-    public void actionPerformed(final ActionEvent e) {
-        ApplicationPanel.getInstance().getTextComponent().copy();
-    }
-
-    @Override
     protected void performThreaded(ActionEvent e) throws Exception {
+        JFileChooser fileChooser = getFileChooser();
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog(ApplicationPanel.getInstance())) {
+            Config.saveLastUsedDir(fileChooser.getCurrentDirectory().getCanonicalPath());
+            File selectedFile = fileChooser.getSelectedFile();
+            setOpenedFile(selectedFile);
+            FileInputStream in = new FileInputStream(selectedFile);
+            byte[] b = new byte[in.available()];
+            in.read(b);
+            in.close();
+            String s = new String(b);
+            ApplicationPanel.getInstance().getTextComponent().setText(s);
+            ApplicationPanel.getInstance().getTextComponent().setCaretPosition(s.length());
+        }
     }
 }

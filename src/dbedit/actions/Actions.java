@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2010 Jef Van Den Ouweland
+ * Copyright (C) 2006-2011 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@ public interface Actions {
     CustomAction RUN = new RunAction();
     CustomAction RUN_SCRIPT = new RunScriptAction();
     CustomAction SCHEMA_BROWSER = new SchemaBrowserAction();
+    CustomAction FILE_OPEN = new FileOpenAction();
+    CustomAction FILE_SAVE = new FileSaveAction();
     CustomAction FAVORITES = new FavoritesAction();
     CustomAction HISTORY_PREVIOUS = new HistoryPreviousAction();
     CustomAction HISTORY_NEXT = new HistoryNextAction();

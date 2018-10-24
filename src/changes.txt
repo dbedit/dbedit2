@@ -1,3 +1,6 @@
+2.3.4 (19/01/2011)
+- Added open/save feature for SQL files
+
 2.3.3 (23/08/2010)
 - Added wizard for creating new connections
 - Removed automatic retry after unsuccessful connection attempt

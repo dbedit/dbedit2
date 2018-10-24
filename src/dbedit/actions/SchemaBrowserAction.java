@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2010 Jef Van Den Ouweland
+ * Copyright (C) 2006-2011 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import java.util.Arrays;
 public class SchemaBrowserAction extends CustomAction {
 
     protected SchemaBrowserAction() {
-        super("Schema browser", "schema.png", KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.ALT_DOWN_MASK));
+        super("Schema Browser", "schema.png", KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.ALT_DOWN_MASK));
     }
 
     @Override

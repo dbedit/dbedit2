@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2010 Jef Van Den Ouweland
+ * Copyright (C) 2006-2011 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ import java.awt.event.KeyEvent;
 public class HistoryPreviousAction extends ActionChangeAbstractAction {
 
     protected HistoryPreviousAction() {
-        super("History - previous", "back.png", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.ALT_DOWN_MASK));
+        super("History - Previous", "back.png", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.ALT_DOWN_MASK));
     }
 
     @Override

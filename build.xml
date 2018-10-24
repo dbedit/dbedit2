@@ -49,7 +49,7 @@
                 <versioninfo fileDescription="DBEdit 2"
                              fileVersion="${longversion}"
                              txtFileVersion="${version}"
-                             copyright="Copyright (c) 2006-2010 Jef Van Den Ouweland"
+                             copyright="Copyright (c) 2006-2011 Jef Van Den Ouweland"
                              companyName="Jef Van Den Ouweland"
                              productName="DBEdit 2"
                              productVersion="${longversion}"

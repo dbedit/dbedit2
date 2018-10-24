@@ -15,35 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dbedit.plugin;
+package dbedit.actions;
 
-import dbedit.ApplicationMenuBar;
-import dbedit.ConnectionData;
+import dbedit.ApplicationPanel;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.File;
 
-public class DefaultPlugin implements Plugin {
+public class FileSaveAction extends CustomAction {
 
-    @Override
-    public void audit(String sql) throws Exception {
+    protected FileSaveAction() {
+        super("Save File", "filesave.png", null);
+        setEnabled(true);
     }
 
     @Override
-    public String analyzeException(String exception) {
-        return null;
-    }
-
-    @Override
-    public void checkForUpdate(final ApplicationMenuBar menuBar) {
-    }
-
-    @Override
-    public void customizeAboutPanel(JPanel panel, GridBagConstraints c) {
-    }
-
-    @Override
-    public void customizeConnectionPanel(final JPanel panel, GridBagConstraints c, final ConnectionData connectionData)
-            throws Exception {
+    protected void performThreaded(ActionEvent e) throws Exception {
+        File openedFile = getOpenedFile();
+        saveFile(openedFile == null ? "" : openedFile.toString(), ApplicationPanel.getInstance().getText().getBytes());
     }
 }

@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2010 Jef Van Den Ouweland
+ * Copyright (C) 2006-2011 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ public abstract class CustomAction extends AbstractAction
     private static String[] columnTypeNames;
     private static int fetchLimit = 0;
     private static byte[][] savedLobs;
+    private static File openedFile;
     protected static final Plugin PLUGIN = PluginFactory.getPlugin();
     private static JFileChooser fileChooser;
 
@@ -269,6 +270,14 @@ public abstract class CustomAction extends AbstractAction
 
     protected static void setSavedLobs(byte[][] newSavedLobs) {
         savedLobs = newSavedLobs;
+    }
+
+    public static File getOpenedFile() {
+        return openedFile;
+    }
+
+    public static void setOpenedFile(File newOpenedFile) {
+        openedFile = newOpenedFile;
     }
 
     protected static JFileChooser getFileChooser() throws IOException, SAXException, ParserConfigurationException {

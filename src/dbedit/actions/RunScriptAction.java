@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2010 Jef Van Den Ouweland
+ * Copyright (C) 2006-2011 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 public class RunScriptAction extends ActionChangeAbstractAction {
 
     protected RunScriptAction() {
-        super("Run script", "script.png", null);
+        super("Run Script", "script.png", null);
     }
 
     @Override

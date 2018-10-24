@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2010 Jef Van Den Ouweland
+ * Copyright (C) 2006-2011 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ public class ExportExcelAction extends CustomAction {
         if (table.getSelectedRowCount() > 0 && table.getSelectedRowCount() != table.getRowCount()) {
             Object option = Dialog.show("Excel", "Export", Dialog.QUESTION_MESSAGE,
                     new Object[] {"Everything", "Selection"}, "Everything");
-            if (option == null) {
+            if (option == null || "-1".equals(option.toString())) {
                 return;
             }
             selection = "Selection".equals(option);

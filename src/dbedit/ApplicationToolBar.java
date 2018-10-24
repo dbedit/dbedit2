@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2010 Jef Van Den Ouweland
+ * Copyright (C) 2006-2011 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,8 @@ public class ApplicationToolBar extends JToolBar {
         add(Actions.RUN);
         add(Actions.RUN_SCRIPT);
         addSeparator();
+        add(Actions.FILE_OPEN);
+        add(Actions.FILE_SAVE);
         add(Actions.FAVORITES);
         add(Actions.HISTORY_PREVIOUS);
         add(Actions.HISTORY_NEXT);

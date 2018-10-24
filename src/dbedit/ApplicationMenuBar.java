@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2010 Jef Van Den Ouweland
+ * Copyright (C) 2006-2011 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,6 +54,8 @@ public class ApplicationMenuBar extends JMenuBar {
         menu.add(Actions.RUN_SCRIPT);
         menu.add(Actions.SCHEMA_BROWSER);
         menu.add(new JSeparator());
+        menu.add(Actions.FILE_OPEN);
+        menu.add(Actions.FILE_SAVE);
         menu.add(Actions.FAVORITES);
         menu.add(Actions.HISTORY_PREVIOUS);
         menu.add(Actions.HISTORY_NEXT);
