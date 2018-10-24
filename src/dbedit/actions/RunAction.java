@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2011 Jef Van Den Ouweland
+ * Copyright (C) 2006-2012 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,10 @@ public class RunAction extends CustomAction {
     protected void performThreaded(ActionEvent e) throws Exception {
         String sql = ApplicationPanel.getInstance().getText();
         if (sql.trim().endsWith(";")) {
-            sql = sql.trim().substring(0, sql.trim().length() - 1);
+            String sqlWithoutSemicolon = sql.trim().substring(0, sql.trim().length() - 1);
+            if (!sqlWithoutSemicolon.trim().toLowerCase().endsWith("end")) {
+                sql = sqlWithoutSemicolon;
+            }
         }
         String originalSql = sql;
         History.getInstance().add(sql);

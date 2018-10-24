@@ -1,6 +1,6 @@
 /*
  * DBEdit 2
- * Copyright (C) 2006-2011 Jef Van Den Ouweland
+ * Copyright (C) 2006-2012 Jef Van Den Ouweland
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -160,11 +160,14 @@ public final class ResultSetTable extends JTable {
             resultSet.relative(origRow);
             value = resultSet.getObject(column + 1);
             if (value == null || !value.toString().equals(getTableValue())) {
-                String log = ("" + value).trim();
                 update(column + 1, getTableValue());
                 resultSet.updateRow();
-                value = resultSet.getObject(column + 1);
-                log += " -> " + ("" + resultSet.getObject(column + 1)).trim();
+                try {
+                    value = resultSet.getObject(column + 1);
+                } catch (SQLException e1) {
+                    // e.g. Derby: java.sql.SQLException: Stream or LOB value cannot be retrieved more than once
+                    ExceptionDialog.hideException(e1);
+                }
             }
         } catch (Throwable t) {
             if (e == null) {

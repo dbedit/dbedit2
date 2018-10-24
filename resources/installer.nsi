@@ -2,7 +2,7 @@ Name "DBEdit 2"
 
 VIAddVersionKey ProductName "DBEdit 2"
 VIAddVersionKey CompanyName "Jef Van Den Ouweland"
-VIAddVersionKey LegalCopyright "Copyright (c) 2006-2011 Jef Van Den Ouweland"
+VIAddVersionKey LegalCopyright "Copyright (c) 2006-2012 Jef Van Den Ouweland"
 VIAddVersionKey FileDescription  "DBEdit 2"
 VIAddVersionKey FileVersion "$%version%"
 VIAddVersionKey ProductVersion "$%version%"
