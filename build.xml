@@ -69,17 +69,17 @@
             </config>
         </launch4j>
 
-        <condition property="executable" value="nsis-2.46/makensis.exe" else="wine">
+        <condition property="executable" value="${resources}/nsis-2.46/makensis.exe" else="wine">
             <os family="windows" />
         </condition>
 
-        <condition property="arg1" value="" else="nsis-2.46/makensis.exe">
+        <condition property="arg1" value="" else="${resources}/nsis-2.46/makensis.exe">
             <os family="windows" />
         </condition>
 
-        <exec executable="${executable}" dir="${resources}" failonerror="true">
+        <exec executable="${executable}" failonerror="true">
             <arg line="${arg1}"/>
-            <arg line="installer.nsi"/>
+            <arg line="${resources}/installer.nsi"/>
             <env key="version" value="${version}"/>
             <env key="longversion" value="${longversion}"/>
         </exec>

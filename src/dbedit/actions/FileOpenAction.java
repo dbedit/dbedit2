@@ -21,6 +21,8 @@ import dbedit.ApplicationPanel;
 import dbedit.Context;
 import dbedit.FileIO;
 
+import javax.swing.*;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
@@ -36,7 +38,16 @@ public class FileOpenAction extends CustomAction {
         File file = FileIO.openFile();
         if (file != null) {
             Context.getInstance().setOpenedFile(file);
-            ApplicationPanel.getInstance().setText(new String(FileIO.readFile(file)));
+            JEditorPane textComponent = ApplicationPanel.getInstance().getTextComponent();
+            resetEditorPaneToAvoidMemoryLeak(textComponent);
+            TransferHandler transferHandler = textComponent.getTransferHandler();
+            StringSelection stringSelection = new StringSelection(new String(FileIO.readFile(file)));
+            transferHandler.importData(new TransferHandler.TransferSupport(textComponent, stringSelection));
         }
+    }
+
+    private void resetEditorPaneToAvoidMemoryLeak(JEditorPane textComponent) {
+        textComponent.setContentType("text/plain");
+        textComponent.setContentType("text/sql");
     }
 }

@@ -123,7 +123,7 @@ public class ConnectAction extends CustomAction {
     private ConnectionData newConnectionWizard() throws IOException {
         ConnectionData connectionData = new ConnectionData();
         Object db = Dialog.show("New Connection", "Choose database", Dialog.PLAIN_MESSAGE,
-                new Object[] {"Oracle", "DB2", "MySQL", "SQLite", "HSQLDB", "H2", "Derby", "Other"}, null);
+            new Object[] {"Oracle", "DB2", "MySQL", "SQLite", "HSQLDB", "H2", "Derby", "SQL Server", "Other"}, null);
         if ("Oracle".equals(db)) {
             String serverName = checkString(JOptionPane.showInputDialog("Server name"));
             String databaseName = checkString(JOptionPane.showInputDialog("Database name"));
@@ -161,6 +161,11 @@ public class ConnectAction extends CustomAction {
                     new File("/derbydb").getCanonicalPath()));
             connectionData.setName(new File(fileName).getName());
             connectionData.setUrl(String.format("jdbc:derby:%s", fileName));
+        } else if ("SQL Server".equals(db)) {
+            String serverName = checkString(JOptionPane.showInputDialog("Server name"));
+            String databaseName = checkString(JOptionPane.showInputDialog("Database name"));
+            connectionData.setName(databaseName);
+            connectionData.setUrl(String.format("jdbc:jtds:sqlserver://%s:1433/%s", serverName, databaseName));
         }
         return connectionData;
     }

@@ -1,3 +1,8 @@
+2.4.4 (14/10/2011)
+- Added SQL Server support with the jTDS driver
+- Fixed cropped menu items in Windows 7
+- Fixed occasional inability to open very large SQL files
+
 2.4.3 (07/07/2011)
 - Added work around for Microsoft SQL server not complying to the JDBC specs
 

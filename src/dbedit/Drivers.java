@@ -72,7 +72,7 @@ public final class Drivers {
 
     private static void loadCustomDrivers() throws Exception {
         String drivers = Config.getDrivers();
-        drivers += ",org.sqlite.JDBC";
+        drivers += ",org.sqlite.JDBC,net.sourceforge.jtds.jdbc.Driver";
         StringBuilder stringBuilder = new StringBuilder();
         Scanner scanner = new Scanner(drivers);
         scanner.useDelimiter("[\\s,;]+");

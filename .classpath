@@ -8,6 +8,7 @@
 	<classpathentry kind="lib" path="lib/hsqldb.jar"/>
 	<classpathentry kind="lib" path="lib/iText-5.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jsyntaxpane-0.9.5-b29.jar"/>
+	<classpathentry kind="lib" path="lib/jtds-1.2.5.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.12-bin.jar"/>
 	<classpathentry kind="lib" path="lib/ojdbc6.jar"/>
 	<classpathentry kind="lib" path="lib/poi-3.6-20091214.jar"/>

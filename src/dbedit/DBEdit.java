@@ -29,18 +29,10 @@ public class DBEdit extends JFrame {
 
     public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException,
                                                   InstantiationException, ClassNotFoundException {
-        // Don't set the system look and feel for OS'es other than Windows
-        // Xfce on Xubuntu looked OK (GTK)
-        // GNOME on Red Hat Ent. Linux and Oracle Ent. Linux and Solaris didn't look too good (GTK)
-        // CDE on Solaris also didn't look good (Motif)
-        // Others not yet tested
-        // So use default look and feel (Metal)
         if (Config.IS_OS_WINDOWS) {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
         UIManager.put("TextArea.font", new Font(Font.MONOSPACED, Font.PLAIN, 12));
-        UIManager.put("Menu.checkIcon", "No icon");
-        UIManager.put("MenuItem.checkIcon", "No icon");
 
         new DBEdit();
     }
