@@ -7,7 +7,7 @@ PATH=$JAVA_PATH:$PATH
 cd `dirname "$0"`
 java -Xmx512m -showversion -jar dbedit.jar
 if [ $? -ne 0 ]; then
-  echo DBEdit requires Java Runtime Environment 5.0 or later
+  echo DBEdit requires Java Runtime Environment 6.0 or later
   echo http://java.com/download/
   echo Edit the dbedit script to set JAVA_PATH if you want to use a JRE that is not set in the PATH
 fi

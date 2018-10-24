@@ -1,3 +1,9 @@
+2.2.1 (16/03/2010)
+- Downgraded Oracle driver 11.2.0.1 -> 11.1.0.7
+  Due to Oracle timezone bug (ID 9413359)
+  (SourceForge Bug ID 2970503)
+- Migrated from JDK 5 to 6
+
 2.2 (11/03/2010)
 - Redesigned logo
 - Upgraded Oracle driver 10.2.0.4 -> 11.2.0.1

@@ -49,33 +49,31 @@ public class AboutAction extends CustomAction {
                 g.fillRect(getWidth() - 5, 0, 5, background.getHeight(null) + 17);
             }
         };
+        panel.setBackground(new Color(226, 226, 226));
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(2, 2, 2, 2);
         c.gridy++;
+        c.gridwidth = 2;
         c.anchor = GridBagConstraints.SOUTHWEST;
-        panel.add(new JLabel(), c);
-        panel.add(new JLabel("<html><font style=\"font-weight:bold\">" + Config.getVersion() + "</font></html>"), c);
+        panel.add(new JLabel(
+                "<html><font style=\"font-weight:bold\">DBEdit " + Config.getVersion() + "</font></html>"), c);
         c.gridy++;
-        panel.add(new JLabel(), c);
-        panel.add(new JLabel("<html><font style=\"color:gray\">Copyright (C) 2006-2010</div></html>"), c);
+        panel.add(new JLabel(
+                "<html><font style=\"color:gray\">Copyright © 2006-2010 Jef Van Den Ouweland</font></html>"), c);
         c.gridy++;
-        panel.add(new JLabel("Author: "), c);
-        panel.add(new JLabel("Jef Van Den Ouweland"), c);
-        c.gridy++;
-        panel.add(new JLabel("License: "), c);
         JLabel link = new JLabel("GNU General Public License");
         link.setForeground(Color.BLUE);
         link.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         link.addMouseListener(this);
         panel.add(link, c);
         c.gridy++;
-        panel.add(new JLabel("Home page: "), c);
         link = new JLabel(Config.HOME_PAGE);
         link.setForeground(Color.BLUE);
         link.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         link.addMouseListener(this);
         panel.add(link, c);
         c.gridy++;
+        c.gridwidth = 1;
         panel.add(new JLabel("Java VM: "), c);
         panel.add(new JLabel(System.getProperty("java.version")), c);
         if (getConnectionData() != null) {

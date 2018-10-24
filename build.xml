@@ -21,7 +21,7 @@
 
     <target name="compile">
         <mkdir dir="${build}"/>
-		<javac srcdir="${src}"  destdir="${build}" classpathref="dist.classpath"  debug="on"/>
+		<javac srcdir="${src}"  destdir="${build}" classpathref="dist.classpath" debug="on"/>
         <copy todir="${build}"><fileset dir="${src}" includes="**/*.txt **/*.png **/*.gif"/></copy>
     </target>
 
@@ -41,7 +41,7 @@
         <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpathref="dist.classpath" />
         <launch4j>
             <config jar="${dist}/dbedit.jar" outfile="${dist}/DBEdit.exe" icon="${lib}/launcher.ico" customProcName="true" errTitle="DBEdit 2">
-                <jre minVersion="1.5.0" maxHeapSize="512"/>
+                <jre minVersion="1.6.0" maxHeapSize="512"/>
             </config>
         </launch4j>
 
