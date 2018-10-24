@@ -15,6 +15,7 @@ UninstPage instfiles
 Section Install
   SetOutPath $INSTDIR
   Delete "$INSTDIR\*.*"
+  File ..\src\license.txt
   File ..\lib\*.jar
   File ..\dist\DBEdit.exe
   WriteRegStr HKLM "Software\DBEdit 2" InstallLocation $INSTDIR

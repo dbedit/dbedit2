@@ -12,7 +12,7 @@
     </path>
 
     <target name="get-version">
-        <loadfile property="version" srcfile="src/changes">
+        <loadfile property="version" srcfile="src/changes.txt">
             <filterchain>
                 <replaceregex flags="s" byline="false" pattern="(.*?)\s.*" replace="\1"/>
             </filterchain>
@@ -22,7 +22,7 @@
     <target name="compile">
         <mkdir dir="${build}"/>
 		<javac srcdir="${src}"  destdir="${build}" classpathref="dist.classpath"  debug="on"/>
-        <copy todir="${build}"><fileset dir="${src}" includes="changes **/*.png **/*.gif"/></copy>
+        <copy todir="${build}"><fileset dir="${src}" includes="**/*.txt **/*.png **/*.gif"/></copy>
     </target>
 
 	<target name="jar" depends="compile">
@@ -31,13 +31,13 @@
             <fileset dir="${build}" includes="**/*"/>
 			<manifest>
                 <attribute name="Main-Class" value="dbedit.DBEdit"/>
-                <attribute name="Class-Path" value="poi-3.0.1-FINAL-20070705.jar itext-2.0.4.jar"/>
+                <attribute name="Class-Path" value="poi-3.0.2-FINAL-20080204.jar iText-2.0.8.jar"/>
 			</manifest>
 		</jar>
     </target>
 
 	<target name="make-win" depends="jar, get-version">
-        <unzip src="${lib}/launch4j-2.1.5-win32.zip" dest="${lib}"/>
+        <unzip src="${lib}/launch4j-3.0.0-win32.zip" dest="${lib}"/>
         <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpathref="dist.classpath" />
         <launch4j>
             <config jar="${dist}/dbedit.jar" outfile="${dist}/DBEdit.exe" icon="${lib}/launcher.ico" customProcName="true" errTitle="DBEdit 2">
@@ -45,8 +45,8 @@
             </config>
         </launch4j>
 
-        <unzip src="${lib}/nsis-2.31.zip" dest="${lib}"/>
-        <exec executable="${lib}/nsis-2.31/makensis.exe" failonerror="true">
+        <unzip src="${lib}/nsis-2.36.zip" dest="${lib}"/>
+        <exec executable="${lib}/nsis-2.36/makensis.exe" failonerror="true">
             <arg line="${lib}/installer.nsi"/>
         </exec>
         <delete file="${dist}/DBEdit.exe"/>
@@ -54,11 +54,13 @@
     </target>
 
 	<target name="make-unix" depends="jar, get-version">
+        <fixcrlf file="${src}/license.txt" eol="unix" destdir="${dist}"/>
         <tar compression="gzip" tarfile="${dist}/DBEdit${version}.tar.gz">
             <tarfileset prefix="DBEdit/" dir="${lib}" includes="dbedit" mode="755"/>
-            <tarfileset prefix="DBEdit/" dir="${dist}" includes="dbedit.jar"/>
+            <tarfileset prefix="DBEdit/" dir="${dist}" includes="dbedit.jar license.txt"/>
             <tarfileset prefix="DBEdit/" dir="${lib}" includes="*.jar dbedit.png"/>
         </tar>
+        <delete file="${dist}/license.txt"/>
     </target>
 
 	<target name="make-src" depends="get-version">

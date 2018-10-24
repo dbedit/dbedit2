@@ -1,3 +1,20 @@
+/**
+ * DBEdit 2
+ * Copyright (C) 2006-2008 Jef Van Den Ouweland
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dbedit;
 
 import dbedit.actions.Actions;
@@ -8,6 +25,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
+import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoManager;
 import java.awt.*;
 import java.util.ArrayList;
@@ -18,7 +36,7 @@ public final class ApplicationPanel extends JPanel {
 
     private static ApplicationPanel applicationPanel = new ApplicationPanel();
 
-    private JTextArea text;
+    private JTextComponent text;
     private UndoManager undoManager;
     private JTable table;
     private List<Vector> originalOrder;
@@ -61,6 +79,49 @@ public final class ApplicationPanel extends JPanel {
 
     private JScrollPane createQueryEditor() {
         text = new JTextArea();
+
+//      Syntax highlighting solutions tried so far:
+
+//      1 jEdit Syntax Package
+//        http://syntax.jedit.org/
+//        Not pluggable on JTextComponent, needed to use custom JEditTextArea, too heavy and all the wrong features
+
+//        syntax.SyntaxDocument doc = new SyntaxDocument();
+//        doc.setTokenMarker(new TSQLTokenMarker());
+//        text.setDocument(doc);
+
+//      2 http://www.discoverteenergy.com/files/SyntaxDocument.java
+//        Highlighting comments doesn't work well
+
+//        text = new JEditorPane();
+//        ((JEditorPane) text).setEditorKit(new StyledEditorKit() {
+//            public Document createDefaultDocument() {
+//                return new SyntaxDocument();
+//            }
+//        });
+
+//      3 com.Ostermiller.Syntax
+//        http://ostermiller.org/syntax/
+//        Strings in quotes aren't highlighted in real-time
+
+//        HighlightedDocument doc = new HighlightedDocument();
+//        doc.setHighlightStyle(HighlightedDocument.SQL_STYLE);
+//        text.setDocument(doc);
+
+//      4 JSyntaxColor
+//        http://www.japisoft.com/syntaxcolor/
+//        Not free and not open source
+
+//      5 Colorer
+//        http://colorer.sourceforge.net/
+//        OS dependant (dll files and stuff)
+
+//      6 CodeDocument
+//        http://forum.java.sun.com/thread.jspa?forumID=57&threadID=607646
+//        Lot of bugs
+
+//        text.setDocument(new CodeDocument());
+
         text.setFont(new Font("Courier New", Font.PLAIN, 12));
         text.setMargin(new Insets(2, 2, 2, 2));
         undoManager = new UndoManager();
@@ -170,7 +231,7 @@ public final class ApplicationPanel extends JPanel {
         text.replaceSelection(t);
     }
 
-    public JTextArea getTextArea() {
+    public JTextComponent getTextComponent() {
         return text;
     }
 
